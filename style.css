@@ -1,0 +1,184 @@
+:root {
+    --background: white;
+    --box-background: rgba(255, 255, 255, 0.6);
+    --highlight: rgba(0, 40, 200, 1);
+    --loading: rgba(128, 100, 60, 1);
+    --problem: rgba(255, 0, 0, 1);
+    --good: rgba(0, 150, 0, 1);
+    --text: black;
+    --text-highlight: rgba(0, 40, 200, 1);
+    --table-heading: rgba(0, 40, 200, 1);
+    --table-row: black;
+    --text-inverted: white;
+    --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+
+/* Overall */
+html, body, div#map { 
+    width:100%; 
+    height:100%; 
+    margin:0; 
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    font-size: 16px;
+    cursor: default;
+}
+html, body {
+    background-color: var(--background);
+}
+
+/* Main layout */
+div#top {
+    width: 100%;
+    height: 54px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    z-index: 1000;
+    pointer-events: none;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+div#top h1 {
+    margin: 0.3em 0.5em 0.3em 0.5em;
+}
+div#menu {
+    float: right;
+    margin: 0.4em 0.5em 0 0.5em;
+}
+div#menu button {
+    margin-left: 0.5em;
+    padding: 0.5em;
+    height: 43px;
+    pointer-events: auto;
+}
+div#map { 
+    width:auto; 
+    height:100%; 
+    margin:0; 
+    overflow: hidden;
+}
+div.rightbox {
+    width: 550px;
+    position: absolute;
+    top: 50px;
+    right: 0px;
+    margin: 20px;
+    padding: 20px;
+    z-index: 1000;
+    display: none;
+}
+
+/* Top bar styles */
+div#top {
+    box-sizing: border-box;
+    display: inline-block;
+    letter-spacing: .06em;
+}
+div#top h1 {
+    font-size: 1.7em;
+    font-weight: bold;
+    text-align: left;
+}
+div#menu button {
+    font-family: sans-serif;
+    font-size: 0.9em;
+    background-color: var(--box-background);
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    color: var(--text);
+}
+div#menu button.menubuttongood {
+    border: 1px solid var(--good);
+    color: var(--good);
+}
+div#menu button.menubuttonloading {
+    border: 1px solid var(--loading);
+    color: var(--loading);
+}
+div#menu button.menubuttonerror {
+    border: 1px solid var(--problem);
+    color: var(--problem);
+}
+span.menubuttonicon {
+    position: relative;
+    top: 3px;
+}
+
+/* Right box styles */
+div.rightbox {
+    background-color: var(--box-background);
+    border: 1px solid var(--highlight);
+    border-radius: 3px;
+    color: var(--text);
+}
+div#configpanel h2 {
+    margin: 0;
+    text-align: center;
+}
+div.configPanelSection {
+    margin-top: 1.5em;
+}
+div.configPanelSection p {
+    margin-bottom: 0.2em;
+}
+button.configButton {
+    margin-left: 0.5em;
+    padding: 0.3em;
+    font-family: sans-serif;
+    font-size: 0.9em;    
+    background-color: var(--box-background);
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    color: var(--text);
+}
+label.configLabel {
+    margin-right: 0.5em;
+    display: inline-block;
+}
+select.configSelect {
+    margin-left: 0.5em;
+    padding: 0.3em 1.3em 0.3em 0.3em;
+    font-family: sans-serif;
+    font-size: 0.9em;    
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    background: var(--config-select-bg) no-repeat;
+    background-size: 12px;
+    background-position: calc(100% + 1em - 20px) calc(50% + 3px);
+    background-repeat: no-repeat;
+    background-color: var(--box-background) !important;
+    color: var(--text);
+}
+
+/* Leaflet.js mods */
+.leaflet-container .leaflet-control-attribution {
+    background: none;
+}
+
+/* Mobile */
+@media only screen and (max-width: 800px) {
+    div#top h1 {
+        display: none;
+    }
+    span.hideonmobile {
+        display: none;
+    }
+    div.rightbox {
+        width: 70%;
+        font-size: 0.6em;
+    }
+    select.configSelect {
+        padding: 0.3em 2.3em 0.3em 0.3em;
+        background-position: calc(100% + 2em - 20px) calc(50% + 3px);
+    }
+}
+
+/* Animations */
+@keyframes blink {0%{opacity:0.8;} 20%{opacity:0.8;} 50%{opacity:0.2;} 70%{opacity:0.8;} 100%{opacity:0.8;}}

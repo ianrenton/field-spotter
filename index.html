@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html color-mode="dark">
+    <head>
+        <title>POTA / SOTA Field Spotter</title>
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0; viewport-fit=cover">
+        <meta name="color-scheme" content="light">
+        <meta name="theme-color" content="green" />
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="description" content="Geographic and Band spotting map for POTA & SOTA activations" />
+        <meta property="og:description" content="Geographic and Band spotting map for POTA & SOTA activations" />
+        <meta property="og:image" content="https://fieldspotter.ianrenton.com/banner.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:image" content="https://fieldspotter.ianrenton.com/banner.png" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-contextmenu@1.4.0/dist/leaflet.contextmenu.min.css">
+        <link rel="stylesheet" href="style.css" type="text/css">
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-providers@2.0.0/leaflet-providers.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-edgebuffer@1.0.6/src/leaflet.edgebuffer.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.2/src/leaflet.geometryutil.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet.gridlayer.fadeout@0.1.0/Leaflet.GridLayer.FadeOut.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-arc@1.0.2/bin/leaflet-arc.min.js"></script>
+
+        <link rel="icon" type="image/svg+xml" href="favicon.svg">
+        <link rel="alternate icon" type="image/png" href="favicon.png">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="alternate icon" type="image/png" href="favicon-192.png">
+        <link rel="alternate icon" type="image/png" href="favicon-512.png">
+        <link rel="manifest" href="manifest.webmanifest">
+    </head>
+    <body>
+        <div id="top">
+            <div id="menu">
+                <button id="potaStatus" onclick="fetchPOTAData();"><span class="menubuttonicon"><img id="potaStatusIcon" src="icons/loading.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">POTA</span></button>
+                <button id="sotaStatus" onclick="fetchSOTAData();"><span class="menubuttonicon"><img id="sotaStatusIcon" src="icons/loading.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">SOTA</span></button>
+                <button id="configButton" onclick="showHideConfig();"><span class="menubuttonicon"><img src="icons/config.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">Config</span></button>
+            </div>
+            <h1>Field&nbsp;Spotter</h1>
+        </div>
+        <div id="map"></div>
+        <div id="configPanel" class="rightbox">
+            
+            <div class="configPanelSection">
+                <p>Modes:</p> 
+                <label for="showModeA" class="configLabel"><input type="checkbox" id="showModeA" name="showModeA" checked="true">&nbsp;Test</label>
+            </div>
+        </div>
+
+        <script src="code.js"></script>
+    </body>
+</html>
