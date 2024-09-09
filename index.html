@@ -17,9 +17,10 @@
         <meta property="twitter:image" content="https://fieldspotter.ianrenton.com/banner.png" />
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-contextmenu@1.4.0/dist/leaflet.contextmenu.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.2.2/dist/css/leaflet.extra-markers.min.css">
         <link rel="stylesheet" href="style.css" type="text/css">
 
+        <script src="https://kit.fontawesome.com/eb1770b90a.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
@@ -29,6 +30,8 @@
         <script src="https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.2/src/leaflet.geometryutil.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet.gridlayer.fadeout@0.1.0/Leaflet.GridLayer.FadeOut.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet-arc@1.0.2/bin/leaflet-arc.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.2.2/src/assets/js/leaflet.extra-markers.min.js" type="module"></script>
+        <script src="https://cdn.jsdelivr.net/npm/overlapping-marker-spiderfier-leaflet@0.2.7/dist/oms.min.js"></script>
 
         <link rel="icon" type="image/svg+xml" href="favicon.svg">
         <link rel="alternate icon" type="image/png" href="favicon.png">
@@ -38,15 +41,14 @@
         <link rel="manifest" href="manifest.webmanifest">
     </head>
     <body>
-        <div id="top">
-            <div id="menu">
-                <button id="potaStatus" onclick="fetchPOTAData();"><span class="menubuttonicon"><img id="potaStatusIcon" src="icons/loading.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">POTA</span></button>
-                <button id="sotaStatus" onclick="fetchSOTAData();"><span class="menubuttonicon"><img id="sotaStatusIcon" src="icons/loading.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">SOTA</span></button>
-                <button id="configButton" onclick="showHideConfig();"><span class="menubuttonicon"><img src="icons/config.png"/></span>&nbsp;&nbsp;<span class="menubuttontext">Config</span></button>
-            </div>
-            <h1>Field&nbsp;Spotter</h1>
+        <div id="menu">
+            <button id="configButton" class="slideOutButton" onclick="showHideConfig();"><i class="fa-solid fa-gear"></i></button>
+            <button id="infoButton" class="slideOutButton" onclick="showHideInfo();"><i class="fa-solid fa-circle-info"></i></button>
         </div>
         <div id="map"></div>
+        <div id="infoPanel" class="rightbox">
+            <p>Hi</p>
+        </div>
         <div id="configPanel" class="rightbox">
             
             <div class="configPanelSection">

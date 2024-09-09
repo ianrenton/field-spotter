@@ -9,6 +9,21 @@ const SOTA_SPOTS_URL = "https://api2.sota.org.uk/api/spots/-2/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api2.sota.org.uk/api/summits/";
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
+const BANDS = [
+{ name: "160m", startFreq: 1.8, stopFreq: 2.0, color: "#7cfc00" },
+{ name: "80m", startFreq: 3.5, stopFreq: 4.0, color: "#e550e5" },
+{ name: "60m", startFreq: 5.25, stopFreq: 5.41, color: "#00008b" },
+{ name: "40m", startFreq: 7.0, stopFreq: 7.3, color: "#5959ff" },
+{ name: "30m", startFreq: 10.1, stopFreq: 10.15, color: "#62d962" },
+{ name: "20m", startFreq: 14.0, stopFreq: 14.35, color: "#f2c40c" },
+{ name: "17m", startFreq: 18.068, stopFreq: 18.168, color: "#f2f261" },
+{ name: "15m", startFreq: 21.0, stopFreq: 21.45, color: "#cca166" },
+{ name: "12m", startFreq: 24.89, stopFreq: 24.99, color: "#b22222" },
+{ name: "10m", startFreq: 28.0, stopFreq: 29.7, color: "#ff69b4" },
+{ name: "6m", startFreq: 50.0, stopFreq: 54.0, color: "#FF0000" },
+{ name: "4m", startFreq: 70.0, stopFreq: 70.5, color: "#cc0044" },
+{ name: "2m", startFreq: 144.0, stopFreq: 148.0, color: "#FF1493" },
+{ name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900" }];
 
 
 /////////////////////////////
@@ -28,8 +43,9 @@ var myPos = null;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-var modes = []
-var bands = []
+var modes = [];
+var bands = [];
+var maxSpotAgeSec = 7200;
 
 
 /////////////////////////////
@@ -182,40 +198,42 @@ async function updateMapObjects() {
   spots.forEach(function(t) {
     var pos = getIconPosition(t);
 
-    // @todo filter on band and mode
+    // @todo filter on band, mode and age
 
     if (markers.has(t.uid) && pos != null) {
       var m = markers.get(t.uid);
 
-      // Regenerate popup in case the spot time etc. has changed.
-      m.bindPopup(getTooltipText(t));
+      // Regenerate marker color & text in case the spot has updated
+      m.setIcon(getMarker(t));
+      m.tooltip = getTooltipText(t);
 
-      // Regenerate marker color in case the frequency has changed
-      if (m._icon != null) {
-        m._icon.style.filter = getMarkerIconStyle(t);
-      }
+      // Set opacity with age
+      age = moment().diff(t.time, 'seconds');
+      opacity = ((maxSpotAgeSec - age) / maxSpotAgeSec / 2.0) + 0.5;
+      m.setOpacity(opacity);
 
     } else if (pos != null) {
       // No existing marker, data is valid, so create
-      var m = L.marker(pos);
+      var m = L.marker(pos, {icon: getMarker(t)});
 
-      // Set popup
-      m.bindPopup(getTooltipText(t));
-
-      // Add to map
+      // Add to map and spiderfier
       markersLayer.addLayer(m);
+      oms.addMarker(m);
 
-      // Set marker color
-      if (m._icon != null) {
-        m._icon.style.filter = getMarkerIconStyle(t);
-      }
+      // Set tooltip
+      m.tooltip = getTooltipText(t);
+
+      // Set opacity with age
+      age = moment().diff(t.time, 'seconds');
+      opacity = ((maxSpotAgeSec - age) / maxSpotAgeSec / 2.0) + 0.5;
+      m.setOpacity(opacity);
 
       // Add to internal data store
       markers.set(t.uid, m);
     }
   });
 
-  // Iterate through markers. If one corresponds to a dropped entity, delete it
+  // Iterate through markers. If one corresponds to a dropped spot, delete it
   markers.forEach(function(marker, uid, map) {
     if (!spots.has(uid)) {
       markersLayer.removeLayer(marker);
@@ -231,7 +249,15 @@ async function updateMapObjects() {
 /////////////////////////////
 
 function getTooltipText(t) {
-  return t.program + "<br/>" + t.activator + "<br/>" + t.ref + " " + t.refName + "<br/>" + t.freq + " MHz<br/>" + t.time.format("HH:mm:ss UTC") + " (" + t.time.fromNow() + ")";
+  ttt = t.program + "<br/>" + t.activator + "<br/>" + t.ref + " " + t.refName + "<br/>" + t.freq + " MHz (" + t.band + ")<br/>" 
+  if (myPos != null) {
+    spotLatLng = new L.latLng(t["lat"], t["lon"])
+    bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
+    distance = L.GeometryUtil.distance(map, myPos, spotLatLng);
+    ttt = ttt + "Distance: " + distance + "m  Bearing " + bearing + "<br/>";
+  }
+  ttt = ttt + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
+  return ttt;
 }
 
 function getIconPosition(t) {
@@ -260,75 +286,33 @@ function objectToMap(o) {
 
 // Convert a frequency in MHz to an amateur radio frequency band (expressed in wavelength as a string)
 function freqToBand(f) {
-  var mhz = Math.floor(f);
-  if (mhz == 1 || mhz == 2) {
-    return "160m";
-  } else if (mhz == 3 || mhz == 4) {
-    return "80m";
-  } else if (mhz == 5) {
-    return "60m";
-  } else if (mhz == 7) {
-    return "40m";
-  } else if (mhz == 10) {
-    return "30m";
-  } else if (mhz == 14) {
-    return "20m";
-  } else if (mhz == 18) {
-    return "17m";
-  } else if (mhz == 21) {
-    return "15m";
-  } else if (mhz == 24) {
-    return "12m";
-  } else if (mhz == 28) {
-    return "10m";
-  } else if (mhz >= 50 && mhz <= 54) {
-    return "6m";
-  } else if (mhz == 70) {
-    return "4m";
-  } else if (mhz >= 144 && mhz <= 148) {
-    return "2m";
-  } else if (mhz >= 420 && mhz <= 440) {
-    return "70cm";
-  } else {
-    return "Unknown";
+  for (band of BANDS) {
+    if (f >= band.startFreq && f <= band.stopFreq) {
+      return band.name
+    }
   }
+  return "Unknown";
 }
 
-// Get a marker CSS style for a spot, based on its band, using PSK Reporter colours
-// @todo junk this way of doing it and draw our own markers in the specific colours
-function getMarkerIconStyle(t) {
-  var mhz = Math.floor(t.freq);
-  if (mhz == 1 || mhz == 2) {
-    return "hue-rotate(220deg)"; // Yellow-green
-  } else if (mhz == 3 || mhz == 4) {
-    return "hue-rotate(110deg)"; // Pink
-  } else if (mhz == 5) {
-    return "hue-rotate(30deg)"; // Blue-purple
-  } else if (mhz == 7) {
-    return "hue-rotate(10deg)"; // Purpley-blue
-  } else if (mhz == 10) {
-    return "hue-rotate(240deg)"; // Green
-  } else if (mhz == 14) {
-    return "hue-rotate(180deg)"; // Yellow
-  } else if (mhz == 18) {
-    return "";
-  } else if (mhz == 21) {
-    return "hue-rotate(160deg)"; // Brown?
-  } else if (mhz == 24) {
-    return "hue-rotate(130deg)"; // Red
-  } else if (mhz == 28) {
-    return "hue-rotate(120deg)"; // Pink
-  } else if (mhz >= 50 && mhz <= 54) {
-    return "hue-rotate(140deg)"; // Red
-  } else if (mhz == 70) {
-    return "hue-rotate(130deg)"; // Red
-  } else if (mhz >= 144 && mhz <= 148) {
-    return "hue-rotate(120deg)"; // Pink
-  } else if (mhz >= 420 && mhz <= 440) {
-    return "hue-rotate(160deg)"; // Brown?
-  } else {
-    return "";
+// Convert a frequency to a colour to use on marker icons.
+function freqToColor(f) {
+  for (band of BANDS) {
+    if (f >= band.startFreq && f <= band.stopFreq) {
+      return band.color
+    }
   }
+  return "gray";
+}
+
+// Get a marker for a spot, based on its band, using PSK Reporter colours, its program etc.
+function getMarker(s) {
+  return L.ExtraMarkers.icon({
+    icon: (s.program == "SOTA") ? "fa-mountain" : "fa-tree",
+    markerColor: freqToColor(s.freq),
+    shape: 'circle',
+    prefix: 'fa',
+    svg: true
+  });
 }
 
 
@@ -338,19 +322,29 @@ function getMarkerIconStyle(t) {
 
 // Create map
 var map = L.map('map', {
-  zoomControl: false
-})
+  zoomControl: false,
+  minZoom: 3,
+  maxZoom: 12
+});
 
 // Request geolocation
 map.setView([30, 0], 3);
 function showPosition(position) {
-  myPos = [position.coords.latitude, position.coords.longitude];
+  myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
   map.setView(myPos, 5);
   // Add a marker for us
   var ownPosLayer = new L.LayerGroup();
   ownPosLayer.addTo(map);
-  var m = L.circleMarker(myPos);
+  var m = L.marker(myPos, {icon: L.ExtraMarkers.icon({
+    icon: "fa-tower-cell",
+    markerColor: 'gray',
+    shape: 'circle',
+    prefix: 'fa',
+    svg: true
+  })});
   ownPosLayer.addLayer(m);
+  // Update map objects to add distance and bearing to tooltips
+  updateMapObjects();
 }
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(showPosition);
@@ -368,37 +362,45 @@ backgroundTileLayer.bringToBack();
 var markersLayer = new L.LayerGroup();
 markersLayer.addTo(map);
 
+// Add spiderfier
+var oms = new OverlappingMarkerSpiderfier(map);
+var popup = new L.Popup({offset: L.point({x: 0, y: -20})});
+oms.addListener('click', function(marker) {
+  popup.setContent(marker.tooltip);
+  popup.setLatLng(marker.getLatLng());
+  map.openPopup(popup);
+});
+
 
 /////////////////////////////
 //     CONTROLS SETUP      //
 /////////////////////////////
 
-// @todo slide out right info and config, slide out bottom bands
-function manageRightBoxes(show, hide1, hide2) {
-  var showDelay = 0;
-  if ($(hide1).is(":visible")) {
-    $(hide1).slideUp();
-    showDelay = 600;
+// Manage boxes that slide out from the right
+function manageRightBoxes(toggle, hide) {
+  if ($(toggle).is(":visible")) {
+    $(toggle).hide("slide", { direction: "right" }, 500);
+  } else {
+    var showDelay = 0;
+    if ($(hide).is(":visible")) {
+      $(hide).hide("slide", { direction: "right" }, 500);
+      showDelay = 600;
+    }
+    setTimeout(function(){ $(toggle).show("slide", { direction: "right" }, 500); }, showDelay);
   }
-  if ($(hide2).is(":visible")) {
-    $(hide2).slideUp();
-    showDelay = 600;
-  }
-
-  setTimeout(function(){ $(show).slideToggle(); }, showDelay);
 }
 
 $("#infoButton").click(function() {
-  manageRightBoxes("#infoPanel", "#configPanel", "#trackTablePanel");
+  manageRightBoxes("#infoPanel", "#configPanel");
 });
 $("#configButton").click(function() {
-  manageRightBoxes("#configPanel", "#infoPanel", "#trackTablePanel");
-});
-$("#trackTableButton").click(function() {
-  manageRightBoxes("#trackTablePanel", "#configPanel", "#infoPanel");
+  manageRightBoxes("#configPanel", "#infoPanel");
 });
 
-  // @todo the actual things we want to save and load, not queryInterval
+
+// @todo slide out bottom bands
+
+// @todo the actual things we want to save and load, not queryInterval
 
 // Types
 function setTypeEnable(type, enable) {
