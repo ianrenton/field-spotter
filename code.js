@@ -249,14 +249,24 @@ async function updateMapObjects() {
 /////////////////////////////
 
 function getTooltipText(t) {
-  ttt = t.program + "<br/>" + t.activator + "<br/>" + t.ref + " " + t.refName + "<br/>" + t.freq + " MHz (" + t.band + ")<br/>" 
+  ttt = "<i class='fa-solid fa-user'></i> " + t.activator + "<br/>";
+  ttt += "<span style='white-space:nowrap; display:inline-block;'>";
+  if (t.program == "SOTA") {
+    ttt += "<i class='fa-solid fa-mountain'></i> ";
+  } else {
+    ttt += "<i class='fa-solid fa-tree'></i> ";
+  }
+
+  ttt += t.ref + " " + t.refName + "</span><br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie'></i> " + t.freq + " MHz (" + t.band + ")<br/>";
   if (myPos != null) {
     spotLatLng = new L.latLng(t["lat"], t["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
-    distance = L.GeometryUtil.distance(map, myPos, spotLatLng);
-    ttt = ttt + "Distance: " + distance + "m  Bearing " + bearing + "<br/>";
+    if (bearing < 0) bearing = bearing + 360;
+    distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
+    ttt += "<i class='fa-solid fa-ruler'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass'></i> " + bearing.toFixed(0) + "°<br/>";
   }
-  ttt = ttt + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
+  ttt += "<i class='fa-solid fa-clock'></i> " + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
   return ttt;
 }
 
@@ -363,8 +373,8 @@ var markersLayer = new L.LayerGroup();
 markersLayer.addTo(map);
 
 // Add spiderfier
-var oms = new OverlappingMarkerSpiderfier(map);
-var popup = new L.Popup({offset: L.point({x: 0, y: -20})});
+var oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
+var popup = new L.Popup({offset: L.point({x: 0, y: -20}), maxWidth : 600});
 oms.addListener('click', function(marker) {
   popup.setContent(marker.tooltip);
   popup.setLatLng(marker.getLatLng());

@@ -8,11 +8,7 @@ const CACHE_URLS = [
   'favicon.png',
   'favicon.svg',
   'favicon-192.png',
-  'favicon-512.png',
-  'icons/config.png',
-  'icons/loading.png',
-  'icons/ok.png',
-  'icons/failed.png'
+  'favicon-512.png'
 ];
 
 self.addEventListener('fetch', (event) => {
