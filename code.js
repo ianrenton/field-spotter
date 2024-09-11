@@ -4,8 +4,7 @@
 
 const VERSION = "0.1";
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
-// @todo configurable time period?
-const SOTA_SPOTS_URL = "https://api2.sota.org.uk/api/spots/-2/all";
+const SOTA_SPOTS_URL = "https://api2.sota.org.uk/api/spots/-1/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api2.sota.org.uk/api/summits/";
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
@@ -32,9 +31,13 @@ const BANDS = [
 
 var spots = new Map(); // uid -> spot data
 var markers = new Map(); // uid -> marker
-var onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
-var lastQueryTime = moment();
+var potaDataTime = moment(0);
+var sotaDataTime = moment(0);
 var myPos = null;
+var map;
+var markersLayer;
+var oms;
+var currentLineToSpot = null;
 
 
 /////////////////////////////
@@ -68,6 +71,7 @@ function fetchPOTAData() {
     timeout: 10000,
     success: async function(result) {
       handlePOTAData(result);
+      potaDataTime = moment(0);
       updateMapObjects();
       $("#potaStatus").attr("class","menubuttongood");
       $("#potaStatusIcon").attr("src","icons/ok.png");
@@ -89,6 +93,7 @@ function fetchSOTAData() {
     timeout: 10000,
     success: async function(result) {
       handleSOTAData(result);
+      sotaDataTime = moment(0);
       updateMapObjects();
       $("#sotaStatus").attr("class","menubuttongood");
       $("#sotaStatusIcon").attr("src","icons/ok.png");
@@ -164,27 +169,39 @@ async function handleSOTAData(result) {
     }
     spots.set(uid, newSpot);
 
-
-    // For SOTA we have to separately look up the summit to get the lat/long, so trigger that call
-    $.ajax({
-      url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
-      dataType: 'json',
-      timeout: 10000,
-      success: async function(result) {
-        if (result != null) {
-          summitData = objectToMap(result);
-          updateSpot = spots.get(uid)
-          updateSpot.lat = summitData.get("latitude");
-          updateSpot.lon = summitData.get("longitude");
-          updateSpot.refName = summitData.get("name");
-          spots.set(uid, updateSpot);
-          updateMapObjects();
+    // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
+    // it up in the cache, if not then trigger a call to the API to get it, then cache it
+    var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
+    var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
+    if (null === cacheHit) {
+      $.ajax({
+        url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
+        dataType: 'json',
+        timeout: 10000,
+        success: async function(result) {
+          if (result != null) {
+            updateSOTASpot(uid, cacheKey, result);
+          }
         }
-      }
-    });
+      });
+    } else {
+      updateSOTASpot(uid, cacheKey, cacheHit);
+    }
   });
 }
 
+// Update a SOTA spot with lat/lon and summit name. Called with "apiResponse" either direct from the API,
+// or a cached version loaded from localStorage.
+async function updateSOTASpot(uid, cacheKey, apiResponse) {
+  summitData = objectToMap(apiResponse);
+  updateSpot = spots.get(uid);
+  updateSpot.lat = summitData.get("latitude");
+  updateSpot.lon = summitData.get("longitude");
+  updateSpot.refName = summitData.get("name");
+  spots.set(uid, updateSpot);
+  updateMapObjects();
+  localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
 
 /////////////////////////////
 //   UI UPDATE FUNCTIONS   //
@@ -204,7 +221,7 @@ async function updateMapObjects() {
       var m = markers.get(t.uid);
 
       // Regenerate marker color & text in case the spot has updated
-      m.setIcon(getMarker(t));
+      m.setIcon(getIcon(t));
       m.tooltip = getTooltipText(t);
 
       // Set opacity with age
@@ -214,7 +231,8 @@ async function updateMapObjects() {
 
     } else if (pos != null) {
       // No existing marker, data is valid, so create
-      var m = L.marker(pos, {icon: getMarker(t)});
+      var m = L.marker(pos, {icon: getIcon(t)});
+      m.uid = t.uid;
 
       // Add to map and spiderfier
       markersLayer.addLayer(m);
@@ -249,24 +267,24 @@ async function updateMapObjects() {
 /////////////////////////////
 
 function getTooltipText(t) {
-  ttt = "<i class='fa-solid fa-user'></i> " + t.activator + "<br/>";
-  ttt += "<span style='white-space:nowrap; display:inline-block;'>";
+  ttt = "<i class='fa-solid fa-user' style='display: inline-block; width: 1.2em;'></i> " + t.activator + "<br/>";
+  ttt += "<span style='display:inline-block;'>";
   if (t.program == "SOTA") {
-    ttt += "<i class='fa-solid fa-mountain'></i> ";
+    ttt += "<i class='fa-solid fa-mountain-sun' style='display: inline-block; width: 1.2em;'></i> ";
   } else {
-    ttt += "<i class='fa-solid fa-tree'></i> ";
+    ttt += "<i class='fa-solid fa-tree' style='display: inline-block; width: 1.2em;'></i> ";
   }
 
   ttt += t.ref + " " + t.refName + "</span><br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie'></i> " + t.freq + " MHz (" + t.band + ")<br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie' style='display: inline-block; width: 1.2em;'></i> " + t.freq + " MHz (" + t.band + ")<br/>";
   if (myPos != null) {
     spotLatLng = new L.latLng(t["lat"], t["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
     if (bearing < 0) bearing = bearing + 360;
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
-    ttt += "<i class='fa-solid fa-ruler'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass'></i> " + bearing.toFixed(0) + "°<br/>";
+    ttt += "<i class='fa-solid fa-ruler' style='display: inline-block; width: 1.2em;'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass' style='display: inline-block; width: 1.2em;'></i> " + bearing.toFixed(0) + "°<br/>";
   }
-  ttt += "<i class='fa-solid fa-clock'></i> " + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
+  ttt += "<i class='fa-solid fa-clock' style='display: inline-block; width: 1.2em;'></i> " + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
   return ttt;
 }
 
@@ -314,10 +332,10 @@ function freqToColor(f) {
   return "gray";
 }
 
-// Get a marker for a spot, based on its band, using PSK Reporter colours, its program etc.
-function getMarker(s) {
+// Get an icon for a spot, based on its band, using PSK Reporter colours, its program etc.
+function getIcon(s) {
   return L.ExtraMarkers.icon({
-    icon: (s.program == "SOTA") ? "fa-mountain" : "fa-tree",
+    icon: (s.program == "SOTA") ? "fa-mountain-sun" : "fa-tree",
     markerColor: freqToColor(s.freq),
     shape: 'circle',
     prefix: 'fa',
@@ -330,56 +348,72 @@ function getMarker(s) {
 //       MAP SETUP         //
 /////////////////////////////
 
-// Create map
-var map = L.map('map', {
-  zoomControl: false,
-  minZoom: 3,
-  maxZoom: 12
-});
+function setUpMap() {
+  // Create map
+  var map = L.map('map', {
+    zoomControl: false,
+    minZoom: 3,
+    maxZoom: 12
+  });
 
-// Request geolocation
-map.setView([30, 0], 3);
-function showPosition(position) {
-  myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
-  map.setView(myPos, 5);
-  // Add a marker for us
-  var ownPosLayer = new L.LayerGroup();
-  ownPosLayer.addTo(map);
-  var m = L.marker(myPos, {icon: L.ExtraMarkers.icon({
-    icon: "fa-tower-cell",
-    markerColor: 'gray',
-    shape: 'circle',
-    prefix: 'fa',
-    svg: true
-  })});
-  ownPosLayer.addLayer(m);
-  // Update map objects to add distance and bearing to tooltips
-  updateMapObjects();
+  // Add basemap
+  backgroundTileLayer = L.tileLayer.provider(BASEMAP_NAME, {
+    opacity: BASEMAP_OPACITY,
+    edgeBufferTiles: 1
+  });
+  backgroundTileLayer.addTo(map);
+  backgroundTileLayer.bringToBack();
+
+  // Add marker layer
+  markersLayer = new L.LayerGroup();
+  markersLayer.addTo(map);
+
+  // Add spiderfier
+  oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
+  var popup = new L.Popup({offset: L.point({x: 0, y: -20}), maxWidth : 600});
+  oms.addListener('click', function(marker) {
+    // On marker click (after spiderfy when required), open popup
+    popup.setContent(marker.tooltip);
+    popup.setLatLng(marker.getLatLng());
+    // Add a callback to remove the line linking the marker to my position on popup clase
+    popup.on('remove', function() {
+      if (currentLineToSpot != null) {
+        map.removeLayer(currentLineToSpot);
+      }
+    });
+    map.openPopup(popup);
+    // Draw a line linking the marker to my position.
+    if (myPos != null) {
+      currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
+        color: freqToColor(spots.get(marker.uid).freq)
+      }).addTo(map);
+    }
+  });
+
+  // Request geolocation
+  map.setView([30, 0], 3);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
+      map.setView(myPos, 5);
+      // Add a marker for us
+      var ownPosLayer = new L.LayerGroup();
+      ownPosLayer.addTo(map);
+      var m = L.marker(myPos, {icon: L.ExtraMarkers.icon({
+        icon: "fa-tower-cell",
+        markerColor: 'gray',
+        shape: 'circle',
+        prefix: 'fa',
+        svg: true
+      })});
+      m.tooltip = "You are here!";
+      ownPosLayer.addLayer(m);
+      oms.addMarker(m);
+      // Update map objects to add distance and bearing to tooltips
+      updateMapObjects();
+    });
+  }
 }
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(showPosition);
-}
-
-// Add basemap
-backgroundTileLayer = L.tileLayer.provider(BASEMAP_NAME, {
-  opacity: BASEMAP_OPACITY,
-  edgeBufferTiles: 1
-});
-backgroundTileLayer.addTo(map);
-backgroundTileLayer.bringToBack();
-
-// Add marker layer
-var markersLayer = new L.LayerGroup();
-markersLayer.addTo(map);
-
-// Add spiderfier
-var oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
-var popup = new L.Popup({offset: L.point({x: 0, y: -20}), maxWidth : 600});
-oms.addListener('click', function(marker) {
-  popup.setContent(marker.tooltip);
-  popup.setLatLng(marker.getLatLng());
-  map.openPopup(popup);
-});
 
 
 /////////////////////////////
@@ -491,6 +525,8 @@ function loadLocalStorage() {
 //        KICK-OFF         //
 /////////////////////////////
 
+// Set up map
+setUpMap();
 // Load settings
 loadLocalStorage();
 // Load data for the first time

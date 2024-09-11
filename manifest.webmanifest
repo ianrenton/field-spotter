@@ -1,14 +1,14 @@
 {
     "dir": "ltr",
     "lang": "English",
-    "name": "POTA/SOTA Field Spotter",
+    "name": "Field Spotter",
     "short_name": "Field Spotter",
     "scope": "/",
     "display": "fullscreen",
     "start_url": "https://fieldspotter.ianrenton.com/",
     "background_color": "white",
     "theme_color": "green",
-    "description": "Geographic and Band spotting map for POTA & SOTA activations",
+    "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA & SOTA activations",
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [

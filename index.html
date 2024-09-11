@@ -32,6 +32,7 @@
         <script src="https://cdn.jsdelivr.net/npm/leaflet-arc@1.0.2/bin/leaflet-arc.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.2.2/src/assets/js/leaflet.extra-markers.min.js" type="module"></script>
         <script src="https://cdn.jsdelivr.net/npm/overlapping-marker-spiderfier-leaflet@0.2.7/dist/oms.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
 
         <link rel="icon" type="image/svg+xml" href="favicon.svg">
         <link rel="alternate icon" type="image/png" href="favicon.png">
@@ -42,14 +43,24 @@
     </head>
     <body>
         <div id="menu">
-            <button id="configButton" class="slideOutButton" onclick="showHideConfig();"><i class="fa-solid fa-gear"></i></button>
-            <button id="infoButton" class="slideOutButton" onclick="showHideInfo();"><i class="fa-solid fa-circle-info"></i></button>
+            <button id="configButton" class="slideOutButton"><i class="fa-solid fa-gear"></i></button>
+            <button id="infoButton" class="slideOutButton"><i class="fa-solid fa-circle-info"></i></button>
         </div>
         <div id="map"></div>
         <div id="infoPanel" class="rightbox">
             <h1>Field Spotter</h1>
-<p>A mobile Amateur Radio spotting tool for POTA and SOTA</p>
-<p>By Ian Renton M0TRT - about project - source code</p>
+            <p class="subtitle">A mobile Amateur Radio spotting tool for POTA and SOTA</p>
+            <p>By <a href="https://ianrenton.com">Ian Renton MØTRT</a></p>
+            <ul><li><a href="https://ianrenton.com/projects/field-spotter">About the Project</a></li>
+                <li><a href="https://github.com/ianrenton/field-spotter">Source Code</a></li>
+                <li><a href="https://github.com/ianrenton/field-spotter/issues">Issue Tracker</a></li></ul>
+            <h3>Using the tool</h3>
+            <p>POTA and SOTA spots from the last hour are displayed on the map. Click a marker for details.</p>
+            <p>The <i class="fa-solid fa-gear"></i> button allows you to filter by mode and band.</p>
+            <p>The <i class="fa-solid fa-ruler-horizontal"></i> button takes the spots currently on the map and shows where they are on the bands as well.</p>
+            <p>You can install Field Spotter on your phone! This is a Progressive Web App (PWA), which means on Chrome (Android) or Safari (iOS) there should be an "Install" option in the menu. This will add Field Spotter to your home screen. An internet connection is still required to retrieve the latest data.</p>
+            <h3>Privacy</h3>
+            <p>This website collects no data about you. If you share your location, the information stays on your device. There are no trackers and no cookies.</p>
         </div>
         <div id="configPanel" class="rightbox">
             

@@ -6,6 +6,7 @@ const CACHE_URLS = [
   'code.js',
   'apple-touch-icon.png',
   'favicon.png',
+  'favicon-32.png',
   'favicon.svg',
   'favicon-192.png',
   'favicon-512.png'
