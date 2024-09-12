@@ -89,19 +89,19 @@
                 <p>Show spots in these bands:</p>
                 <div id="bandlist">
                     <table><tr><td><label for="show160m" class="configLabel"><input type="checkbox" id="show160m" name="show160m" checked="true">&nbsp;160m</label></td>
-                    <td><label for="show80m" class="configLabel"><input type="checkbox" id="show80m" name="show80m" checked="true">&nbsp;80m</label></td>
-                    <td><label for="show60m" class="configLabel"><input type="checkbox" id="show60m" name="show60m" checked="true">&nbsp;60m</label></td>
-                    <td><label for="show40m" class="configLabel"><input type="checkbox" id="show40m" name="show40m" checked="true">&nbsp;40m</label></td></tr>
-                    <tr><td><label for="show30m" class="configLabel"><input type="checkbox" id="show30m" name="show30m" checked="true">&nbsp;30m</label></td>
                     <td><label for="show20m" class="configLabel"><input type="checkbox" id="show20m" name="show20m" checked="true">&nbsp;20m</label></td>
+                    <td><label for="show6m" class="configLabel"><input type="checkbox" id="show6m" name="show6m" checked="true">&nbsp;6m</label></td></tr>
+                    <tr><td><label for="show80m" class="configLabel"><input type="checkbox" id="show80m" name="show80m" checked="true">&nbsp;80m</label></td>
                     <td><label for="show17m" class="configLabel"><input type="checkbox" id="show17m" name="show17m" checked="true">&nbsp;17m</label></td>
-                    <td><label for="show15m" class="configLabel"><input type="checkbox" id="show15m" name="show15m" checked="true">&nbsp;15m</label></td></tr>
-                    <tr><td><label for="show12m" class="configLabel"><input type="checkbox" id="show12m" name="show12m" checked="true">&nbsp;12m</label></td>
-                    <td><label for="show10m" class="configLabel"><input type="checkbox" id="show10m" name="show10m" checked="true">&nbsp;10m</label></td>
-                    <td><label for="show6m" class="configLabel"><input type="checkbox" id="show6m" name="show6m" checked="true">&nbsp;6m</label></td>
                     <td><label for="show4m" class="configLabel"><input type="checkbox" id="show4m" name="show4m" checked="true">&nbsp;4m</label></td></tr>
-                    <tr><td><label for="show2m" class="configLabel"><input type="checkbox" id="show2m" name="show2m" checked="true">&nbsp;2m</label></td>
-                    <td><label for="show70cm" class="configLabel"><input type="checkbox" id="show70cm" name="show70cm" checked="true">&nbsp;70cm</label></td></tr></table>
+                    <tr><td><label for="show60m" class="configLabel"><input type="checkbox" id="show60m" name="show60m" checked="true">&nbsp;60m</label></td>
+                    <td><label for="show15m" class="configLabel"><input type="checkbox" id="show15m" name="show15m" checked="true">&nbsp;15m</label></td>
+                    <td><label for="show2m" class="configLabel"><input type="checkbox" id="show2m" name="show2m" checked="true">&nbsp;2m</label></td></tr>
+                    <tr><td><label for="show40m" class="configLabel"><input type="checkbox" id="show40m" name="show40m" checked="true">&nbsp;40m</label></td>
+                    <td><label for="show12m" class="configLabel"><input type="checkbox" id="show12m" name="show12m" checked="true">&nbsp;12m</label></td>
+                    <td><label for="show70cm" class="configLabel"><input type="checkbox" id="show70cm" name="show70cm" checked="true">&nbsp;70cm</label></td></tr>
+                    <tr><td><label for="show30m" class="configLabel"><input type="checkbox" id="show30m" name="show30m" checked="true">&nbsp;30m</label></td>
+                    <td><label for="show10m" class="configLabel"><input type="checkbox" id="show10m" name="show10m" checked="true">&nbsp;10m</label></td></tr></table>
                 </div>
 
             <h2>Updates</h2>
@@ -118,7 +118,7 @@
                 <p><button id="updateNow">Update now</button></p><br/>
         </div>
         <div id="bandsPanel" class="rightbox">
-            <p>Test</p>
+            <div id="bandsPanelInner"></div>
         </div>
 
         <script src="code.js"></script>

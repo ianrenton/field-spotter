@@ -277,6 +277,48 @@ async function updateMapObjects() {
   });
 }
 
+// Recalculate the contents of the "bands" popout panel. Called when it is pulled
+// out, plus on every map pan/zoom event while it is open.
+async function recalculateBandsPanelContent() {
+  // Get all spots currently in view
+  var spotsForBandDisplay = getSpotUIDsInView().map(function (uid) {
+    return spots.get(uid);
+  });
+  // Convert to a map of band names to the spots on that band. Bands with no
+  // spots in view will not be present.
+  var bandToSpots = new Map();
+  var bandNames = BANDS.map(function (b) { return b.name })
+  bandNames.forEach(function(bandName) {
+    var matchingSpots = spotsForBandDisplay.filter(function (s) {
+      return s.band == bandName;
+    });
+    if (matchingSpots.length > 0) {
+      bandToSpots.set(bandName, matchingSpots);
+    }
+  });
+  // Build up HTML content for each band
+  var html = "";
+  bandToSpots.forEach(function (spotList, bandName, map) {
+    band = BANDS.filter(function (b) { return b.name == bandName; })[0];
+    html += "<div class='bandCol' style='width:" + Math.max(100 / map.size, 30) + "%'>";
+    html += "<div class='bandColHeader' style='background-color:" + band.color + "'>" + band.name + "</div>";
+    html += "<div class='bandColMiddle'>";
+    // Frequency markers
+    freqStep = (band.stopFreq - band.startFreq) / 10.0;
+    html += "<ul>";
+    for (let i=0; i<=10; i++) {
+      html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed(3) + "</span></li>";
+      if (i != 10) {
+        html += "<li><span>&ndash;</span></li>";
+      }
+    }
+    html += "<ul>";
+    html += "</div></div>";
+  });
+  // Update the DOM
+  $("#bandsPanelInner").html(html);
+}
+
 
 
 /////////////////////////////
@@ -284,24 +326,24 @@ async function updateMapObjects() {
 /////////////////////////////
 
 function getTooltipText(s) {
-  ttt = "<i class='fa-solid fa-user' style='display: inline-block; width: 1.2em;'></i> " + s.activator + "<br/>";
-  ttt += "<span style='display:inline-block;'>";
+  ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
+  ttt += "<span style='display:inline-block; white-space: nowrap;'>";
   if (s.program == "SOTA") {
-    ttt += "<i class='fa-solid fa-mountain-sun' style='display: inline-block; width: 1.2em;'></i> ";
+    ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i> ";
   } else {
-    ttt += "<i class='fa-solid fa-tree' style='display: inline-block; width: 1.2em;'></i> ";
+    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i> ";
   }
 
-  ttt += s.ref + " " + s.refName + "</span><br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie' style='display: inline-block; width: 1.2em;'></i> " + s.freq + " MHz (" + s.band + ")  &nbsp;&nbsp; <i class='fa-solid fa-wave-square'></i> " + s.mode + "<br/>";
+  ttt += "<span style='display:inline-block; white-space: wrap;'>" + s.ref + " " + s.refName + "</span></span><br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq + " MHz (" + s.band + ")  &nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode + "<br/>";
   if (myPos != null) {
     spotLatLng = new L.latLng(s["lat"], s["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
     if (bearing < 0) bearing = bearing + 360;
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
-    ttt += "<i class='fa-solid fa-ruler' style='display: inline-block; width: 1.2em;'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass' style='display: inline-block; width: 1.2em;'></i> " + bearing.toFixed(0) + "°<br/>";
+    ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
   }
-  ttt += "<i class='fa-solid fa-clock' style='display: inline-block; width: 1.2em;'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
+  ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
   return ttt;
 }
 
@@ -386,6 +428,19 @@ function bandAllowedByFilters(band) {
   return bands.includes(band);
 }
 
+// Get the list of spot UIDs in the current map viewport
+function getSpotUIDsInView() {
+  var uids = [];
+  map.eachLayer( function(layer) {
+    if (layer instanceof L.Marker) {
+      if (map.getBounds().contains(layer.getLatLng()) && layer.uid != null) {
+        uids.push(layer.uid);
+      }
+    }
+  });
+  return uids;
+}
+
 
 /////////////////////////////
 //       MAP SETUP         //
@@ -393,7 +448,7 @@ function bandAllowedByFilters(band) {
 
 function setUpMap() {
   // Create map
-  var map = L.map('map', {
+  map = L.map('map', {
     zoomControl: false,
     minZoom: 3,
     maxZoom: 12
@@ -413,7 +468,7 @@ function setUpMap() {
 
   // Add spiderfier
   oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
-  var popup = new L.Popup({offset: L.point({x: 0, y: -20}), maxWidth : 600});
+  var popup = new L.Popup({offset: L.point({x: 0, y: -20})});
   oms.addListener('click', function(marker) {
     // On marker click (after spiderfy when required), open popup
     popup.setContent(marker.tooltip);
@@ -426,7 +481,7 @@ function setUpMap() {
     });
     map.openPopup(popup);
     // Draw a line linking the marker to my position.
-    if (myPos != null) {
+    if (myPos != null && spots.get(marker.uid) != null) {
       currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
         color: freqToColor(spots.get(marker.uid).freq)
       }).addTo(map);
@@ -455,6 +510,22 @@ function setUpMap() {
       // Update map objects to add distance and bearing to tooltips
       updateMapObjects();
     });
+  }
+
+  // Add callbacks on moving the view
+  map.on('moveend', function() {
+      mapProjChanged();
+  });
+  map.on('zoomend', function() {
+      mapProjChanged();
+  });
+}
+
+// Callback on map projection (pan/zoom) change. Used to update the list of
+// spots needing to be drawn on the band popout, if it is visible
+async function mapProjChanged() {
+  if ($("#bandsPanel").is(":visible")) {
+    recalculateBandsPanelContent();
   }
 }
 
@@ -485,6 +556,10 @@ $("#configButton").click(function() {
   manageRightBoxes("#configPanel", "#infoPanel", "#bandsPanel");
 });
 $("#bandsButton").click(function() {
+  // Check if we are about to show the bands panel, if so recalculate its content
+  if ($("#bandsPanel").is(":hidden")) {
+    recalculateBandsPanelContent();
+  }
   manageRightBoxes("#bandsPanel", "#configPanel", "#infoPanel");
 });
 
@@ -614,11 +689,11 @@ function localStorageGetOrDefault(key, defaultVal) {
 // Load from local storage and set GUI up appropriately
 function loadLocalStorage() {
   // Update interval
-  updateIntervalMin = localStorageGetOrDefault('updateIntervalMin', 5);
+  updateIntervalMin = localStorageGetOrDefault('updateIntervalMin', updateIntervalMin);
   $("#updateInterval").val(updateIntervalMin);
 
   // Max spot age
-  maxSpotAgeMin = localStorageGetOrDefault('maxSpotAgeMin', 5);
+  maxSpotAgeMin = localStorageGetOrDefault('maxSpotAgeMin', maxSpotAgeMin);
   $("#maxSpotAge").val(maxSpotAgeMin);
 
   // Programs
@@ -679,6 +754,12 @@ window.addEventListener("appinstalled", () => {
 });
 function disableInAppInstallPrompt() {
   installPrompt = null;
+  $("installPrompt").hide();
+}
+
+// Disable both the install and install-on-another-device prompts if already installed
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  $("installOnAnotherDevice").hide();
   $("installPrompt").hide();
 }
 

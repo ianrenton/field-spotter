@@ -65,6 +65,54 @@ div.rightbox {
     display: none;
     overflow: scroll;
 }
+div.rightbox p:last-child {
+    margin-bottom: 4em;
+}
+div#bandsPanel {
+    padding: 0px;
+    overflow: none;
+}
+div#bandsPanelInner {
+    height: 100%;
+    padding: 0px;
+    overflow-x: scroll;
+    overflow-y: none;
+    margin-right: 4.5em;
+    white-space: nowrap;
+    display: flex;
+}
+
+/* Bands panel inner layout */
+div.bandCol {
+    display: inline-block;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+}
+div.bandColHeader {
+    flex: 0 1 auto;
+}
+div.bandColMiddle {
+    flex: 1 1 auto;
+}
+div.bandColMiddle ul {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+div.bandColMiddle ul li {
+    display: table-row;
+}
+div.bandColMiddle ul li span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 
 /* Button styles */
 button.slideOutButton {
@@ -100,6 +148,24 @@ p#installPrompt {
     display: none;
 }
 
+/* Marker and popup styles */
+i.markerPopupIcon {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 0.1em;
+    width: 1.2em;
+}
+
+/* Bands panel inner styles */
+div.bandColHeader {
+    text-align: center;
+    font-weight: bold;
+    padding: 0.5em;
+}
+div.bandColMiddle {
+    margin-left: 3px;
+    border-left: 2px dotted black;
+}
 
 /* Leaflet.js mods */
 .leaflet-container .leaflet-control-attribution {
