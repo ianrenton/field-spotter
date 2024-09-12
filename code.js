@@ -284,6 +284,12 @@ async function recalculateBandsPanelContent() {
   var spotsForBandDisplay = getSpotUIDsInView().map(function (uid) {
     return spots.get(uid);
   });
+  // Stop here if nothing to display
+  console.log(spotsForBandDisplay.length)
+  if (spotsForBandDisplay.length == 0) {
+    $("#bandsPanelInner").html("<p id='bandPanelNoSpots'>There are no spots in view on the map. Pan and zoom to find some, or alter your filters, before using the band view.</p>");
+    return;
+  }
   // Convert to a map of band names to the spots on that band. Bands with no
   // spots in view will not be present.
   var bandToSpots = new Map();
@@ -309,7 +315,9 @@ async function recalculateBandsPanelContent() {
     for (let i=0; i<=10; i++) {
       html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed(3) + "</span></li>";
       if (i != 10) {
+        html += "<li><span>-</span></li>";
         html += "<li><span>&ndash;</span></li>";
+        html += "<li><span>-</span></li>";
       }
     }
     html += "<ul>";

@@ -60,24 +60,29 @@ div.rightbox {
     top: 0px;
     right: 0px;
     margin: 0px;
-    padding: 20px;
+    padding: 0px;
     z-index: 1001;
     display: none;
     overflow: scroll;
 }
-div.rightbox p:last-child {
-    margin-bottom: 4em;
+div.rightboxInner {
+    overflow-x: none;
+    overflow-y: scroll;
+    margin-left: 1em;
+    margin-right: 2em;
+}
+div.rightboxInner p:last-child {
+    margin-bottom: 2em;
 }
 div#bandsPanel {
-    padding: 0px;
     overflow: none;
 }
 div#bandsPanelInner {
     height: 100%;
+    margin: 0 4.5em 0 0;
     padding: 0px;
     overflow-x: scroll;
     overflow-y: none;
-    margin-right: 4.5em;
     white-space: nowrap;
     display: flex;
 }
@@ -166,6 +171,11 @@ div.bandColMiddle {
     margin-left: 3px;
     border-left: 2px dotted black;
 }
+p#bandPanelNoSpots {
+    margin-left: 1em;
+    margin-right: 1em;
+    white-space: wrap;
+}
 
 /* Leaflet.js mods */
 .leaflet-container .leaflet-control-attribution {
@@ -178,7 +188,7 @@ div.bandColMiddle {
         display: none;
     }
     div.rightbox {
-        width: 90%;
+        width: 100%;
     }
     .leaflet-container .leaflet-control-attribution {
         display: none;
