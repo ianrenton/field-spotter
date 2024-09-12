@@ -31,8 +31,7 @@ const BANDS = [
 
 var spots = new Map(); // uid -> spot data
 var markers = new Map(); // uid -> marker
-var potaDataTime = moment(0);
-var sotaDataTime = moment(0);
+var lastUpdateTime = moment(0);
 var myPos = null;
 var map;
 var markersLayer;
@@ -46,9 +45,11 @@ var currentLineToSpot = null;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
+var programs = ["POTA", "SOTA"];
 var modes = [];
 var bands = [];
-var maxSpotAgeSec = 7200;
+var updateIntervalMin = 5;
+var maxSpotAgeMin = 60;
 
 
 /////////////////////////////
@@ -59,12 +60,12 @@ var maxSpotAgeSec = 7200;
 function fetchData() {
   fetchPOTAData();
   fetchSOTAData();
+  lastUpdateTime = moment();
 }
 
 // Fetch POTA data, updating the internal data model and the map on success, updating the status icon appropriately
 function fetchPOTAData() {
-  $("#potaStatus").attr("class","menubuttonloading");
-  $("#potaStatusIcon").attr("src","icons/loading.png");
+  $("span#potaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
   $.ajax({
     url: POTA_SPOTS_URL,
     dataType: 'json',
@@ -73,20 +74,17 @@ function fetchPOTAData() {
       handlePOTAData(result);
       potaDataTime = moment(0);
       updateMapObjects();
-      $("#potaStatus").attr("class","menubuttongood");
-      $("#potaStatusIcon").attr("src","icons/ok.png");
+      $("span#potaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
     error: function() {
-      $("#potaStatus").attr("class","menubuttonerror");
-      $("#potaStatusIcon").attr("src","icons/failed.png");
+      $("span#potaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
     }
   });
 }
 
 // Fetch SOTA data, updating the internal data model and the map on success, updating the status icon appropriately
 function fetchSOTAData() {
-  $("#sotaStatus").attr("class","menubuttonloading");
-  $("#sotaStatusIcon").attr("src","icons/loading.png");
+  $("span#sotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
   $.ajax({
     url: SOTA_SPOTS_URL,
     dataType: 'json',
@@ -95,14 +93,23 @@ function fetchSOTAData() {
       handleSOTAData(result);
       sotaDataTime = moment(0);
       updateMapObjects();
-      $("#sotaStatus").attr("class","menubuttongood");
-      $("#sotaStatusIcon").attr("src","icons/ok.png");
+      $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
     error: function() {
-      $("#sotaStatus").attr("class","menubuttonerror");
-      $("#sotaStatusIcon").attr("src","icons/failed.png");
+      $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
     }
   });
+}
+
+// Check for Update function - called every second, this retrieves new data from
+// the server so long as the next update time has been reached. The update
+// interval is configurable, so this gets called rapidly but doesn't often
+// do anything.
+function checkForUpdate() {
+  $("span#lastUpdateTime").text(lastUpdateTime.format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
+  if (moment().diff(lastUpdateTime, 'minutes') >= updateIntervalMin) {
+    fetchData();
+  }
 }
 
 
@@ -212,42 +219,51 @@ async function updateSOTASpot(uid, cacheKey, apiResponse) {
 async function updateMapObjects() {
   // Iterate through spots. For each, update an existing marker
   // or create a new marker if required.
-  spots.forEach(function(t) {
-    var pos = getIconPosition(t);
+  spots.forEach(function(s) {
+    var pos = getIconPosition(s);
 
-    // @todo filter on band, mode and age
+    // Filter for the programs, bands and modes we are interested in
+    if (programs.includes(s.program)) {
 
-    if (markers.has(t.uid) && pos != null) {
-      var m = markers.get(t.uid);
+      if (markers.has(s.uid) && pos != null) {
+        // Existing marker, so update it
+        var m = markers.get(s.uid);
 
-      // Regenerate marker color & text in case the spot has updated
-      m.setIcon(getIcon(t));
-      m.tooltip = getTooltipText(t);
+        // Regenerate marker color & text in case the spot has updated
+        m.setIcon(getIcon(s));
+        m.tooltip = getTooltipText(s);
 
-      // Set opacity with age
-      age = moment().diff(t.time, 'seconds');
-      opacity = ((maxSpotAgeSec - age) / maxSpotAgeSec / 2.0) + 0.5;
-      m.setOpacity(opacity);
+        // Set opacity with age
+        age = moment().diff(s.time, 'minutes');
+        opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+        m.setOpacity(opacity);
 
-    } else if (pos != null) {
-      // No existing marker, data is valid, so create
-      var m = L.marker(pos, {icon: getIcon(t)});
-      m.uid = t.uid;
+      } else if (pos != null) {
+        // No existing marker, data is valid, so create
+        var m = L.marker(pos, {icon: getIcon(s)});
+        m.uid = s.uid;
 
-      // Add to map and spiderfier
-      markersLayer.addLayer(m);
-      oms.addMarker(m);
+        // Add to map and spiderfier
+        markersLayer.addLayer(m);
+        oms.addMarker(m);
 
-      // Set tooltip
-      m.tooltip = getTooltipText(t);
+        // Set tooltip
+        m.tooltip = getTooltipText(s);
 
-      // Set opacity with age
-      age = moment().diff(t.time, 'seconds');
-      opacity = ((maxSpotAgeSec - age) / maxSpotAgeSec / 2.0) + 0.5;
-      m.setOpacity(opacity);
+        // Set opacity with age
+        age = moment().diff(s.time, 'minutes');
+        opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+        m.setOpacity(opacity);
 
-      // Add to internal data store
-      markers.set(t.uid, m);
+        // Add to internal data store
+        markers.set(s.uid, m);
+      }
+
+    } else if (markers.has(s.uid)) {
+      // Existing marker now excluded by filters, so remove
+      var marker = markers.get(s.uid);
+      markersLayer.removeLayer(marker);
+      markers.delete(s.uid);
     }
   });
 
@@ -288,9 +304,9 @@ function getTooltipText(t) {
   return ttt;
 }
 
-function getIconPosition(t) {
-  if (t["lat"] != null) {
-    return [t["lat"], t["lon"]];
+function getIconPosition(s) {
+  if (s["lat"] != null) {
+    return [s["lat"], s["lon"]];
   } else {
     return null;
   }
@@ -421,81 +437,67 @@ function setUpMap() {
 /////////////////////////////
 
 // Manage boxes that slide out from the right
-function manageRightBoxes(toggle, hide) {
-  if ($(toggle).is(":visible")) {
-    $(toggle).hide("slide", { direction: "right" }, 500);
-  } else {
-    var showDelay = 0;
-    if ($(hide).is(":visible")) {
-      $(hide).hide("slide", { direction: "right" }, 500);
-      showDelay = 600;
-    }
-    setTimeout(function(){ $(toggle).show("slide", { direction: "right" }, 500); }, showDelay);
+function manageRightBoxes(toggle, hide1, hide2) {
+  var showDelay = 0;
+  if ($(hide1).is(":visible")) {
+    $(hide1).hide("slide", { direction: "right" }, 500);
+    showDelay = 600;
   }
+  if ($(hide2).is(":visible")) {
+    $(hide2).hide("slide", { direction: "right" }, 500);
+    showDelay = 600;
+  }
+
+  setTimeout(function(){ $(toggle).toggle("slide", { direction: "right" }, 500); }, showDelay);
 }
 
 $("#infoButton").click(function() {
-  manageRightBoxes("#infoPanel", "#configPanel");
+  manageRightBoxes("#infoPanel", "#configPanel", "#bandsPanel");
 });
 $("#configButton").click(function() {
-  manageRightBoxes("#configPanel", "#infoPanel");
+  manageRightBoxes("#configPanel", "#infoPanel", "#bandsPanel");
+});
+$("#bandsButton").click(function() {
+  manageRightBoxes("#bandsPanel", "#configPanel", "#infoPanel");
 });
 
+// Manual update button
+$("#updateNow").click(function() {
+  fetchData();
+});
 
-// @todo slide out bottom bands
+// Update interval
+$("#updateInterval").change(function() {
+  updateIntervalMin = parseInt($(this).val());
+  localStorage.setItem('updateIntervalMin', updateIntervalMin);
+});
 
-// @todo the actual things we want to save and load, not queryInterval
+// Max spot age
+$("#maxSpotAge").change(function() {
+  maxSpotAgeMin = parseInt($(this).val());
+  localStorage.setItem('maxSpotAgeMin', maxSpotAgeMin);
+  updateMapObjects();
+});
 
-// Types
-function setTypeEnable(type, enable) {
+// Programs
+function setProgramEnable(type, enable) {
   if (enable) {
-    trackTypesVisible.push(type);
+    programs.push(type);
   } else {
-    for( var i = 0; i < trackTypesVisible.length; i++){ if ( trackTypesVisible[i] === type) { trackTypesVisible.splice(i, 1); }}
+    for( var i = 0; i < programs.length; i++){ if ( programs[i] === type) { programs.splice(i, 1); }}
   }
-  localStorage.setItem('trackTypesVisible', JSON.stringify(trackTypesVisible));
+  console.log(programs)
+  localStorage.setItem('programs', JSON.stringify(programs));
   updateMapObjects();
 }
-
-$("#showAircraft").change(function() {
-  setTypeEnable("AIRCRAFT", $(this).is(':checked'));
+$("#showPOTA").change(function() {
+  setProgramEnable("POTA", $(this).is(':checked'));
 });
-$("#showShips").change(function() {
-  setTypeEnable("SHIP", $(this).is(':checked'));
-});
-$("#showAISShoreStations").change(function() {
-  setTypeEnable("AIS_SHORE_STATION", $(this).is(':checked'));
-});
-$("#showATONs").change(function() {
-  setTypeEnable("AIS_ATON", $(this).is(':checked'));
-});
-$("#showAPRSMobile").change(function() {
-  setTypeEnable("APRS_MOBILE", $(this).is(':checked'));
-});
-$("#showAPRSBase").change(function() {
-  setTypeEnable("APRS_BASE_STATION", $(this).is(':checked'));
-});
-$("#showRadiosondes").change(function() {
-  setTypeEnable("RADIOSONDE", $(this).is(':checked'));
-});
-$("#showMeshtastic").change(function() {
-  setTypeEnable("MESHTASTIC_NODE", $(this).is(':checked'));
-});
-$("#showAirports").change(function() {
-  setTypeEnable("AIRPORT", $(this).is(':checked'));
-});
-$("#showSeaPorts").change(function() {
-  setTypeEnable("SEAPORT", $(this).is(':checked'));
-});
-$("#showBase").change(function() {
-  setTypeEnable("BASE_STATION", $(this).is(':checked'));
+$("#showSOTA").change(function() {
+  setProgramEnable("SOTA", $(this).is(':checked'));
 });
 
-// Query interval
-$("#queryInterval").change(function() {
-  queryInterval = parseInt($(this).val());
-  localStorage.setItem('queryInterval', queryInterval);
-});
+// @todo the rest
 
 
 /////////////////////////////
@@ -514,10 +516,52 @@ function localStorageGetOrDefault(key, defaultVal) {
 
 // Load from local storage and set GUI up appropriately
 function loadLocalStorage() {
-  // @todo the actual things we want to save and load, not queryInterval
-  queryInterval = localStorageGetOrDefault('queryInterval', 1000);
+  // Update interval
+  updateIntervalMin = localStorageGetOrDefault('updateIntervalMin', 5);
+  $("#updateInterval").val(updateIntervalMin);
 
-  $("#queryInterval").val(queryInterval);
+  // Max spot age
+  maxSpotAgeMin = localStorageGetOrDefault('maxSpotAgeMin', 5);
+  $("#maxSpotAge").val(maxSpotAgeMin);
+
+  // Programs
+  programs = localStorageGetOrDefault('programs', programs);
+  $("#showPOTA").prop('checked', programs.includes("POTA"));
+  $("#showSOTA").prop('checked', programs.includes("SOTA"));
+
+  // @todo the rest
+}
+
+
+/////////////////////////////
+//      PWA INSTALL        //
+/////////////////////////////
+
+// Prevent the Chrome/Safari default install prompt, instead use the event to show our own in the info panel
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  $("installOnAnotherDevice").hide();
+  $("installPrompt").show();
+});
+
+// Handle the user clicking our install button
+$("installPrompt").click(async function() {
+  if (!installPrompt) {
+    return;
+  }
+  await installPrompt.prompt();
+  disableInAppInstallPrompt();
+});
+
+// Disable our install prompt after the user installs the app
+window.addEventListener("appinstalled", () => {
+  disableInAppInstallPrompt();
+});
+function disableInAppInstallPrompt() {
+  installPrompt = null;
+  $("installPrompt").hide();
 }
 
 
@@ -531,5 +575,6 @@ setUpMap();
 loadLocalStorage();
 // Load data for the first time
 fetchData();
-// Reload data every 5 minutes
-setInterval(fetchData, 300000);
+// Every second, check if we need to update data based on the user's configured update interval,
+// and update other UI elements regarding data age.
+setInterval(checkForUpdate, 1000);

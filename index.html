@@ -43,31 +43,82 @@
     </head>
     <body>
         <div id="menu">
-            <button id="configButton" class="slideOutButton"><i class="fa-solid fa-gear"></i></button>
             <button id="infoButton" class="slideOutButton"><i class="fa-solid fa-circle-info"></i></button>
+            <button id="configButton" class="slideOutButton"><i class="fa-solid fa-gear"></i></button>
+            <button id="bandsButton" class="slideOutButton"><i class="fa-solid fa-ruler-horizontal"></i></button>
         </div>
         <div id="map"></div>
         <div id="infoPanel" class="rightbox">
             <h1>Field Spotter</h1>
-            <p class="subtitle">A mobile Amateur Radio spotting tool for POTA and SOTA</p>
+            <p id="subtitle">A mobile Amateur Radio spotting tool for POTA and SOTA</p>
             <p>By <a href="https://ianrenton.com">Ian Renton MØTRT</a></p>
             <ul><li><a href="https://ianrenton.com/projects/field-spotter">About the Project</a></li>
                 <li><a href="https://github.com/ianrenton/field-spotter">Source Code</a></li>
                 <li><a href="https://github.com/ianrenton/field-spotter/issues">Issue Tracker</a></li></ul>
             <h3>Using the tool</h3>
-            <p>POTA and SOTA spots from the last hour are displayed on the map. Click a marker for details.</p>
+            <p>POTA and SOTA spots from the last hour are displayed on the map. Click a marker to view details such as activator, park/summit code, distance and how old the spot is. Older spots appear faded out. When a location has multiple spots, click the marker to expand out the set of spots.</p>
             <p>The <i class="fa-solid fa-gear"></i> button allows you to filter by mode and band.</p>
             <p>The <i class="fa-solid fa-ruler-horizontal"></i> button takes the spots currently on the map and shows where they are on the bands as well.</p>
-            <p>You can install Field Spotter on your phone! This is a Progressive Web App (PWA), which means on Chrome (Android) or Safari (iOS) there should be an "Install" option in the menu. This will add Field Spotter to your home screen. An internet connection is still required to retrieve the latest data.</p>
+            <p id="installPrompt">You can install Field Spotter on your device! This is a Progressive Web App (PWA), which means you can add it to your home screen by clicking the button below. An internet connection is still required to retrieve the latest data.<br/><span style="text-align: center; display: block;"><button id="installApp">Add to Home Screen</button></span></p>
+            <p id="installOnAnotherDevice">Field Spotter is a Progressive Web App, which means you can install it on an Android or iOS device by opening this site in Chrome or Safari respectively, and returning to this information panel.</p>
             <h3>Privacy</h3>
             <p>This website collects no data about you. If you share your location, the information stays on your device. There are no trackers and no cookies.</p>
         </div>
         <div id="configPanel" class="rightbox">
-            
-            <div class="configPanelSection">
-                <p>Modes:</p> 
-                <label for="showModeA" class="configLabel"><input type="checkbox" id="showModeA" name="showModeA" checked="true">&nbsp;Test</label>
-            </div>
+            <h2>Filters</h2>
+                <label for="maxSpotAge">Show spots up to</label>
+                <select id="maxSpotAge" class="configSelect">
+                    <option value="5">5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="20">20 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60" selected="selected">1 hour</option>
+                </select>
+                <label>old</label>
+                <p>Show spots in these programs:</p>
+                <div id="bandlist">
+                    <table><tr><td><label for="showPOTA" class="configLabel"><input type="checkbox" id="showPOTA" name="showPOTA" checked="true">&nbsp;POTA</label></td>
+                    <td><label for="showSOTA" class="configLabel"><input type="checkbox" id="showSOTA" name="showSOTA" checked="true">&nbsp;SOTA</label></td></tr></table>
+                </div>
+                <p>Show spots in these modes:</p>
+                <div id="bandlist">
+                    <table><tr><td><label for="showPhone" class="configLabel"><input type="checkbox" id="showPhone" name="showPhone" checked="true">&nbsp;Phone</label></td>
+                    <td><label for="showCW" class="configLabel"><input type="checkbox" id="showCW" name="showCW" checked="true">&nbsp;CW</label></td>
+                    <td><label for="showDigi" class="configLabel"><input type="checkbox" id="showDigi" name="showDigi" checked="true">&nbsp;Digi</label></td></tr></table>
+                </div>
+                <p>Show spots in these bands:</p>
+                <div id="bandlist">
+                    <table><tr><td><label for="show160m" class="configLabel"><input type="checkbox" id="show160m" name="show160m" checked="true">&nbsp;160m</label></td>
+                    <td><label for="show80m" class="configLabel"><input type="checkbox" id="show80m" name="show80m" checked="true">&nbsp;80m</label></td>
+                    <td><label for="show60m" class="configLabel"><input type="checkbox" id="show60m" name="show60m" checked="true">&nbsp;60m</label></td>
+                    <td><label for="show40m" class="configLabel"><input type="checkbox" id="show40m" name="show40m" checked="true">&nbsp;40m</label></td></tr>
+                    <tr><td><label for="show30m" class="configLabel"><input type="checkbox" id="show30m" name="show30m" checked="true">&nbsp;30m</label></td>
+                    <td><label for="show20m" class="configLabel"><input type="checkbox" id="show20m" name="show20m" checked="true">&nbsp;20m</label></td>
+                    <td><label for="show17m" class="configLabel"><input type="checkbox" id="show17m" name="show17m" checked="true">&nbsp;17m</label></td>
+                    <td><label for="show15m" class="configLabel"><input type="checkbox" id="show15m" name="show15m" checked="true">&nbsp;15m</label></td></tr>
+                    <tr><td><label for="show12m" class="configLabel"><input type="checkbox" id="show12m" name="show12m" checked="true">&nbsp;12m</label></td>
+                    <td><label for="show10m" class="configLabel"><input type="checkbox" id="show10m" name="show10m" checked="true">&nbsp;10m</label></td>
+                    <td><label for="show6m" class="configLabel"><input type="checkbox" id="show6m" name="show6m" checked="true">&nbsp;6m</label></td>
+                    <td><label for="show4m" class="configLabel"><input type="checkbox" id="show4m" name="show4m" checked="true">&nbsp;4m</label></td></tr>
+                    <tr><td><label for="show2m" class="configLabel"><input type="checkbox" id="show2m" name="show2m" checked="true">&nbsp;2m</label></td>
+                    <td><label for="show70cm" class="configLabel"><input type="checkbox" id="show70cm" name="show70cm" checked="true">&nbsp;70cm</label></td></tr></table>
+                </div>
+
+            <h2>Updates</h2>
+                <label for="updateInterval">Update data every</label>
+                <select id="updateInterval" class="configSelect">
+                    <option value="2">2 minutes</option>
+                    <option value="5" selected="selected">5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="20">20 minutes</option>
+                </select>
+                <p>Last updated at <span id="lastUpdateTime"></span></p>
+                <p>POTA API Status: <span id="potaApiStatus"></span></p>
+                <p>SOTA API Status: <span id="sotaApiStatus"></span></p>
+                <p><button id="updateNow">Update now</button></p><br/>
+        </div>
+        <div id="bandsPanel" class="rightbox">
+            <p>Test</p>
         </div>
 
         <script src="code.js"></script>
