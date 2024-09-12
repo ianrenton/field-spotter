@@ -46,8 +46,8 @@ var currentLineToSpot = null;
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
 var programs = ["POTA", "SOTA"];
-var modes = [];
-var bands = [];
+var modes = ["Phone", "CW", "Digi"];
+var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm"];
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 
@@ -137,13 +137,14 @@ async function handlePOTAData(result) {
       ref: spot.reference,
       refName: spot.name,
       activator: spot.activator,
-      mode: spot.mode,
+      mode: normaliseMode(spot.mode),
       freq: spot.frequency / 1000.0,
       band: freqToBand(spot.frequency / 1000.0),
       time: moment.utc(spot.spotTime),
       comment: spot.comment,
       program: "POTA"
     }
+
     spots.set(uid, newSpot);
   });
 }
@@ -167,7 +168,7 @@ async function handleSOTAData(result) {
       ref: spot.associationCode + "/" + spot.summitCode,
       refName: spot.summitDetails,
       activator: spot.activatorCallsign,
-      mode: spot.mode,
+      mode: normaliseMode(spot.mode),
       freq: spot.frequency,
       band: freqToBand(spot.frequency),
       time: moment.utc(spot.timeStamp),
@@ -223,7 +224,7 @@ async function updateMapObjects() {
     var pos = getIconPosition(s);
 
     // Filter for the programs, bands and modes we are interested in
-    if (programs.includes(s.program)) {
+    if (programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)) {
 
       if (markers.has(s.uid) && pos != null) {
         // Existing marker, so update it
@@ -282,25 +283,25 @@ async function updateMapObjects() {
 //  SPOT DISPLAY FUNCTIONS //
 /////////////////////////////
 
-function getTooltipText(t) {
-  ttt = "<i class='fa-solid fa-user' style='display: inline-block; width: 1.2em;'></i> " + t.activator + "<br/>";
+function getTooltipText(s) {
+  ttt = "<i class='fa-solid fa-user' style='display: inline-block; width: 1.2em;'></i> " + s.activator + "<br/>";
   ttt += "<span style='display:inline-block;'>";
-  if (t.program == "SOTA") {
+  if (s.program == "SOTA") {
     ttt += "<i class='fa-solid fa-mountain-sun' style='display: inline-block; width: 1.2em;'></i> ";
   } else {
     ttt += "<i class='fa-solid fa-tree' style='display: inline-block; width: 1.2em;'></i> ";
   }
 
-  ttt += t.ref + " " + t.refName + "</span><br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie' style='display: inline-block; width: 1.2em;'></i> " + t.freq + " MHz (" + t.band + ")<br/>";
+  ttt += s.ref + " " + s.refName + "</span><br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie' style='display: inline-block; width: 1.2em;'></i> " + s.freq + " MHz (" + s.band + ")  &nbsp;&nbsp; <i class='fa-solid fa-wave-square'></i> " + s.mode + "<br/>";
   if (myPos != null) {
-    spotLatLng = new L.latLng(t["lat"], t["lon"])
+    spotLatLng = new L.latLng(s["lat"], s["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
     if (bearing < 0) bearing = bearing + 360;
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
     ttt += "<i class='fa-solid fa-ruler' style='display: inline-block; width: 1.2em;'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass' style='display: inline-block; width: 1.2em;'></i> " + bearing.toFixed(0) + "°<br/>";
   }
-  ttt += "<i class='fa-solid fa-clock' style='display: inline-block; width: 1.2em;'></i> " + t.time.format("HH:mm UTC") + " (" + t.time.fromNow() + ")";
+  ttt += "<i class='fa-solid fa-clock' style='display: inline-block; width: 1.2em;'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
   return ttt;
 }
 
@@ -357,6 +358,32 @@ function getIcon(s) {
     prefix: 'fa',
     svg: true
   });
+}
+
+// Normalise a mode to caps and replace blanks with unknown
+function normaliseMode(m) {
+  if (!m || m.length === 0 ) {
+    return "Unknown";
+  } else {
+    return m.toUpperCase();
+  }
+}
+
+// Is the spot's program allowed through the filter?
+function programAllowedByFilters(program) {
+  return programs.includes(program);
+}
+
+// Is the spot's mode allowed through the filter?
+function modeAllowedByFilters(mode) {
+  return modes.includes(mode)
+  || (modes.includes("Phone") && (mode == "SSB" || mode == "USB" || mode == "LSB" || mode == "AM" || mode == "FM" || mode == "DV" || mode == "Unknown"))
+  || (modes.includes("Digi") && (mode == "DATA" || mode == "FT8" || mode == "FT4" || mode == "RTTY" || mode == "SSTV"));
+}
+
+// Is the spot's band allowed through the filter?
+function bandAllowedByFilters(band) {
+  return bands.includes(band);
 }
 
 
@@ -486,7 +513,6 @@ function setProgramEnable(type, enable) {
   } else {
     for( var i = 0; i < programs.length; i++){ if ( programs[i] === type) { programs.splice(i, 1); }}
   }
-  console.log(programs)
   localStorage.setItem('programs', JSON.stringify(programs));
   updateMapObjects();
 }
@@ -497,7 +523,78 @@ $("#showSOTA").change(function() {
   setProgramEnable("SOTA", $(this).is(':checked'));
 });
 
-// @todo the rest
+// Modes
+function setModeEnable(type, enable) {
+  if (enable) {
+    modes.push(type);
+  } else {
+    for( var i = 0; i < modes.length; i++){ if ( modes[i] === type) { modes.splice(i, 1); }}
+  }
+  localStorage.setItem('modes', JSON.stringify(modes));
+  updateMapObjects();
+}
+$("#showPhone").change(function() {
+  setModeEnable("Phone", $(this).is(':checked'));
+});
+$("#showCW").change(function() {
+  setModeEnable("CW", $(this).is(':checked'));
+});
+$("#showDigi").change(function() {
+  setModeEnable("Digi", $(this).is(':checked'));
+});
+
+// Bands
+function setBandEnable(type, enable) {
+  if (enable) {
+    bands.push(type);
+  } else {
+    for( var i = 0; i < bands.length; i++){ if ( bands[i] === type) { bands.splice(i, 1); }}
+  }
+  localStorage.setItem('bands', JSON.stringify(bands));
+  updateMapObjects();
+}
+$("#show160m").change(function() {
+  setBandEnable("160m", $(this).is(':checked'));
+});
+$("#show80m").change(function() {
+  setBandEnable("80m", $(this).is(':checked'));
+});
+$("#show60m").change(function() {
+  setBandEnable("60m", $(this).is(':checked'));
+});
+$("#show40m").change(function() {
+  setBandEnable("40m", $(this).is(':checked'));
+});
+$("#show30m").change(function() {
+  setBandEnable("30m", $(this).is(':checked'));
+});
+$("#show20m").change(function() {
+  setBandEnable("20m", $(this).is(':checked'));
+});
+$("#show17m").change(function() {
+  setBandEnable("17m", $(this).is(':checked'));
+});
+$("#show15m").change(function() {
+  setBandEnable("15m", $(this).is(':checked'));
+});
+$("#show12m").change(function() {
+  setBandEnable("12m", $(this).is(':checked'));
+});
+$("#show10m").change(function() {
+  setBandEnable("10m", $(this).is(':checked'));
+});
+$("#show6m").change(function() {
+  setBandEnable("6m", $(this).is(':checked'));
+});
+$("#show4m").change(function() {
+  setBandEnable("4m", $(this).is(':checked'));
+});
+$("#show2m").change(function() {
+  setBandEnable("2m", $(this).is(':checked'));
+});
+$("#show70cm").change(function() {
+  setBandEnable("70cm", $(this).is(':checked'));
+});
 
 
 /////////////////////////////
@@ -529,7 +626,28 @@ function loadLocalStorage() {
   $("#showPOTA").prop('checked', programs.includes("POTA"));
   $("#showSOTA").prop('checked', programs.includes("SOTA"));
 
-  // @todo the rest
+  // Modes
+  modes = localStorageGetOrDefault('modes', modes);
+  $("#showPhone").prop('checked', modes.includes("Phone"));
+  $("#showCW").prop('checked', modes.includes("CW"));
+  $("#showDigi").prop('checked', modes.includes("Digi"));
+
+  // Bands
+  bands = localStorageGetOrDefault('bands', bands);
+  $("#show160m").prop('checked', bands.includes("160m"));
+  $("#show80m").prop('checked', bands.includes("80m"));
+  $("#show60m").prop('checked', bands.includes("60m"));
+  $("#show40m").prop('checked', bands.includes("40m"));
+  $("#show30m").prop('checked', bands.includes("30m"));
+  $("#show20m").prop('checked', bands.includes("20m"));
+  $("#show17m").prop('checked', bands.includes("17m"));
+  $("#show15m").prop('checked', bands.includes("15m"));
+  $("#show12m").prop('checked', bands.includes("12m"));
+  $("#show10m").prop('checked', bands.includes("10m"));
+  $("#show6m").prop('checked', bands.includes("6m"));
+  $("#show4m").prop('checked', bands.includes("4m"));
+  $("#show2m").prop('checked', bands.includes("2m"));
+  $("#show70cm").prop('checked', bands.includes("70cm"));
 }
 
 
