@@ -1,7 +1,5 @@
 # Field Spotter
 
-**Work in progress**
-
 ![Field Spotter banner image](./banner.png)
 
 Field Spotter is a mobile-first progressive web app to display live Amateur Radio POTA & SOTA spots on a geographic map, and on a frequency band. Designed for use in the field to locate park-to-park and summit-to-summit opportunities in a more intuitive way than the POTA and SOTA websites' spot lists. It can of course also be used from home by POTA and SOTA chasers.
