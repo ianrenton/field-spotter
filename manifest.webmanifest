@@ -7,7 +7,7 @@
     "display": "fullscreen",
     "start_url": "https://fieldspotter.ianrenton.com/",
     "background_color": "white",
-    "theme_color": "green",
+    "theme_color": "white",
     "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA & SOTA activations",
     "related_applications": [],
     "prefer_related_applications": false,

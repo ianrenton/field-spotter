@@ -313,6 +313,7 @@ async function recalculateBandsPanelContent() {
     // Frequency scale
     freqStep = (band.stopFreq - band.startFreq) / 10.0;
     html += "<ul>";
+    html += "<li><span>-</span></li>";
     for (let i=0; i<=10; i++) {
       html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed((map.size > 4) ? 1 : 3) + "</span></li>";
       if (i != 10) {
@@ -321,6 +322,7 @@ async function recalculateBandsPanelContent() {
         html += "<li><span>-</span></li>";
       }
     }
+    html += "<li><span>-</span></li>";
     html += "</ul>";
 
     // Spot markers - unpositioned for now
