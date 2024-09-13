@@ -54,7 +54,7 @@ div#map {
     overflow: hidden;
 }
 div.rightbox {
-    width: 20%;
+    width: 30em;
     height: 100%;
     position: absolute;
     top: 0px;
@@ -63,11 +63,11 @@ div.rightbox {
     padding: 0px;
     z-index: 1001;
     display: none;
-    overflow: scroll;
+    overflow: auto;
 }
 div.rightboxInner {
-    overflow-x: none;
-    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
     margin-left: 1em;
     margin-right: 2em;
 }
@@ -75,14 +75,14 @@ div.rightboxInner p:last-child {
     margin-bottom: 2em;
 }
 div#bandsPanel {
-    overflow: none;
+    overflow: hidden;
 }
 div#bandsPanelInner {
     height: 100%;
     margin: 0 4.5em 0 0;
     padding: 0px;
-    overflow-x: scroll;
-    overflow-y: none;
+    overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
     display: flex;
 }
@@ -91,8 +91,10 @@ div#bandsPanelInner {
 div.bandCol {
     display: inline-block;
     height: 100%;
+    min-width: 6em;
     display: flex;
     flex-flow: column;
+    overflow-y: clip;
 }
 div.bandColHeader {
     flex: 0 1 auto;
@@ -112,10 +114,34 @@ div.bandColMiddle ul {
 }
 div.bandColMiddle ul li {
     display: table-row;
+    line-height: 0.5em;
 }
 div.bandColMiddle ul li span {
     display: table-cell;
     vertical-align: middle;
+}
+div.bandColSpot {
+    position: relative;
+    left: 1em;
+    float: left;
+    position: relative;
+    background: #f9f06b;
+    border-radius: .4em;
+    padding-right: 0.2em;
+}
+
+div.bandColSpot:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 15px solid transparent;
+    border-right-color: #f9f06b;
+    border-left: 0;
+    margin-top: -15px;
+    margin-left: -15px;
 }
 
 

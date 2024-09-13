@@ -306,25 +306,35 @@ async function recalculateBandsPanelContent() {
   var html = "";
   bandToSpots.forEach(function (spotList, bandName, map) {
     band = BANDS.filter(function (b) { return b.name == bandName; })[0];
-    html += "<div class='bandCol' style='width:" + Math.max(100 / map.size, 30) + "%'>";
+    html += "<div class='bandCol' style='width:" + Math.max(30, 100 / map.size) + "%'>";
     html += "<div class='bandColHeader' style='background-color:" + band.color + "'>" + band.name + "</div>";
     html += "<div class='bandColMiddle'>";
-    // Frequency markers
+
+    // Frequency scale
     freqStep = (band.stopFreq - band.startFreq) / 10.0;
     html += "<ul>";
     for (let i=0; i<=10; i++) {
-      html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed(3) + "</span></li>";
+      html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed((map.size > 4) ? 1 : 3) + "</span></li>";
       if (i != 10) {
         html += "<li><span>-</span></li>";
         html += "<li><span>&ndash;</span></li>";
         html += "<li><span>-</span></li>";
       }
     }
-    html += "<ul>";
+    html += "</ul>";
+
+    // Spot markers - unpositioned for now
+    spotList.forEach(function (s) {
+      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:-" + (Math.random()*100) + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
+    });
     html += "</div></div>";
   });
-  // Update the DOM
+  // Update the DOM with frequency scales
   $("#bandsPanelInner").html(html);
+
+  // Spot markers
+  pixelHeight = $(".bandColMiddle").height();
+//  for ()
 }
 
 
@@ -543,7 +553,7 @@ async function mapProjChanged() {
 /////////////////////////////
 
 // Manage boxes that slide out from the right
-function manageRightBoxes(toggle, hide1, hide2) {
+function manageRightBoxes(toggle, hide1, hide2, callback) {
   var showDelay = 0;
   if ($(hide1).is(":visible")) {
     $(hide1).hide("slide", { direction: "right" }, 500);
@@ -554,21 +564,22 @@ function manageRightBoxes(toggle, hide1, hide2) {
     showDelay = 600;
   }
 
-  setTimeout(function(){ $(toggle).toggle("slide", { direction: "right" }, 500); }, showDelay);
+  setTimeout(function(){ $(toggle).toggle("slide", { direction: "right" }, 500, callback); }, showDelay);
 }
 
 $("#infoButton").click(function() {
-  manageRightBoxes("#infoPanel", "#configPanel", "#bandsPanel");
+  manageRightBoxes("#infoPanel", "#configPanel", "#bandsPanel", null);
 });
 $("#configButton").click(function() {
-  manageRightBoxes("#configPanel", "#infoPanel", "#bandsPanel");
+  manageRightBoxes("#configPanel", "#infoPanel", "#bandsPanel", null);
 });
 $("#bandsButton").click(function() {
-  // Check if we are about to show the bands panel, if so recalculate its content
-  if ($("#bandsPanel").is(":hidden")) {
-    recalculateBandsPanelContent();
-  }
-  manageRightBoxes("#bandsPanel", "#configPanel", "#infoPanel");
+  manageRightBoxes("#bandsPanel", "#configPanel", "#infoPanel", function() {
+    // Check if we showed the bands panel, if so recalculate its content
+    if ($("#bandsPanel").is(":visible")) {
+      recalculateBandsPanelContent();
+    }
+  });
 });
 
 // Manual update button
@@ -743,12 +754,12 @@ let installPrompt = null;
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   installPrompt = event;
-  $("installOnAnotherDevice").hide();
-  $("installPrompt").show();
+  $("#installOnAnotherDevice").hide();
+  $("#installPrompt").show();
 });
 
 // Handle the user clicking our install button
-$("installPrompt").click(async function() {
+$("#installPrompt").click(async function() {
   if (!installPrompt) {
     return;
   }
@@ -762,13 +773,13 @@ window.addEventListener("appinstalled", () => {
 });
 function disableInAppInstallPrompt() {
   installPrompt = null;
-  $("installPrompt").hide();
+  $("#installPrompt").hide();
 }
 
 // Disable both the install and install-on-another-device prompts if already installed
 if (window.matchMedia('(display-mode: standalone)').matches) {
-  $("installOnAnotherDevice").hide();
-  $("installPrompt").hide();
+  $("#installOnAnotherDevice").hide();
+  $("#installPrompt").hide();
 }
 
 
