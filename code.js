@@ -777,7 +777,7 @@ function disableInAppInstallPrompt() {
 }
 
 // Disable both the install and install-on-another-device prompts if already installed
-if (window.matchMedia('(display-mode: standalone)').matches) {
+if (navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
   $("#installOnAnotherDevice").hide();
   $("#installPrompt").hide();
 }
