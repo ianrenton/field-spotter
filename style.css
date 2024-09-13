@@ -91,7 +91,7 @@ div#bandsPanelInner {
 div.bandCol {
     display: inline-block;
     height: 100%;
-    min-width: 6em;
+    min-width: 8em;
     display: flex;
     flex-flow: column;
     overflow-y: clip;
@@ -115,6 +115,9 @@ div.bandColMiddle ul {
 div.bandColMiddle ul li {
     display: table-row;
     line-height: 0.5em;
+}
+div.bandColMiddle ul li.withSpots {
+    line-height: 1em;
 }
 div.bandColMiddle ul li span {
     display: table-cell;
@@ -177,24 +180,10 @@ p#bandPanelNoSpots {
     white-space: wrap;
 }
 div.bandColSpot {
-    position: absolute;
-    display: inline-block;
+    display: block;
     background: #f9f06b;
-    border-radius: .4em;
-    padding-right: 0.2em;
-}
-div.bandColSpot:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 0;
-    height: 0;
-    border: 15px solid transparent;
-    border-right-color: #f9f06b;
-    border-left: 0;
-    margin-top: -15px;
-    margin-left: -15px;
+    border-radius: 3px;
+    padding: 3px;
 }
 
 /* Leaflet.js mods */

@@ -169,12 +169,13 @@ async function handleSOTAData(result) {
       refName: spot.summitDetails,
       activator: spot.activatorCallsign,
       mode: normaliseMode(spot.mode),
-      freq: spot.frequency,
-      band: freqToBand(spot.frequency),
+      freq: parseFloat(spot.frequency),
+      band: freqToBand(parseFloat(spot.frequency)),
       time: moment.utc(spot.timeStamp),
       comment: spot.comments,
       program: "SOTA"
     }
+          console.log("SOTA" + newSpot.freq +" " + typeof(newSpot.freq));
     spots.set(uid, newSpot);
 
     // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
@@ -311,33 +312,49 @@ async function recalculateBandsPanelContent() {
     html += "<div class='bandColHeader' style='background-color:" + band.color + "'>" + band.name + "</div>";
     html += "<div class='bandColMiddle'>";
 
-    // Frequency scale
-    freqStep = (band.stopFreq - band.startFreq) / 10.0;
+    var freqStep = (band.stopFreq - band.startFreq) / 40.0;
     html += "<ul>";
     html += "<li><span>-</span></li>";
-    for (let i=0; i<=10; i++) {
-      html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed((map.size > 4) ? 1 : 3) + "</span></li>";
-      if (i != 10) {
-        html += "<li><span>-</span></li>";
-        html += "<li><span>&ndash;</span></li>";
-        html += "<li><span>-</span></li>";
+
+    // Do 40 steps down the band
+    for (let i=0; i<=40; i++) {
+
+      // Work out if there are any spots in this step
+      var freqStepStart = band.startFreq + i * freqStep;
+      var freqStepEnd = freqStepStart + freqStep;
+      var spotsInStep = spotList.filter(function (s) {
+        // Normally we do >= start and < end, but in the special case where this is the last step and there is a spot
+        // right at the end of the band, we include this too
+        return s.freq >= freqStepStart && (s.freq < freqStepEnd || (s.freq == freqStepEnd && freqStepEnd == band.stopFreq));
+      });
+
+      if (spotsInStep.length > 0) {
+        // If this step has spots in it, print them
+        html += "<li class='withSpots'><span>";
+        spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0))
+        spotsInStep.forEach(function(s) {
+          html += "<div class='bandColSpot'>" + s.activator + "<br/>" + (s.freq).toFixed(3) + "</div>";
+        });
+        html += "</li></span>";
+
+      } else {
+        // Step had no spots in it, so just print a marker. This is a frequency on multiples of 4, or a dash otherwise.
+        if (i % 4 == 0) {
+          html += "<li><span>&mdash;" + (band.startFreq + i * freqStep).toFixed(3) + "</span></li>";
+        } else if (i % 4 == 2) {
+          html += "<li><span>&ndash;</span></li>";
+        } else {
+          html += "<li><span>-</span></li>";
+        }
       }
     }
     html += "<li><span>-</span></li>";
     html += "</ul>";
 
-    // Spot markers
-    spotList.forEach(function (s) {
-      var fractionDownBand = (s.freq - band.startFreq) / (band.stopFreq - band.startFreq);
-      var divTopPercent = (fractionDownBand * (98.7 - 5.7)) + 5.7;
-      var divLeftPercent = columnIndex * columnWidthPercent;
-      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:" + divTopPercent + "%; left:" + divLeftPercent + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
-    });
-
     html += "</div></div>";
     columnIndex++;
   });
-  // Update the DOM with frequency scales
+  // Update the DOM with the band HTML
   $("#bandsPanelInner").html(html);
 }
 
