@@ -58,6 +58,7 @@ var maxSpotAgeMin = 60;
 
 // Kick off by fetching POTA and SOTA data
 function fetchData() {
+  spots.length = 0;
   fetchPOTAData();
   fetchSOTAData();
   lastUpdateTime = moment();
@@ -144,7 +145,6 @@ async function handlePOTAData(result) {
       comment: spot.comment,
       program: "POTA"
     }
-
     spots.set(uid, newSpot);
   });
 }
@@ -175,7 +175,6 @@ async function handleSOTAData(result) {
       comment: spot.comments,
       program: "SOTA"
     }
-          console.log("SOTA" + newSpot.freq +" " + typeof(newSpot.freq));
     spots.set(uid, newSpot);
 
     // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
