@@ -224,8 +224,8 @@ async function updateMapObjects() {
   spots.forEach(function(s) {
     var pos = getIconPosition(s);
 
-    // Filter for the programs, bands and modes we are interested in
-    if (programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)) {
+    // Filter for the time threshold, programs, bands and modes we are interested in
+    if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)) {
 
       if (markers.has(s.uid) && pos != null) {
         // Existing marker, so update it
@@ -264,6 +264,7 @@ async function updateMapObjects() {
     } else if (markers.has(s.uid)) {
       // Existing marker now excluded by filters, so remove
       var marker = markers.get(s.uid);
+      marker.closePopup();
       markersLayer.removeLayer(marker);
       markers.delete(s.uid);
     }
@@ -272,6 +273,7 @@ async function updateMapObjects() {
   // Iterate through markers. If one corresponds to a dropped spot, delete it
   markers.forEach(function(marker, uid, map) {
     if (!spots.has(uid)) {
+      marker.closePopup();
       markersLayer.removeLayer(marker);
       markers.delete(uid);
     }
@@ -465,6 +467,12 @@ function modeAllowedByFilters(mode) {
 // Is the spot's band allowed through the filter?
 function bandAllowedByFilters(band) {
   return bands.includes(band);
+}
+
+// Is the spot's age allowed through the filter?
+function ageAllowedByFilters(spotTime) {
+  age = moment().diff(spotTime, 'minutes');
+  return age < maxSpotAgeMin;
 }
 
 // Get the list of spot UIDs in the current map viewport
