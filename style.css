@@ -120,29 +120,6 @@ div.bandColMiddle ul li span {
     display: table-cell;
     vertical-align: middle;
 }
-div.bandColSpot {
-    position: relative;
-    left: 1em;
-    float: left;
-    position: relative;
-    background: #f9f06b;
-    border-radius: .4em;
-    padding-right: 0.2em;
-}
-
-div.bandColSpot:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 0;
-    height: 0;
-    border: 15px solid transparent;
-    border-right-color: #f9f06b;
-    border-left: 0;
-    margin-top: -15px;
-    margin-left: -15px;
-}
 
 
 /* Button styles */
@@ -198,6 +175,27 @@ p#bandPanelNoSpots {
     margin-left: 1em;
     margin-right: 1em;
     white-space: wrap;
+}
+div.bandColSpot {
+    position: relative;
+    left: 1em;
+    display: inline-block;
+    background: #f9f06b;
+    border-radius: .4em;
+    padding-right: 0.2em;
+}
+div.bandColSpot:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 15px solid transparent;
+    border-right-color: #f9f06b;
+    border-left: 0;
+    margin-top: -15px;
+    margin-left: -15px;
 }
 
 /* Leaflet.js mods */

@@ -285,7 +285,6 @@ async function recalculateBandsPanelContent() {
     return spots.get(uid);
   });
   // Stop here if nothing to display
-  console.log(spotsForBandDisplay.length)
   if (spotsForBandDisplay.length == 0) {
     $("#bandsPanelInner").html("<p id='bandPanelNoSpots'>There are no spots in view on the map. Pan and zoom to find some, or alter your filters, before using the band view.</p>");
     return;
@@ -325,10 +324,15 @@ async function recalculateBandsPanelContent() {
     html += "<li><span>-</span></li>";
     html += "</ul>";
 
-    // Spot markers - unpositioned for now
+    // Spot markers
+    // These are generated below the page and need to be positioned upwards, so negative relative top position.
+    // Aligning with the band start marker is -98.7%, aligning with the band stop marker is -5.7%.
     spotList.forEach(function (s) {
-      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:-" + (Math.random()*100) + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
+      var fractionDownBand = (s.freq - band.startFreq) / (band.stopFreq - band.startFreq);
+      var divTopPercent = ((1 - fractionDownBand) * (-98.7 + 5.7)) - 5.7;
+      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:" + divTopPercent + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
     });
+
     html += "</div></div>";
   });
   // Update the DOM with frequency scales
