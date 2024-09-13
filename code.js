@@ -716,6 +716,9 @@ $("#show70cm").change(function() {
   setBandEnable("70cm", $(this).is(':checked'));
 });
 
+// Desktop mouse wheel to scroll bands horizontally if necessary
+$("#bandsPanelInner").on("wheel", (e) => event.currentTarget.scrollLeft += event.deltaY / 10.0);
+
 
 /////////////////////////////
 // LOCAL STORAGE FUNCTIONS //
