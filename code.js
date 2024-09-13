@@ -36,6 +36,7 @@ var myPos = null;
 var map;
 var markersLayer;
 var oms;
+var terminator;
 var currentLineToSpot = null;
 
 
@@ -526,6 +527,11 @@ function setUpMap() {
     }
   });
 
+  // Add terminator/greyline
+  terminator = L.terminator();
+  terminator.setStyle({fillColor: '#00000050'});
+  terminator.addTo(map);
+
   // Request geolocation
   map.setView([30, 0], 3);
   if (navigator.geolocation) {
@@ -816,3 +822,5 @@ fetchData();
 // Every second, check if we need to update data based on the user's configured update interval,
 // and update other UI elements regarding data age.
 setInterval(checkForUpdate, 1000);
+// Update terminator/greyline every 5 minutes
+setInterval(function() { terminator.setTime() }, 300);
