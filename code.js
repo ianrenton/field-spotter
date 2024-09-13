@@ -303,9 +303,11 @@ async function recalculateBandsPanelContent() {
   });
   // Build up HTML content for each band
   var html = "";
+  var columnWidthPercent = Math.max(30, 100 / bandToSpots.size);
+  var columnIndex = 0;
   bandToSpots.forEach(function (spotList, bandName, map) {
     band = BANDS.filter(function (b) { return b.name == bandName; })[0];
-    html += "<div class='bandCol' style='width:" + Math.max(30, 100 / map.size) + "%'>";
+    html += "<div class='bandCol' style='width:" + columnWidthPercent + "%'>";
     html += "<div class='bandColHeader' style='background-color:" + band.color + "'>" + band.name + "</div>";
     html += "<div class='bandColMiddle'>";
 
@@ -325,22 +327,18 @@ async function recalculateBandsPanelContent() {
     html += "</ul>";
 
     // Spot markers
-    // These are generated below the page and need to be positioned upwards, so negative relative top position.
-    // Aligning with the band start marker is -98.7%, aligning with the band stop marker is -5.7%.
     spotList.forEach(function (s) {
       var fractionDownBand = (s.freq - band.startFreq) / (band.stopFreq - band.startFreq);
-      var divTopPercent = ((1 - fractionDownBand) * (-98.7 + 5.7)) - 5.7;
-      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:" + divTopPercent + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
+      var divTopPercent = (fractionDownBand * (98.7 - 5.7)) + 5.7;
+      var divLeftPercent = columnIndex * columnWidthPercent;
+      html += "<div class='bandColSpot' id='bandColSpot-" + s.uid + "' style='top:" + divTopPercent + "%; left:" + divLeftPercent + "%'>" + s.activator + "<br/>" + s.freq + "</div>";
     });
 
     html += "</div></div>";
+    columnIndex++;
   });
   // Update the DOM with frequency scales
   $("#bandsPanelInner").html(html);
-
-  // Spot markers
-  pixelHeight = $(".bandColMiddle").height();
-//  for ()
 }
 
 

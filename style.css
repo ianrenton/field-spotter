@@ -177,8 +177,7 @@ p#bandPanelNoSpots {
     white-space: wrap;
 }
 div.bandColSpot {
-    position: relative;
-    left: 1em;
+    position: absolute;
     display: inline-block;
     background: #f9f06b;
     border-radius: .4em;
