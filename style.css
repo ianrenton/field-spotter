@@ -156,9 +156,6 @@ button.slideOutButton {
 div.rightbox {
     background-color: var(--background);
 }
-div.rightbox h1 {
-    margin-top: 0;
-}
 div.rightbox p#subtitle {
     margin-right: 4em;
     font-weight: bold;

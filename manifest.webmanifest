@@ -4,7 +4,7 @@
     "name": "Field Spotter",
     "short_name": "Field Spotter",
     "scope": "/",
-    "display": "standalone",
+    "display": "fullscreen",
     "start_url": "https://fieldspotter.ianrenton.com/",
     "background_color": "white",
     "theme_color": "green",
