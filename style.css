@@ -163,6 +163,11 @@ i.markerPopupIcon {
     margin-top: 0.1em;
     width: 1.2em;
 }
+span.popupRefName {
+    display:inline-block;
+    white-space: wrap;
+    margin-right: 1em;
+}
 
 /* Bands panel inner styles */
 div.bandColHeader {

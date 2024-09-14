@@ -8,7 +8,7 @@
     "start_url": "https://fieldspotter.radio/",
     "background_color": "white",
     "theme_color": "white",
-    "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA & SOTA activations",
+    "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA SOTA & WWFF activations",
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [

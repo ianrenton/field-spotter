@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html color-mode="dark">
     <head>
-        <title>Field Spotter for POTA & SOTA</title>
+        <title>Field Spotter for POTA, SOTA & WWFF</title>
 
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width; initial-scale=1.0; viewport-fit=cover">
@@ -13,8 +13,8 @@
 
         <meta property="og:title" content="Field Spotter" />
         <meta property="twitter:title" content="Field Spotter" />
-        <meta name="description" content="A mobile Amateur Radio spotting tool for POTA and SOTA" />
-        <meta property="og:description" content="A mobile Amateur Radio spotting tool for POTA and SOTA" />
+        <meta name="description" content="A mobile Amateur Radio spotting tool for POTA, SOTA and WWFF" />
+        <meta property="og:description" content="A mobile Amateur Radio spotting tool for POTA, SOTA and WWFF" />
         <link rel="canonical" href="https://fieldspotter.radio/" />
         <meta property="og:url" content="https://fieldspotter.radio/" />
         <meta property="og:image" content="https://fieldspotter.radio/banner2.png" />
@@ -60,13 +60,13 @@
         <div id="infoPanel" class="rightbox">
             <div class="rightboxInner">
                 <h1>Field Spotter</h1>
-                <p id="subtitle">A mobile Amateur Radio spotting tool for POTA and SOTA</p>
+                <p id="subtitle">A mobile Amateur Radio spotting tool for POTA, SOTA & WWFF</p>
                 <p>By <a href="https://ianrenton.com">Ian Renton MØTRT</a></p>
                 <ul><li><a href="https://ianrenton.com/projects/field-spotter">About the Project</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter">Source Code</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter/issues">Issue Tracker</a></li></ul>
                 <h3>Using the tool</h3>
-                <p>POTA and SOTA spots from the last hour are displayed on the map. Click a marker to view details such as activator, park/summit code, distance and how old the spot is. Older spots appear faded out. When a location has multiple spots, click the marker to expand out the set of spots.</p>
+                <p>POTA, SOTA & WWFF spots from the last hour are displayed on the map. Click a marker to view details such as activator, park/summit code, distance and how old the spot is. Older spots appear faded out. When a location has multiple spots, click the marker to expand out the set of spots.</p>
                 <p>The <i class="fa-solid fa-gear"></i> button allows you to filter by mode and band.</p>
                 <p>The <i class="fa-solid fa-ruler-horizontal"></i> button takes the spots currently on the map and shows where they are on the bands as well.</p>
                 <p id="installPrompt">You can install Field Spotter on your device! This is a Progressive Web App (PWA), which means you can add it to your home screen by clicking the button below. An internet connection is still required to retrieve the latest data.<br/><span style="text-align: center; display: block;"><button id="installApp">Add to Home Screen</button></span></p>
@@ -89,8 +89,9 @@
                 <label>old</label>
                 <p>Show spots in these programs:</p>
                 <div id="bandlist">
-                    <table><tr><td><label for="showPOTA" class="configLabel"><input type="checkbox" id="showPOTA" name="showPOTA" checked="true">&nbsp;POTA</label></td>
-                    <td><label for="showSOTA" class="configLabel"><input type="checkbox" id="showSOTA" name="showSOTA" checked="true">&nbsp;SOTA</label></td></tr></table>
+                    <table><tr><td><label for="showPOTA" class="configLabel"><input type="checkbox" id="showPOTA" name="showPOTA" checked="true">&nbsp;<i class='fa-solid fa-tree'></i>&nbsp;POTA</label></td>
+                    <td><label for="showSOTA" class="configLabel"><input type="checkbox" id="showSOTA" name="showSOTA" checked="true">&nbsp;<i class='fa-solid fa-mountain-sun'></i>&nbsp;SOTA</label></td>
+                    <td><label for="showWWFF" class="configLabel"><input type="checkbox" id="showWWFF" name="showWWFF" checked="true">&nbsp;<i class="fa-solid fa-paw"></i>&nbsp;WWFF</label></td></tr></table>
                 </div>
                 <p>Show spots in these modes:</p>
                 <div id="bandlist">
@@ -127,6 +128,7 @@
                 <p>Last updated at <span id="lastUpdateTime"></span></p>
                 <p>POTA API Status: <span id="potaApiStatus"></span></p>
                 <p>SOTA API Status: <span id="sotaApiStatus"></span></p>
+                <p>WWFF API Status: <span id="wwffApiStatus"></span></p>
                 <p><button id="updateNow">Update now</button></p><br/>
             </div>
         </div>

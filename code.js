@@ -6,6 +6,7 @@ const VERSION = "0.1";
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
 const SOTA_SPOTS_URL = "https://api2.sota.org.uk/api/spots/-1/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api2.sota.org.uk/api/summits/";
+const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
 const BANDS = [
@@ -46,7 +47,7 @@ var currentLineToSpot = null;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-var programs = ["POTA", "SOTA"];
+var programs = ["POTA", "SOTA", "WWFF"];
 var modes = ["Phone", "CW", "Digi"];
 var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm"];
 var updateIntervalMin = 5;
@@ -62,10 +63,11 @@ function fetchData() {
   spots.length = 0;
   fetchPOTAData();
   fetchSOTAData();
+  fetchWWFFData();
   lastUpdateTime = moment();
 }
 
-// Fetch POTA data, updating the internal data model and the map on success, updating the status icon appropriately
+// Fetch POTA data, updating the internal data model and the map on success
 function fetchPOTAData() {
   $("span#potaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
   $.ajax({
@@ -84,7 +86,7 @@ function fetchPOTAData() {
   });
 }
 
-// Fetch SOTA data, updating the internal data model and the map on success, updating the status icon appropriately
+// Fetch SOTA data, updating the internal data model and the map on success
 function fetchSOTAData() {
   $("span#sotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
   $.ajax({
@@ -99,6 +101,25 @@ function fetchSOTAData() {
     },
     error: function() {
       $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+    }
+  });
+}
+
+// Fetch WWFF data, updating the internal data model and the map on success
+function fetchWWFFData() {
+  $("span#wwffApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+  $.ajax({
+    url: WWFF_SPOTS_URL,
+    dataType: 'json',
+    timeout: 10000,
+    success: async function(result) {
+      handleWWFFData(result);
+      wwffDataTime = moment(0);
+      updateMapObjects();
+      $("span#wwffApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+    },
+    error: function() {
+      $("span#wwffApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
     }
   });
 }
@@ -217,6 +238,41 @@ async function updateSOTASpot(uid, cacheKey, apiResponse) {
   spots.set(uid, updateSpot);
   updateMapObjects();
   localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
+
+// Interpret WWFF data and update the internal data model
+async function handleWWFFData(result) {
+  // Clear existing WWFF spots from the internal list
+  Object.keys(spots).forEach(function (k) {
+      if (spots[k].program === "WWFF") {
+          delete spots[k];
+      }
+  });
+
+  // Add the retrieved spots to the list
+  spotUpdate = objectToMap(result);
+  spotUpdate.get("RCD").forEach(spot => {
+    // WWFF API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
+    var uid = "WWFF-" + hashCode(spot);
+    var newSpot = {
+      uid: uid,
+      lat: parseFloat(spot.LAT),
+      lon: parseFloat(spot.LON),
+      ref: spot.REF,
+      refName: spot.NAME,
+      activator: spot.ACTIVATOR.toUpperCase(),
+      mode: normaliseMode(spot.MODE),
+      freq: parseFloat(spot.QRG) / 1000.0,
+      band: freqToBand(parseFloat(spot.QRG) / 1000.0),
+      time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
+      comment: spot.TEXT,
+      program: "WWFF"
+    }
+    // Avoid duplications if the API returns them
+    if (!hasDupe(newSpot)) {
+      spots.set(uid, newSpot);
+    }
+  });
 }
 
 /////////////////////////////
@@ -379,13 +435,15 @@ async function recalculateBandsPanelContent() {
 function getTooltipText(s) {
   ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
-  if (s.program == "SOTA") {
+  if (s.program == "POTA") {
+    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i> ";
+  } else if (s.program == "SOTA") {
     ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i> ";
   } else {
-    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i> ";
+    ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i> ";
   }
 
-  ttt += "<span style='display:inline-block; white-space: wrap;'>" + s.ref + " " + s.refName + "</span></span><br/>";
+  ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span><br/>";
   ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq + " MHz (" + s.band + ")  &nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode + "<br/>";
   if (myPos != null) {
     spotLatLng = new L.latLng(s["lat"], s["lon"])
@@ -396,7 +454,7 @@ function getTooltipText(s) {
   }
   ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
   if (s.comment != null && s.comment.length > 0) {
-    ttt += "<br/><i class='fa-solid fa-comment'></i> " + s.comment;
+    ttt += "<br/><i class='fa-solid fa-comment markerPopupIcon'></i> " + s.comment;
   }
   return ttt;
 }
@@ -465,8 +523,14 @@ function freqToColor(f) {
 
 // Get an icon for a spot, based on its band, using PSK Reporter colours, its program etc.
 function getIcon(s) {
+  var icon = "fa-tree";
+  if (s.program == "SOTA") {
+    icon = "fa-mountain-sun";
+  } else if (s.program == "WWFF") {
+    icon = "fa-paw";
+  }
   return L.ExtraMarkers.icon({
-    icon: (s.program == "SOTA") ? "fa-mountain-sun" : "fa-tree",
+    icon: icon,
     markerColor: freqToColor(s.freq),
     shape: 'circle',
     prefix: 'fa',
@@ -517,6 +581,14 @@ function getSpotUIDsInView() {
     }
   });
   return uids;
+}
+
+// Create a hashcode for a spot (or any object). Used to work around the WWFF API not providing unique spot IDs.
+function hashCode(spot) {
+  var s = JSON.stringify(spot);
+  for(var i = 0, h = 0; i < s.length; i++)
+    h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+  return h;
 }
 
 
@@ -681,6 +753,9 @@ $("#showPOTA").change(function() {
 $("#showSOTA").change(function() {
   setProgramEnable("SOTA", $(this).is(':checked'));
 });
+$("#showWWFF").change(function() {
+  setProgramEnable("WWFF", $(this).is(':checked'));
+});
 
 // Modes
 function setModeEnable(type, enable) {
@@ -787,6 +862,7 @@ function loadLocalStorage() {
   programs = localStorageGetOrDefault('programs', programs);
   $("#showPOTA").prop('checked', programs.includes("POTA"));
   $("#showSOTA").prop('checked', programs.includes("SOTA"));
+  $("#showWWFF").prop('checked', programs.includes("WWFF"));
 
   // Modes
   modes = localStorageGetOrDefault('modes', modes);
