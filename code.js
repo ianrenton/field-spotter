@@ -143,7 +143,7 @@ async function handlePOTAData(result) {
       freq: spot.frequency / 1000.0,
       band: freqToBand(spot.frequency / 1000.0),
       time: moment.utc(spot.spotTime),
-      comment: spot.comment,
+      comment: spot.comments,
       program: "POTA"
     }
     // Avoid duplications if the API returns them
@@ -182,7 +182,6 @@ async function handleSOTAData(result) {
 
     // Avoid duplications if the API returns them
     if (!hasDupe(newSpot)) {
-      console.log(newSpot.activator + " addinganyway") // @todo remove
       spots.set(uid, newSpot);
 
       // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
@@ -343,7 +342,10 @@ async function recalculateBandsPanelContent() {
         html += "<li class='withSpots'><span>";
         spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0))
         spotsInStep.forEach(function(s) {
-          html += "<div class='bandColSpot'>" + s.activator + "<br/>" + (s.freq).toFixed(3) + "</div>";
+          html += "<div class='bandColSpot'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+          if (s.mode != null && s.mode.length > 0 && s.mode != "Unknown") {
+            html += " " + s.mode + "</div>";
+          }
         });
         html += "</li></span>";
 
@@ -393,6 +395,9 @@ function getTooltipText(s) {
     ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
   }
   ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
+  if (s.comment != null && s.comment.length > 0) {
+    ttt += "<br/><i class='fa-solid fa-comment'></i> " + s.comment;
+  }
   return ttt;
 }
 
@@ -423,7 +428,6 @@ function hasDupe(s) {
       if (check.time.isAfter(s.time)) {
         check.time = s.time;
       }
-      console.log(s.activator); // @todo remove
       found = true;
     }
   });
