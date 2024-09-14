@@ -5,7 +5,7 @@
     "short_name": "Field Spotter",
     "scope": "/",
     "display": "fullscreen",
-    "start_url": "https://fieldspotter.ianrenton.com/",
+    "start_url": "https://fieldspotter.radio/",
     "background_color": "white",
     "theme_color": "white",
     "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA & SOTA activations",
@@ -23,5 +23,5 @@
       "sizes": "512x512"
     }
   ],
-    "url": "https://fieldspotter.ianrenton.com"
+  "url": "https://fieldspotter.radio"
 }
