@@ -52,6 +52,7 @@ var modes = ["Phone", "CW", "Digi"];
 var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm"];
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
+var passiveDisplay = false;
 
 
 /////////////////////////////
@@ -297,6 +298,9 @@ async function updateMapObjects() {
         // Regenerate marker color & text in case the spot has updated
         m.setIcon(getIcon(s));
         m.tooltip = getTooltipText(s);
+        if (passiveDisplay) {
+          m.bindTooltip(getPassiveDisplayTooltipText(s), { permanent: true, direction: 'top', offset:L.point(0, -40) });
+        }
 
         // Set opacity with age
         age = moment().diff(s.time, 'minutes');
@@ -314,6 +318,9 @@ async function updateMapObjects() {
 
         // Set tooltip
         m.tooltip = getTooltipText(s);
+        if (passiveDisplay) {
+          m.bindTooltip(getPassiveDisplayTooltipText(s), { permanent: true, direction: 'top', offset:L.point(0, -40) });
+        }
 
         // Set opacity with age
         age = moment().diff(s.time, 'minutes');
@@ -432,6 +439,7 @@ async function recalculateBandsPanelContent() {
 //  SPOT DISPLAY FUNCTIONS //
 /////////////////////////////
 
+// Tooltip text for the normal click-to-appear tooltips
 function getTooltipText(s) {
   ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
@@ -459,8 +467,16 @@ function getTooltipText(s) {
   return ttt;
 }
 
+// Tooltip text for the "passive mode" permanent tooltips
+function getPassiveDisplayTooltipText(s) {
+  ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq + " " + s.mode + "<br/>";
+  return ttt;
+}
+
 function getIconPosition(s) {
-  if (s["lat"] != null) {
+  if (s["lat"] != null && s["lon"] != null && !isNaN(s["lat"]) && !isNaN(s["lon"])) {
+    console.log(s["lat"] + " " + s["lon"]);
     return [s["lat"], s["lon"]];
   } else {
     return null;
@@ -830,6 +846,19 @@ $("#show70cm").change(function() {
   setBandEnable("70cm", $(this).is(':checked'));
 });
 
+// Passive mode
+$("#passiveDisplay").change(function() {
+  passiveDisplay = $(this).is(':checked');
+  // When toggling passive display on or off, delete and regenerate all markers
+  markers.forEach(function(marker, uid, map) {
+    marker.closePopup();
+    markersLayer.removeLayer(marker);
+    markers.delete(uid);
+  });
+  localStorage.setItem('passiveDisplay', passiveDisplay);
+  updateMapObjects();
+});
+
 // Desktop mouse wheel to scroll bands horizontally if necessary
 $("#bandsPanelInner").on("wheel", (e) => event.currentTarget.scrollLeft += event.deltaY / 10.0);
 
@@ -886,6 +915,10 @@ function loadLocalStorage() {
   $("#show4m").prop('checked', bands.includes("4m"));
   $("#show2m").prop('checked', bands.includes("2m"));
   $("#show70cm").prop('checked', bands.includes("70cm"));
+
+  // Passive display mode
+  passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);
+  $("#passiveDisplay").prop('checked', passiveDisplay);
 }
 
 
