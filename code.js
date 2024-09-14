@@ -146,7 +146,10 @@ async function handlePOTAData(result) {
       comment: spot.comment,
       program: "POTA"
     }
-    spots.set(uid, newSpot);
+    // Avoid duplications if the API returns them
+    if (!hasDupe(newSpot)) {
+      spots.set(uid, newSpot);
+    }
   });
 }
 
@@ -176,25 +179,30 @@ async function handleSOTAData(result) {
       comment: spot.comments,
       program: "SOTA"
     }
-    spots.set(uid, newSpot);
 
-    // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
-    // it up in the cache, if not then trigger a call to the API to get it, then cache it
-    var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
-    var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
-    if (null === cacheHit) {
-      $.ajax({
-        url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
-        dataType: 'json',
-        timeout: 10000,
-        success: async function(result) {
-          if (result != null) {
-            updateSOTASpot(uid, cacheKey, result);
+    // Avoid duplications if the API returns them
+    if (!hasDupe(newSpot)) {
+      console.log(newSpot.activator + " addinganyway") // @todo remove
+      spots.set(uid, newSpot);
+
+      // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
+      // it up in the cache, if not then trigger a call to the API to get it, then cache it
+      var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
+      var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
+      if (null === cacheHit) {
+        $.ajax({
+          url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
+          dataType: 'json',
+          timeout: 10000,
+          success: async function(result) {
+            if (result != null) {
+              updateSOTASpot(uid, cacheKey, result);
+            }
           }
-        }
-      });
-    } else {
-      updateSOTASpot(uid, cacheKey, cacheHit);
+        });
+      } else {
+        updateSOTASpot(uid, cacheKey, cacheHit);
+      }
     }
   });
 }
@@ -402,6 +410,25 @@ function getIconPosition(s) {
 //    UTILITY FUNCTIONS    //
 /////////////////////////////
 
+
+// For a given spot, work out if there is already a duplicate in the spots list.
+// This is used on querying the API to make sure we don't get multiple entries
+// with the same activator, reference, frequency and band. As a (nasty) side-
+// effect, if this method finds a duplicate and the one already in the list is
+// older, it will update the time of the older entry to match the newer.
+function hasDupe(s) {
+  var found = false;
+  spots.forEach(function(check) {
+    if (s.program == check.program && s.activator == check.activator && s.ref == check.ref && s.mode == check.mode && s.freq == check.freq) {
+      if (check.time.isAfter(s.time)) {
+        check.time = s.time;
+      }
+      console.log(s.activator); // @todo remove
+      found = true;
+    }
+  });
+  return found;
+}
 
 // Utility to convert an object created by JSON.parse() into a proper JS map.
 function objectToMap(o) {
