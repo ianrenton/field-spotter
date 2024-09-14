@@ -140,10 +140,10 @@ div.rightbox p#subtitle {
     margin-right: 4em;
     font-weight: bold;
 }
-div#bandlist {
+div.optionlist {
     line-height: 150%;
 }
-div#bandlist label {
+div.optionlist label {
     margin-right: 2em;
 }
 label.configLabel {

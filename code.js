@@ -52,6 +52,7 @@ var modes = ["Phone", "CW", "Digi"];
 var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm"];
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
+var hideQRT = true;
 var passiveDisplay = false;
 
 
@@ -288,8 +289,9 @@ async function updateMapObjects() {
   spots.forEach(function(s) {
     var pos = getIconPosition(s);
 
-    // Filter for the time threshold, programs, bands and modes we are interested in
-    if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)) {
+    // Filter for the time threshold, programs, bands and modes we are interested in.
+    // Also filter out spots where comments include "QRT" (shut down), if requested.
+    if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band) && qrtStatusAllowedByFilters(s.comment)) {
 
       if (markers.has(s.uid) && pos != null) {
         // Existing marker, so update it
@@ -581,8 +583,19 @@ function bandAllowedByFilters(band) {
 
 // Is the spot's age allowed through the filter?
 function ageAllowedByFilters(spotTime) {
-  age = moment().diff(spotTime, 'minutes');
+  var age = moment().diff(spotTime, 'minutes');
   return age < maxSpotAgeMin;
+}
+
+// Is the spot's QRT (shut down) status allowed through the filter? No API gives a good way of
+// determining this, so the best we can do is monitor spot comments for the string "QRT", which
+// is how operators typically report it.
+function qrtStatusAllowedByFilters(comment) {
+  var qrt = false;
+  if (comment != null) {
+    qrt = comment.toUpperCase().includes("QRT");
+  }
+  return !qrt || !hideQRT;
 }
 
 // Get the list of spot UIDs in the current map viewport
@@ -845,6 +858,13 @@ $("#show70cm").change(function() {
   setBandEnable("70cm", $(this).is(':checked'));
 });
 
+// Hide QRT
+$("#hideQRT").change(function() {
+  hideQRT = $(this).is(':checked');
+  localStorage.setItem('hideQRT', hideQRT);
+  updateMapObjects();
+});
+
 // Passive mode
 $("#passiveDisplay").change(function() {
   passiveDisplay = $(this).is(':checked');
@@ -914,6 +934,10 @@ function loadLocalStorage() {
   $("#show4m").prop('checked', bands.includes("4m"));
   $("#show2m").prop('checked', bands.includes("2m"));
   $("#show70cm").prop('checked', bands.includes("70cm"));
+
+  // Hide QRT
+  hideQRT = localStorageGetOrDefault('hideQRT', hideQRT);
+  $("#hideQRT").prop('checked', hideQRT);
 
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);
