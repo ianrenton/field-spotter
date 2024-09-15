@@ -165,7 +165,7 @@ async function handlePOTAData(result) {
       ref: spot.reference,
       refName: spot.name,
       activator: spot.activator,
-      mode: normaliseMode(spot.mode),
+      mode: normaliseMode(spot.mode, spot.comments),
       freq: spot.frequency / 1000.0,
       band: freqToBand(spot.frequency / 1000.0),
       time: moment.utc(spot.spotTime),
@@ -198,7 +198,7 @@ async function handleSOTAData(result) {
       ref: spot.associationCode + "/" + spot.summitCode,
       refName: spot.summitDetails,
       activator: spot.activatorCallsign,
-      mode: normaliseMode(spot.mode),
+      mode: normaliseMode(spot.mode, spot.comments),
       freq: parseFloat(spot.frequency),
       band: freqToBand(parseFloat(spot.frequency)),
       time: moment.utc(spot.timeStamp),
@@ -266,7 +266,7 @@ async function handleWWFFData(result) {
       ref: spot.REF,
       refName: spot.NAME,
       activator: spot.ACTIVATOR.toUpperCase(),
-      mode: normaliseMode(spot.MODE),
+      mode: normaliseMode(spot.MODE, spot.TEXT),
       freq: parseFloat(spot.QRG) / 1000.0,
       band: freqToBand(parseFloat(spot.QRG) / 1000.0),
       time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
@@ -565,10 +565,17 @@ function getIcon(s) {
   });
 }
 
-// Normalise a mode to caps and replace blanks with unknown
-function normaliseMode(m) {
+// Normalise a mode to caps and replace blanks with "Unknown". If the mode is not provided but a comment
+// contains a mode-like string, use that instead
+function normaliseMode(m, comment) {
   if (!m || m.length === 0 ) {
-    return "Unknown";
+    var mode = "Unknown";
+    ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV"].forEach(function(test) {
+      if (comment.toUpperCase().includes(test)) {
+        mode = test;
+      }
+    });
+    return mode;
   } else {
     return m.toUpperCase();
   }
