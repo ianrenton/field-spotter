@@ -198,7 +198,7 @@ div.bandColSpot {
 
 /* Mobile */
 @media only screen and (max-width: 800px) {
-    span.hideonmobile {
+    .hideonmobile {
         display: none;
     }
     div.rightbox {

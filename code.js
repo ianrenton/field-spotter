@@ -54,6 +54,7 @@ var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
 var passiveDisplay = false;
+var enableAnimation = true;
 
 
 /////////////////////////////
@@ -676,7 +677,10 @@ function setUpMap() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
-      map.setView(myPos, 5);
+      map.setView(myPos, 5, {
+        animate: enableAnimation,
+        duration: enableAnimation ? 1.0 : 0.0
+      });
       // Add a marker for us
       var ownPosLayer = new L.LayerGroup();
       ownPosLayer.addTo(map);
@@ -720,16 +724,27 @@ async function mapProjChanged() {
 // Manage boxes that slide out from the right
 function manageRightBoxes(toggle, hide1, hide2, callback) {
   var showDelay = 0;
-  if ($(hide1).is(":visible")) {
-    $(hide1).hide("slide", { direction: "right" }, 500);
-    showDelay = 600;
-  }
-  if ($(hide2).is(":visible")) {
-    $(hide2).hide("slide", { direction: "right" }, 500);
-    showDelay = 600;
-  }
+  if (enableAnimation) {
+    if ($(hide1).is(":visible")) {
+      $(hide1).hide("slide", { direction: "right" }, 500);
+      showDelay = 600;
+    }
+    if ($(hide2).is(":visible")) {
+      $(hide2).hide("slide", { direction: "right" }, 500);
+      showDelay = 600;
+    }
 
-  setTimeout(function(){ $(toggle).toggle("slide", { direction: "right" }, 500, callback); }, showDelay);
+    setTimeout(function(){ $(toggle).toggle("slide", { direction: "right" }, 500, callback); }, showDelay);
+  
+  } else {
+    if ($(hide1).is(":visible")) {
+      $(hide1).hide();
+    }
+    if ($(hide2).is(":visible")) {
+      $(hide2).hide();
+    }
+    $(toggle).toggle(0, callback);
+  }
 }
 
 $("#infoButton").click(function() {
@@ -878,6 +893,12 @@ $("#passiveDisplay").change(function() {
   updateMapObjects();
 });
 
+// Enable animation
+$("#enableAnimation").change(function() {
+  enableAnimation = $(this).is(':checked');
+  localStorage.setItem('enableAnimation', enableAnimation);
+});
+
 // Desktop mouse wheel to scroll bands horizontally if necessary
 $("#bandsPanelInner").on("wheel", (e) => event.currentTarget.scrollLeft += event.deltaY / 10.0);
 
@@ -942,6 +963,10 @@ function loadLocalStorage() {
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);
   $("#passiveDisplay").prop('checked', passiveDisplay);
+
+  // Enable animation
+  enableAnimation = localStorageGetOrDefault('enableAnimation', enableAnimation);
+  $("#enableAnimation").prop('checked', enableAnimation);
 }
 
 
