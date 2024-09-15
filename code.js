@@ -457,7 +457,11 @@ function getTooltipText(s) {
   }
 
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span><br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz (" + s.band + ")  &nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode + "<br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz (" + s.band + ")";
+  if (s.mode != "Unknown") {
+    ttt += "&nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode;
+  }
+  ttt += "<br/>";
   if (myPos != null) {
     spotLatLng = new L.latLng(s["lat"], s["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
@@ -475,7 +479,10 @@ function getTooltipText(s) {
 // Tooltip text for the "passive mode" permanent tooltips
 function getPassiveDisplayTooltipText(s) {
   ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " " + s.mode + "<br/>";
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3);
+  if (s.mode != "Unknown") {
+    ttt += " " + s.mode;
+  }
   return ttt;
 }
 
