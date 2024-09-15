@@ -23,7 +23,9 @@ const BANDS = [
 { name: "6m", startFreq: 50.0, stopFreq: 54.0, color: "#FF0000" },
 { name: "4m", startFreq: 70.0, stopFreq: 70.5, color: "#cc0044" },
 { name: "2m", startFreq: 144.0, stopFreq: 148.0, color: "#FF1493" },
-{ name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900" }];
+{ name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900" },
+{ name: "23cm", startFreq: 1240.0, stopFreq: 1325.0, color: "#5AB8C7" },
+{ name: "13cm", startFreq: 2300.0, stopFreq: 2450.0, color: "#FF7F50" }];
 
 
 /////////////////////////////
@@ -49,7 +51,7 @@ var currentLineToSpot = null;
 // and are persisted in local storage.
 var programs = ["POTA", "SOTA", "WWFF"];
 var modes = ["Phone", "CW", "Digi"];
-var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm"];
+var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
@@ -872,6 +874,12 @@ $("#show2m").change(function() {
 $("#show70cm").change(function() {
   setBandEnable("70cm", $(this).is(':checked'));
 });
+$("#show23cm").change(function() {
+  setBandEnable("23cm", $(this).is(':checked'));
+});
+$("#show13cm").change(function() {
+  setBandEnable("13cm", $(this).is(':checked'));
+});
 
 // Hide QRT
 $("#hideQRT").change(function() {
@@ -955,6 +963,8 @@ function loadLocalStorage() {
   $("#show4m").prop('checked', bands.includes("4m"));
   $("#show2m").prop('checked', bands.includes("2m"));
   $("#show70cm").prop('checked', bands.includes("70cm"));
+  $("#show23cm").prop('checked', bands.includes("23cm"));
+  $("#show13cm").prop('checked', bands.includes("13cm"));
 
   // Hide QRT
   hideQRT = localStorageGetOrDefault('hideQRT', hideQRT);
