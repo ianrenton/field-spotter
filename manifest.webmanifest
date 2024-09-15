@@ -4,7 +4,7 @@
     "name": "Field Spotter",
     "short_name": "Field Spotter",
     "scope": "/",
-    "display": "fullscreen",
+    "display": "standalone",
     "start_url": "https://fieldspotter.radio/",
     "background_color": "white",
     "theme_color": "white",
