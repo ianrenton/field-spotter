@@ -169,7 +169,7 @@ async function handlePOTAData(result) {
       freq: spot.frequency / 1000.0,
       band: freqToBand(spot.frequency / 1000.0),
       time: moment.utc(spot.spotTime),
-      comment: spot.comments,
+      comment: filterComment(spot.comments),
       program: "POTA"
     }
     // Avoid duplications if the API returns them
@@ -202,7 +202,7 @@ async function handleSOTAData(result) {
       freq: parseFloat(spot.frequency),
       band: freqToBand(parseFloat(spot.frequency)),
       time: moment.utc(spot.timeStamp),
-      comment: spot.comments,
+      comment: filterComment(spot.comments),
       program: "SOTA"
     }
 
@@ -270,7 +270,7 @@ async function handleWWFFData(result) {
       freq: parseFloat(spot.QRG) / 1000.0,
       band: freqToBand(parseFloat(spot.QRG) / 1000.0),
       time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
-      comment: spot.TEXT,
+      comment: filterComment(spot.TEXT),
       program: "WWFF"
     }
     // Avoid duplications if the API returns them
@@ -578,6 +578,19 @@ function normaliseMode(m, comment) {
     return mode;
   } else {
     return m.toUpperCase();
+  }
+}
+
+// Filter certain things out of comments, such as the software used to report the spot, which just
+// clutter up a mobile screen without being useful. If a null comment is provided, this also converts
+// it to an empty string to avoid needing to null check later on.
+function filterComment(comment) {
+  if (comment == null) {
+    return "";
+  } else {
+    comment = comment.replace(/\[(.*?)\]:/, "");
+    comment = comment.replace(/\[(.*?)\]/, "");
+    return comment.trim();
   }
 }
 
