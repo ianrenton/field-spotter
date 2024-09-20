@@ -39,7 +39,9 @@ var myPos = null;
 var map;
 var markersLayer;
 var oms;
+var globalPopup;
 var terminator;
+var currentPopupSpotUID = null;
 var currentLineToSpot = null;
 var alreadyMovedMap = true;
 
@@ -429,8 +431,14 @@ async function recalculateBandsPanelContent() {
         html += "<li class='withSpots'><span>";
         spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0))
         spotsInStep.forEach(function(s) {
-          var spotDivClass = preQSYStatusShouldShowGrey(s.preqsy) ? "bandColSpotOld" : "bandColSpotCurrent";
-          html += "<div class='bandColSpot " + spotDivClass + "'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+          // Figure out the class to use for the spot's div, which defines its colour.
+          var spotDivClass = "bandColSpotCurrent";
+          if (currentPopupSpotUID == s.uid) {
+            spotDivClass = "bandColSpotSelected";
+          } else if (preQSYStatusShouldShowGrey(s.preqsy)) {
+            spotDivClass = "bandColSpotOld";
+          }
+          html += "<div class='bandColSpot " + spotDivClass + "' onClick='centreAndPopupMarker(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
           if (s.mode != null && s.mode.length > 0 && s.mode != "Unknown") {
             html += " " + s.mode + "</div>";
           }
@@ -517,6 +525,67 @@ function getIconPosition(s) {
     return [s["lat"], s["lon"]];
   } else {
     return null;
+  }
+}
+
+// Centre on the marker representing the spot with the provided UID, and open its popup.
+// Used when clicking a spot in the band display.
+function centreAndPopupMarker(uid) {
+  // Close any existing popup
+  map.closePopup();
+
+  // Get the new marker to centre and pop up on
+  var m = markers.get(uid);
+  if (m != null) {
+    // Pan to position, including zooming if necessary
+    map.setView(m.getLatLng(), (map.getZoom() < 5) ? 5 : map.getZoom(), {
+      animate: enableAnimation,
+      duration: enableAnimation ? 1.0 : 0.0
+    });
+    // After map move, open the tooltip (unless in passive display, when it will already be open)
+    setTimeout(function() {
+      if (!passiveDisplay) {
+        openSpiderfierPopup(m);
+      }
+    }, enableAnimation ? 1000 : 0);
+  }
+}
+
+// On marker click (after spiderfy when required), open popup. Also called when clicking
+// a spot in the band display. This is needed instead of just doing marker.openTooltip()
+// due to the way the spiderfier plugin needs to capture click events and manage a single
+// global popup.
+function openSpiderfierPopup(marker) {
+  // Set popup content and position
+  globalPopup.setContent(marker.tooltip);
+  globalPopup.setLatLng(marker.getLatLng());
+
+  // Add a callback to remove the line linking the marker to my position, and stop any
+  // highlight on the band display, on popup close.
+  globalPopup.on('remove', function() {
+    if (currentLineToSpot != null) {
+      map.removeLayer(currentLineToSpot);
+    }
+    currentPopupSpotUID = null;
+    if ($("#bandsPanel").is(":visible")) {
+      recalculateBandsPanelContent();
+    }
+  });
+
+  // Open the popup
+  map.openPopup(globalPopup);
+
+  // Draw a line linking the marker to my position.
+  if (myPos != null && spots.get(marker.uid) != null) {
+    currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
+      color: freqToColor(spots.get(marker.uid).freq)
+    }).addTo(map);
+  }
+
+  // Store the UID of the selected marker, for highlighting in the band display if necessary
+  currentPopupSpotUID = marker.uid;
+  if ($("#bandsPanel").is(":visible")) {
+    recalculateBandsPanelContent();
   }
 }
 
@@ -756,24 +825,9 @@ function setUpMap() {
 
   // Add spiderfier
   oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
-  var popup = new L.Popup({offset: L.point({x: 0, y: -20})});
+  globalPopup = new L.Popup({offset: L.point({x: 0, y: -20})});
   oms.addListener('click', function(marker) {
-    // On marker click (after spiderfy when required), open popup
-    popup.setContent(marker.tooltip);
-    popup.setLatLng(marker.getLatLng());
-    // Add a callback to remove the line linking the marker to my position on popup clase
-    popup.on('remove', function() {
-      if (currentLineToSpot != null) {
-        map.removeLayer(currentLineToSpot);
-      }
-    });
-    map.openPopup(popup);
-    // Draw a line linking the marker to my position.
-    if (myPos != null && spots.get(marker.uid) != null) {
-      currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
-        color: freqToColor(spots.get(marker.uid).freq)
-      }).addTo(map);
-    }
+    openSpiderfierPopup(marker);
   });
 
   // Add terminator/greyline

@@ -185,6 +185,9 @@ div.bandColSpotCurrent {
 div.bandColSpotOld {
     background: lightgrey;
 }
+div.bandColSpotSelected {
+    background: lightblue;
+}
 
 /* Leaflet.js mods */
 .leaflet-container .leaflet-control-attribution {
