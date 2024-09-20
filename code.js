@@ -55,6 +55,7 @@ var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
+var qsyOldSpotBehaviour = "hide";
 var passiveDisplay = false;
 var enableAnimation = true;
 
@@ -83,6 +84,7 @@ function fetchPOTAData() {
       handlePOTAData(result);
       potaDataTime = moment(0);
       removeDuplicates();
+      markPreQSYSpots();
       updateMapObjects();
       $("span#potaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -103,6 +105,7 @@ function fetchSOTAData() {
       handleSOTAData(result);
       sotaDataTime = moment(0);
       removeDuplicates();
+      markPreQSYSpots();
       updateMapObjects();
       $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -123,6 +126,7 @@ function fetchWWFFData() {
       handleWWFFData(result);
       wwffDataTime = moment(0);
       removeDuplicates();
+      markPreQSYSpots();
       updateMapObjects();
       $("span#wwffApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -173,6 +177,11 @@ async function handlePOTAData(result) {
       band: freqToBand(spot.frequency / 1000.0),
       time: moment.utc(spot.spotTime),
       comment: filterComment(spot.comments),
+      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+      // string "QRT", which is how operators typically report it.
+      qrt: (spot.comments != null) ? spot.comments.toUpperCase().includes("QRT") : false,
+      // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+      preqsy: false,
       program: "POTA"
     }
     spots.set(uid, newSpot);
@@ -203,6 +212,11 @@ async function handleSOTAData(result) {
       band: freqToBand(parseFloat(spot.frequency)),
       time: moment.utc(spot.timeStamp),
       comment: filterComment(spot.comments),
+      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+      // string "QRT", which is how operators typically report it.
+      qrt: (spot.comments != null) ? spot.comments.toUpperCase().includes("QRT") : false,
+      // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+      preqsy: false,
       program: "SOTA"
     }
     spots.set(uid, newSpot);
@@ -271,6 +285,11 @@ async function handleWWFFData(result) {
       band: freqToBand(parseFloat(spot.QRG) / 1000.0),
       time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
       comment: filterComment(spot.TEXT),
+      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+      // string "QRT", which is how operators typically report it.
+      qrt: (spot.TEXT != null) ? spot.TEXT.toUpperCase().includes("QRT") : false,
+      // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+      preqsy: false,
       program: "WWFF"
     }
     spots.set(uid, newSpot);
@@ -290,8 +309,10 @@ async function updateMapObjects() {
     var pos = getIconPosition(s);
 
     // Filter for the time threshold, programs, bands and modes we are interested in.
-    // Also filter out spots where comments include "QRT" (shut down), if requested.
-    if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band) && qrtStatusAllowedByFilters(s.comment)) {
+    // Also filter out spots where comments include "QRT" (shut down), and those before
+    // "QSY" (frequency change) if requested.
+    if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
+         && qrtStatusAllowedByFilters(s.qrt) && preQSYStatusAllowedByFilters(s.preqsy)) {
 
       if (markers.has(s.uid) && pos != null) {
         // Existing marker, so update it
@@ -407,7 +428,8 @@ async function recalculateBandsPanelContent() {
         html += "<li class='withSpots'><span>";
         spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0))
         spotsInStep.forEach(function(s) {
-          html += "<div class='bandColSpot'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+          var spotDivClass = preQSYStatusShouldShowGrey(s.preqsy) ? "bandColSpotOld" : "bandColSpotCurrent";
+          html += "<div class='bandColSpot " + spotDivClass + "'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
           if (s.mode != null && s.mode.length > 0 && s.mode != "Unknown") {
             html += " " + s.mode + "</div>";
           }
@@ -454,7 +476,13 @@ function getTooltipText(s) {
   }
 
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span><br/>";
-  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz (" + s.band + ")";
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz ";
+  // Show the band alongside the frequency for convenience, or if this is a "pre-QSY" spot, warn about that.
+  if (s.preqsy) {
+    ttt += "&nbsp;&nbsp; <i class='fa-solid fa-triangle-exclamation'></i> Pre-QSY";
+  } else {
+    ttt += "(" + s.band + ")";
+  }
   if (s.mode != "Unknown") {
     ttt += "&nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode;
   }
@@ -464,7 +492,7 @@ function getTooltipText(s) {
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
     if (bearing < 0) bearing = bearing + 360;
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
-    ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km  &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
+    ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
   }
   ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
   if (s.comment != null && s.comment.length > 0) {
@@ -531,6 +559,28 @@ function removeDuplicates() {
   });
 }
 
+
+// Iterate through the list of spots, finding and marking spots that look like they are "pre QSY", i.e. there is another
+// more recent spot with the same program, activator and reference, but on a different frequency or mode.
+function markPreQSYSpots() {
+  var spotsToMark = [];
+  spots.forEach(function(check) {
+    spots.forEach(function(s) {
+      if (s != check) {
+        if (s.program == check.program && s.activator == check.activator && s.ref == check.ref && (s.freq != check.freq || s.mode != check.mode)) {
+          // Find which one to mark as pre-qsy
+          var checkSpotNewer = check.time.isAfter(s.time);
+          var markSpot = checkSpotNewer ? s : check;
+          spotsToMark.push(markSpot.uid);
+        }
+      }
+    });
+  });
+  spotsToMark.forEach(function(uid) {
+    spots.get(uid).preqsy = true;
+  });
+}
+
 // Utility to convert an object created by JSON.parse() into a proper JS map.
 function objectToMap(o) {
   let m = new Map();
@@ -570,7 +620,7 @@ function getIcon(s) {
   }
   return L.ExtraMarkers.icon({
     icon: icon,
-    markerColor: freqToColor(s.freq),
+    markerColor: preQSYStatusShouldShowGrey(s.preqsy) ? "gray" : freqToColor(s.freq),
     shape: 'circle',
     prefix: 'fa',
     svg: true
@@ -630,15 +680,20 @@ function ageAllowedByFilters(spotTime) {
   return age < maxSpotAgeMin;
 }
 
-// Is the spot's QRT (shut down) status allowed through the filter? No API gives a good way of
-// determining this, so the best we can do is monitor spot comments for the string "QRT", which
-// is how operators typically report it.
-function qrtStatusAllowedByFilters(comment) {
-  var qrt = false;
-  if (comment != null) {
-    qrt = comment.toUpperCase().includes("QRT");
-  }
+// Is the spot's QRT (shut down) status allowed through the filter?
+function qrtStatusAllowedByFilters(qrt) {
   return !qrt || !hideQRT;
+}
+
+// Is the spot's pre-QSY (older than latest known frequency/mode change) status allowed through the filter?
+function preQSYStatusAllowedByFilters(preqsy) {
+  return !preqsy || qsyOldSpotBehaviour == "show" || qsyOldSpotBehaviour == "grey";
+}
+
+// Should the spot's pre-QSY (older than latest known frequency/mode change) status result in the spot being
+// shown greyed out?
+function preQSYStatusShouldShowGrey(preqsy) {
+  return preqsy && qsyOldSpotBehaviour == "grey";
 }
 
 // Get the list of spot UIDs in the current map viewport
@@ -928,6 +983,13 @@ $("#hideQRT").change(function() {
   updateMapObjects();
 });
 
+// QSY old spot behaviour
+$("#qsyOldSpotBehaviour").change(function() {
+  qsyOldSpotBehaviour = $(this).val();
+  localStorage.setItem('qsyOldSpotBehaviour', JSON.stringify(qsyOldSpotBehaviour));
+  updateMapObjects();
+});
+
 // Passive mode
 $("#passiveDisplay").change(function() {
   passiveDisplay = $(this).is(':checked');
@@ -1009,6 +1071,10 @@ function loadLocalStorage() {
   // Hide QRT
   hideQRT = localStorageGetOrDefault('hideQRT', hideQRT);
   $("#hideQRT").prop('checked', hideQRT);
+
+  // QSY old spot behaviour
+  qsyOldSpotBehaviour = localStorageGetOrDefault('qsyOldSpotBehaviour', qsyOldSpotBehaviour);
+  $("#qsyOldSpotBehaviour").val(qsyOldSpotBehaviour);
 
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);

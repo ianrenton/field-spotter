@@ -124,9 +124,15 @@
                     <td><label for="show4m" class="configLabel"><input type="checkbox" id="show4m" name="show4m" checked="true">&nbsp;4m</label></td></tr></table>
                 </div>
                 <br/>
-                <div class="optionlist">
-                    <table><tr><td><label for="hideQRT" class="configLabel"><input type="checkbox" id="hideQRT" name="hideQRT" checked="true">&nbsp;Hide QRT</label></td></tr></table>
-                </div>
+                <table><tr><td><label for="hideQRT" class="configLabel"><input type="checkbox" id="hideQRT" name="hideQRT" checked="true">&nbsp;Hide QRT</label></td></tr></table>
+                <br/>
+                <label for="qsyOldSpotBehaviour">After QSY, </label>
+                <select id="qsyOldSpotBehaviour" class="configSelect">
+                    <option value="hide" selected="selected">hide</option>
+                    <option value="grey">grey out</option>
+                    <option value="show">show</option>
+                </select>
+                <label>previous spots</label>
 
                 <h2>Display</h2>
                 <div class="optionlist">
