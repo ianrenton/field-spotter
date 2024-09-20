@@ -152,6 +152,13 @@ label.configLabel {
 select.configSelect {
     font-size: 1em;
 }
+.textFlipHorizontal {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
 
 /* PWA install prompt hidden unless appropriate */
 p#installPrompt {
