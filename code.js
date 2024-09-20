@@ -68,7 +68,7 @@ var enableAnimation = true;
 //   API CALL FUNCTIONS    //
 /////////////////////////////
 
-// Kick off by fetching POTA and SOTA data
+// Kick off by fetching POTA, SOTA and WWFF data.
 function fetchData() {
   spots.length = 0;
   fetchPOTAData();
@@ -79,65 +79,77 @@ function fetchData() {
 
 // Fetch POTA data, updating the internal data model and the map on success
 function fetchPOTAData() {
-  $("span#potaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
-  $.ajax({
-    url: POTA_SPOTS_URL,
-    dataType: 'json',
-    timeout: 10000,
-    success: async function(result) {
-      handlePOTAData(result);
-      potaDataTime = moment(0);
-      removeDuplicates();
-      markPreQSYSpots();
-      updateMapObjects();
-      $("span#potaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
-    },
-    error: function() {
-      $("span#potaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
-    }
-  });
+  if (programs.includes("POTA")) {
+    $("span#potaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+    $.ajax({
+      url: POTA_SPOTS_URL,
+      dataType: 'json',
+      timeout: 10000,
+      success: async function(result) {
+        handlePOTAData(result);
+        potaDataTime = moment(0);
+        removeDuplicates();
+        markPreQSYSpots();
+        updateMapObjects();
+        $("span#potaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+      },
+      error: function() {
+        $("span#potaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+      }
+    });
+  } else {
+    $("span#potaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+  }
 }
 
 // Fetch SOTA data, updating the internal data model and the map on success
 function fetchSOTAData() {
-  $("span#sotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
-  $.ajax({
-    url: SOTA_SPOTS_URL,
-    dataType: 'json',
-    timeout: 10000,
-    success: async function(result) {
-      handleSOTAData(result);
-      sotaDataTime = moment(0);
-      removeDuplicates();
-      markPreQSYSpots();
-      updateMapObjects();
-      $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
-    },
-    error: function() {
-      $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
-    }
-  });
+  if (programs.includes("SOTA")) {
+    $("span#sotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+    $.ajax({
+      url: SOTA_SPOTS_URL,
+      dataType: 'json',
+      timeout: 10000,
+      success: async function(result) {
+        handleSOTAData(result);
+        sotaDataTime = moment(0);
+        removeDuplicates();
+        markPreQSYSpots();
+        updateMapObjects();
+        $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+      },
+      error: function() {
+        $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+      }
+    });
+  } else {
+    $("span#sotaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+  }
 }
 
 // Fetch WWFF data, updating the internal data model and the map on success
 function fetchWWFFData() {
-  $("span#wwffApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
-  $.ajax({
-    url: WWFF_SPOTS_URL,
-    dataType: 'json',
-    timeout: 10000,
-    success: async function(result) {
-      handleWWFFData(result);
-      wwffDataTime = moment(0);
-      removeDuplicates();
-      markPreQSYSpots();
-      updateMapObjects();
-      $("span#wwffApiStatus").html("<i class='fa-solid fa-check'></i> OK");
-    },
-    error: function() {
-      $("span#wwffApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
-    }
-  });
+  if (programs.includes("WWFF")) {
+    $("span#wwffApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+    $.ajax({
+      url: WWFF_SPOTS_URL,
+      dataType: 'json',
+      timeout: 10000,
+      success: async function(result) {
+        handleWWFFData(result);
+        wwffDataTime = moment(0);
+        removeDuplicates();
+        markPreQSYSpots();
+        updateMapObjects();
+        $("span#wwffApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+      },
+      error: function() {
+        $("span#wwffApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+      }
+    });
+  } else {
+    $("span#wwffApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+  }
 }
 
 // Check for Update function - called every second, this retrieves new data from
@@ -969,7 +981,13 @@ function setProgramEnable(type, enable) {
     for( var i = 0; i < programs.length; i++){ if ( programs[i] === type) { programs.splice(i, 1); }}
   }
   localStorage.setItem('programs', JSON.stringify(programs));
-  updateMapObjects();
+  // If we just enabled a program, we have some extra fetching to do. If we just disabled one, we already have
+  // more than the data we need, we just need to update the map markers to hide the new mode.
+  if (enable) {
+    fetchData();
+  } else {
+    updateMapObjects();
+  }
 }
 $("#showPOTA").change(function() {
   setProgramEnable("POTA", $(this).is(':checked'));
