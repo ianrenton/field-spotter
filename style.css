@@ -149,6 +149,9 @@ label.configLabel {
     display: inline-block;
     white-space: nowrap;
 }
+select.configSelect {
+    font-size: 1em;
+}
 
 /* PWA install prompt hidden unless appropriate */
 p#installPrompt {
