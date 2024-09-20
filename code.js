@@ -41,6 +41,7 @@ var markersLayer;
 var oms;
 var terminator;
 var currentLineToSpot = null;
+var alreadyMovedMap = true;
 
 
 /////////////////////////////
@@ -774,10 +775,14 @@ function setUpMap() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
-      map.setView(myPos, 5, {
-        animate: enableAnimation,
-        duration: enableAnimation ? 1.0 : 0.0
-      });
+      // Pan and zoom the map to show the user's location. Suppress this if the user has already been
+      // moving the map around, to avoid disrupting their experience
+      if (!alreadyMovedMap) {
+        map.setView(myPos, 5, {
+          animate: enableAnimation,
+          duration: enableAnimation ? 1.0 : 0.0
+        });
+      }
       // Add a marker for us
       var ownPosLayer = new L.LayerGroup();
       ownPosLayer.addTo(map);
@@ -811,6 +816,9 @@ async function mapProjChanged() {
   if ($("#bandsPanel").is(":visible")) {
     recalculateBandsPanelContent();
   }
+  // Record that the projection changed. If this happens before initial "zoom to my location",
+  // we ignore that to avoid moving the user's view.
+  alreadyMovedMap = true;
 }
 
 
