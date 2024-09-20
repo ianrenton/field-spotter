@@ -37,6 +37,13 @@ button#configButton {
 button#bandsButton {
     top: 5.5em;
 }
+button.slideOutButton i {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    top: 0;
+    left: 0;
+}
 div#map { 
     width:auto; 
     height:100%; 
