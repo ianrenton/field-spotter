@@ -208,6 +208,12 @@ div.bandColSpotSelected {
     background: lightblue;
 }
 
+/* Text/link styles */
+a {
+    color: #0078a8;
+    text-decoration: none;
+}
+
 /* Leaflet.js mods */
 .leaflet-container .leaflet-control-attribution {
     background: none;

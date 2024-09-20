@@ -497,7 +497,12 @@ async function recalculateBandsPanelContent() {
 
 // Tooltip text for the normal click-to-appear tooltips
 function getTooltipText(s) {
-  ttt = "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "<br/>";
+  // Activator
+  ttt = "<a href='" + getURLforCallsign(s.activator) + "' target='_blank'>";
+  ttt += "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "</a><br/>";
+
+  // Park/summit
+  ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
   if (s.program == "POTA") {
     ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i> ";
@@ -506,8 +511,9 @@ function getTooltipText(s) {
   } else {
     ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i> ";
   }
+  ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
 
-  ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span><br/>";
+  // Frequency & band
   ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz ";
   // Show the band alongside the frequency for convenience, or if this is a "pre-QSY" spot, warn about that.
   if (s.preqsy) {
@@ -515,10 +521,14 @@ function getTooltipText(s) {
   } else {
     ttt += "(" + s.band + ")";
   }
+
+  // Mode
   if (s.mode != "Unknown") {
     ttt += "&nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode;
   }
   ttt += "<br/>";
+
+  // Distance & bearing
   if (myPos != null) {
     spotLatLng = new L.latLng(s["lat"], s["lon"])
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
@@ -526,7 +536,11 @@ function getTooltipText(s) {
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
     ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
   }
+
+  // Time
   ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
+
+  // Comment
   if (s.comment != null && s.comment.length > 0) {
     ttt += "<br/><i class='fa-solid fa-comment markerPopupIcon'></i> " + s.comment;
   }
@@ -758,6 +772,27 @@ function filterComment(comment) {
     comment = comment.replace(/\[(.*?)\]/, "");
     comment = comment.replace(/\"\"/, "");
     return comment.trim();
+  }
+}
+
+// Take an activator's callsign and produce a URL to go to a relevant page (currently, QRZ.com).
+// If the callsign has prefixes or suffixes, we can't really tell what's what so assume the longest
+// part of the given callsign is their "simple" callsign. e.g. "EA1/M0TRT/P" becomes "M0TRT".
+function getURLforCallsign(callsign) {
+  return "https://www.qrz.com/db/" + callsign.split("/").sort(function (a, b) { return b.length - a.length; })[0];
+}
+
+// Take a program and reference, and produce a URL to go to the relevant part/summit/etc. page on
+// the program's website.
+function getURLforReference(program, reference) {
+  if (program == "POTA") {
+    return "https://pota.app/#/park/" + reference;
+  } else if (program == "SOTA") {
+    return "https://www.sotadata.org.uk/en/summit/" + reference;
+  } else if (program == "WWFF") {
+    return "https://wwff.co/directory/?showRef=";
+  } else if (program == "WWFF") {
+    return null;
   }
 }
 
