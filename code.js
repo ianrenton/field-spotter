@@ -44,6 +44,7 @@ var terminator;
 var currentPopupSpotUID = null;
 var currentLineToSpot = null;
 var alreadyMovedMap = true;
+var onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 
 /////////////////////////////
@@ -464,6 +465,16 @@ async function recalculateBandsPanelContent() {
   });
   // Update the DOM with the band HTML
   $("#bandsPanelInner").html(html);
+
+  // On desktop, resize the bands panel. By default this is 30em, roughly matching 100% of a mobile device width,
+  // but it looks better on desktop if we size it to something larger or smaller depending on the number of bands
+  // we want to display. On mobile displays, we keep it as 100% as defined in CSS.
+  if (!onMobile) {
+    var percentWidth = Math.min(5 + bandToSpots.size * 8, 40);
+    $("#bandsPanel").css("width", percentWidth + "%");
+  } else {
+    $("#bandsPanel").css("width", "100%");
+  }
 }
 
 
