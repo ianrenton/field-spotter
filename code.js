@@ -82,6 +82,7 @@ function fetchPOTAData() {
     success: async function(result) {
       handlePOTAData(result);
       potaDataTime = moment(0);
+      removeDuplicates();
       updateMapObjects();
       $("span#potaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -101,6 +102,7 @@ function fetchSOTAData() {
     success: async function(result) {
       handleSOTAData(result);
       sotaDataTime = moment(0);
+      removeDuplicates();
       updateMapObjects();
       $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -120,6 +122,7 @@ function fetchWWFFData() {
     success: async function(result) {
       handleWWFFData(result);
       wwffDataTime = moment(0);
+      removeDuplicates();
       updateMapObjects();
       $("span#wwffApiStatus").html("<i class='fa-solid fa-check'></i> OK");
     },
@@ -150,7 +153,7 @@ async function handlePOTAData(result) {
   // Clear existing POTA spots from the internal list
   Object.keys(spots).forEach(function (k) {
       if (spots[k].program === "POTA") {
-          delete spots[k];
+          spots.delete(k);
       }
   });
 
@@ -172,10 +175,7 @@ async function handlePOTAData(result) {
       comment: filterComment(spot.comments),
       program: "POTA"
     }
-    // Avoid duplications if the API returns them
-    if (!hasDupe(newSpot)) {
-      spots.set(uid, newSpot);
-    }
+    spots.set(uid, newSpot);
   });
 }
 
@@ -184,7 +184,7 @@ async function handleSOTAData(result) {
   // Clear existing SOTA spots from the internal list
   Object.keys(spots).forEach(function (k) {
       if (spots[k].program === "SOTA") {
-          delete spots[k];
+          spots.delete(k);
       }
   });
 
@@ -205,29 +205,25 @@ async function handleSOTAData(result) {
       comment: filterComment(spot.comments),
       program: "SOTA"
     }
+    spots.set(uid, newSpot);
 
-    // Avoid duplications if the API returns them
-    if (!hasDupe(newSpot)) {
-      spots.set(uid, newSpot);
-
-      // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
-      // it up in the cache, if not then trigger a call to the API to get it, then cache it
-      var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
-      var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
-      if (null === cacheHit) {
-        $.ajax({
-          url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
-          dataType: 'json',
-          timeout: 10000,
-          success: async function(result) {
-            if (result != null) {
-              updateSOTASpot(uid, cacheKey, result);
-            }
+    // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
+    // it up in the cache, if not then trigger a call to the API to get it, then cache it
+    var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
+    var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
+    if (null === cacheHit) {
+      $.ajax({
+        url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
+        dataType: 'json',
+        timeout: 10000,
+        success: async function(result) {
+          if (result != null) {
+            updateSOTASpot(uid, cacheKey, result);
           }
-        });
-      } else {
-        updateSOTASpot(uid, cacheKey, cacheHit);
-      }
+        }
+      });
+    } else {
+      updateSOTASpot(uid, cacheKey, cacheHit);
     }
   });
 }
@@ -237,11 +233,15 @@ async function handleSOTAData(result) {
 async function updateSOTASpot(uid, cacheKey, apiResponse) {
   summitData = objectToMap(apiResponse);
   updateSpot = spots.get(uid);
-  updateSpot.lat = summitData.get("latitude");
-  updateSpot.lon = summitData.get("longitude");
-  updateSpot.refName = summitData.get("name");
-  spots.set(uid, updateSpot);
-  updateMapObjects();
+  // Spot might not be present in our list because it was a removed duplicate, so
+  // need to check for that
+  if (updateSpot != null) {
+    updateSpot.lat = summitData.get("latitude");
+    updateSpot.lon = summitData.get("longitude");
+    updateSpot.refName = summitData.get("name");
+    spots.set(uid, updateSpot);
+    updateMapObjects();
+  }
   localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
 }
 
@@ -250,7 +250,7 @@ async function handleWWFFData(result) {
   // Clear existing WWFF spots from the internal list
   Object.keys(spots).forEach(function (k) {
       if (spots[k].program === "WWFF") {
-          delete spots[k];
+          spots.delete(k);
       }
   });
 
@@ -273,10 +273,7 @@ async function handleWWFFData(result) {
       comment: filterComment(spot.TEXT),
       program: "WWFF"
     }
-    // Avoid duplications if the API returns them
-    if (!hasDupe(newSpot)) {
-      spots.set(uid, newSpot);
-    }
+    spots.set(uid, newSpot);
   });
 }
 
@@ -501,22 +498,37 @@ function getIconPosition(s) {
 /////////////////////////////
 
 
-// For a given spot, work out if there is already a duplicate in the spots list.
-// This is used on querying the API to make sure we don't get multiple entries
-// with the same activator, reference, frequency and band. As a (nasty) side-
-// effect, if this method finds a duplicate and the one already in the list is
-// older, it will update the time of the older entry to match the newer.
-function hasDupe(s) {
-  var found = false;
+// Iterate through the list of spots, merging duplicates. If two or more spots with the same program, activator, reference, mode
+// and frequency are found, these will be merged and reduced until only one remains, with the most recent timestamp and
+// comment.
+function removeDuplicates() {
+  var spotsToRemove = [];
   spots.forEach(function(check) {
-    if (s.program == check.program && s.activator == check.activator && s.ref == check.ref && s.mode == check.mode && s.freq == check.freq) {
-      if (check.time.isAfter(s.time)) {
-        check.time = s.time;
+    spots.forEach(function(s) {
+      if (s != check) {
+        if (s.program == check.program && s.activator == check.activator && s.ref == check.ref && s.freq == check.freq) {
+          if (s.mode == check.mode || s.mode == "Unknown" || check.mode == "Unknown") {
+            // Find which one to keep and which to delete
+            var checkSpotNewer = check.time.isAfter(s.time);
+            var keepSpot = checkSpotNewer ? check : s;
+            var deleteSpot = checkSpotNewer ? s : check;
+            // Update the "keep" spot if the older one had better data
+            if (keepSpot.mode == "Unknown" && deleteSpot.mode != "Unknown") {
+              keepSpot.mode = deleteSpot.mode;
+            }
+            if (keepSpot.comment.length == 0 && deleteSpot.comment.length > 0) {
+              keepSpot.comment = deleteSpot.comment;
+            }
+            // Aggregate list of spots to remove
+            spotsToRemove.push(deleteSpot.uid);
+          }
+        }
       }
-      found = true;
-    }
+    });
   });
-  return found;
+  spotsToRemove.forEach(function(uid) {
+    spots.delete(uid);
+  });
 }
 
 // Utility to convert an object created by JSON.parse() into a proper JS map.
@@ -590,6 +602,7 @@ function filterComment(comment) {
   } else {
     comment = comment.replace(/\[(.*?)\]:/, "");
     comment = comment.replace(/\[(.*?)\]/, "");
+    comment = comment.replace(/\"\"/, "");
     return comment.trim();
   }
 }
