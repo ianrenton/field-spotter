@@ -486,6 +486,9 @@ async function recalculateBandsPanelContent() {
   // Update the DOM with the band HTML
   $("#bandsPanelInner").html(html);
 
+  // Desktop mouse wheel to scroll bands horizontally if used on the headers
+  $(".bandColHeader").on("wheel", (e) => $("#bandsPanelInner").scrollLeft( $("#bandsPanelInner").scrollLeft() + event.deltaY / 10.0));
+
   // On desktop, resize the bands panel. By default this is 30em, roughly matching 100% of a mobile device width,
   // but it looks better on desktop if we size it to something larger or smaller depending on the number of bands
   // we want to display. On mobile displays, we keep it as 100% as defined in CSS.
@@ -1198,10 +1201,6 @@ $("#enableAnimation").change(function() {
   enableAnimation = $(this).is(':checked');
   localStorage.setItem('enableAnimation', enableAnimation);
 });
-
-// Desktop mouse wheel to scroll bands horizontally if necessary
-$("#bandsPanelInner").on("wheel", (e) => event.currentTarget.scrollLeft += event.deltaY / 10.0);
-
 
 /////////////////////////////
 // LOCAL STORAGE FUNCTIONS //
