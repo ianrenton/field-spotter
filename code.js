@@ -458,7 +458,7 @@ async function recalculateBandsPanelContent() {
           } else if (preQSYStatusShouldShowGrey(s.preqsy)) {
             spotDivClass = "bandColSpotOld";
           }
-          html += "<div class='bandColSpot " + spotDivClass + "' onClick='centreAndPopupMarker(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+          html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
           if (s.mode != null && s.mode.length > 0 && s.mode != "Unknown") {
             html += " " + s.mode;
           }
@@ -570,6 +570,21 @@ function getIconPosition(s) {
     return [s["lat"], s["lon"]];
   } else {
     return null;
+  }
+}
+
+// Handler for clicking a spot in the band panel.
+function handleBandPanelSpotClick(uid) {
+  // Open the popup for the marker
+  centreAndPopupMarker(uid);
+
+  // If on mobile, hide the band panel so you can see what happened
+  if (onMobile) {
+    if (enableAnimation) {
+      $("#bandsPanel").hide("slide", { direction: "right" }, 500);
+    } else {
+      $("#bandsPanel").hide();
+    }
   }
 }
 
