@@ -657,7 +657,9 @@ function openSpiderfierPopup(marker) {
   // Draw a line linking the marker to my position.
   if (myPos != null && spots.get(marker.uid) != null) {
     currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
-      color: freqToColor(spots.get(marker.uid).freq)
+      color: freqToColor(spots.get(marker.uid).freq),
+      wrap: false,
+      steps: 5
     }).addTo(map);
   }
 
