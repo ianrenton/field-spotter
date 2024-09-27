@@ -59,9 +59,10 @@ var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
-var qsyOldSpotBehaviour = "hide";
+var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "show", "grey"
 var passiveDisplay = false;
 var enableAnimation = true;
+var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
 
 
 /////////////////////////////
@@ -509,8 +510,16 @@ async function recalculateBandsPanelContent() {
 // Tooltip text for the normal click-to-appear tooltips
 function getTooltipText(s) {
   // Activator
-  ttt = "<a href='" + getURLforCallsign(s.activator) + "' target='_blank'>";
-  ttt += "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator + "</a><br/>";
+  ttt = "";
+  var callsignURL = getURLforCallsign(s.activator);
+  if (callsignURL != null) {
+    ttt += "<a href='" + callsignURL + "' target='_blank'>";
+  }
+  ttt += "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator;
+  if (callsignURL != null) {
+    ttt += "</a>";
+  }
+  ttt += "<br/>";
 
   // Park/summit
   ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
@@ -849,11 +858,19 @@ function filterComment(comment) {
   }
 }
 
-// Take an activator's callsign and produce a URL to go to a relevant page (currently, QRZ.com).
+// Take an activator's callsign and produce a URL to go to a relevant page from QRZ or HamQTH, depending
+// on the user's choice. If they chose "None", null is returned here.
 // If the callsign has prefixes or suffixes, we can't really tell what's what so assume the longest
 // part of the given callsign is their "simple" callsign. e.g. "EA1/M0TRT/P" becomes "M0TRT".
 function getURLforCallsign(callsign) {
-  return "https://www.qrz.com/db/" + callsign.split("/").sort(function (a, b) { return b.length - a.length; })[0];
+  var shortCall = callsign.split("/").sort(function (a, b) { return b.length - a.length; })[0];
+  if (callsignLookupService == "QRZ") {
+    return "https://www.qrz.com/db/" + shortCall;
+  } else if (callsignLookupService == "HamQTH") {
+    return "https://www.hamqth.com/" + shortCall;
+  } else {
+    return null;
+  }
 }
 
 // Take a program and reference, and produce a URL to go to the relevant part/summit/etc. page on
@@ -1201,6 +1218,13 @@ $("#qsyOldSpotBehaviour").change(function() {
   updateMapObjects();
 });
 
+// Callsign lookup service
+$("#callsignLookupService").change(function() {
+  callsignLookupService = $(this).val();
+  localStorage.setItem('callsignLookupService', JSON.stringify(callsignLookupService));
+  updateMapObjects();
+});
+
 // Passive mode
 $("#passiveDisplay").change(function() {
   passiveDisplay = $(this).is(':checked');
@@ -1282,6 +1306,10 @@ function loadLocalStorage() {
   // QSY old spot behaviour
   qsyOldSpotBehaviour = localStorageGetOrDefault('qsyOldSpotBehaviour', qsyOldSpotBehaviour);
   $("#qsyOldSpotBehaviour").val(qsyOldSpotBehaviour);
+
+  // Callsign lookup service
+  callsignLookupService = localStorageGetOrDefault('callsignLookupService', callsignLookupService);
+  $("#callsignLookupService").val(callsignLookupService);
 
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);

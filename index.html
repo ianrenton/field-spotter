@@ -122,21 +122,28 @@
                     <td><label for="show4m" class="configLabel"><input type="checkbox" id="show4m" name="show4m" checked="true">&nbsp;4m</label></td></tr></table>
                 </div>
                 <br/>
-                <table><tr><td><label for="hideQRT" class="configLabel"><input type="checkbox" id="hideQRT" name="hideQRT" checked="true">&nbsp;Hide QRT</label></td></tr></table>
-                <br/>
-                <label for="qsyOldSpotBehaviour">After QSY, </label>
+                <table><tr><td><label for="hideQRT" class="configLabel"><input type="checkbox" id="hideQRT" name="hideQRT" checked="true">&nbsp;Hide QRT</label></td></tr>
+                <tr><td><label for="qsyOldSpotBehaviour">After QSY, </label>
                 <select id="qsyOldSpotBehaviour" class="configSelect">
                     <option value="hide" selected="selected">hide</option>
                     <option value="grey">grey out</option>
                     <option value="show">show</option>
                 </select>
-                <label>previous spots</label>
+                <label>previous spots</label></td></tr></table>
 
                 <h2>Display</h2>
                 <div class="optionlist">
                     <table><tr><td><label for="passiveDisplay" class="configLabel"><input type="checkbox" id="passiveDisplay" name="passiveDisplay">&nbsp;Passive Display mode<span class="hideonmobile"> (small but permanent tooltips)</span></label></td></tr>
                     <tr><td><label for="enableAnimation" class="configLabel"><input type="checkbox" id="enableAnimation" name="enableAnimation" checked="true">&nbsp;Enable animation</label></td></tr></table>
                 </div>
+
+                <h2>Lookups</h2>
+                <table><tr><td><label for="callsignLookupService">Callsign lookup service: </label>
+                <select id="callsignLookupService" class="configSelect">
+                    <option value="QRZ" selected="selected">QRZ.com</option>
+                    <option value="HamQTH">HamQTH.com</option>
+                    <option value="None">None</option>
+                </select></td></tr></table>
 
                 <h2>Updates</h2>
                 <label for="updateInterval">Update data every</label>
