@@ -37,10 +37,10 @@ var markers = new Map(); // uid -> marker
 var lastUpdateTime = moment(0);
 var myPos = null;
 var map;
-var markersLayer;
 var oms;
 var globalPopup;
 var terminator;
+var repeatingMarkerLayer;
 var currentPopupSpotUID = null;
 var currentLineToSpot = null;
 var alreadyMovedMap = false;
@@ -352,7 +352,7 @@ async function updateMapObjects() {
         m.uid = s.uid;
 
         // Add to map and spiderfier
-        markersLayer.addLayer(m);
+        repeatingMarkerLayer.addMarker(m);
         oms.addMarker(m);
 
         // Set tooltip
@@ -374,7 +374,7 @@ async function updateMapObjects() {
       // Existing marker now excluded by filters, so remove
       var marker = markers.get(s.uid);
       marker.closePopup();
-      markersLayer.removeLayer(marker);
+      repeatingMarkerLayer.removeMarker(marker);
       markers.delete(s.uid);
     }
   });
@@ -383,7 +383,7 @@ async function updateMapObjects() {
   markers.forEach(function(marker, uid, map) {
     if (!spots.has(uid)) {
       marker.closePopup();
-      markersLayer.removeLayer(marker);
+      repeatingMarkerLayer.removeMarker(marker);
       markers.delete(uid);
     }
   });
@@ -877,9 +877,8 @@ function setUpMap() {
   backgroundTileLayer.addTo(map);
   backgroundTileLayer.bringToBack();
 
-  // Add marker layer
-  markersLayer = new L.LayerGroup();
-  markersLayer.addTo(map);
+  // Add repeating marker support (for wrapping longitude)
+  repeatingMarkerLayer = L.gridLayer.repeatedMarkers().addTo(map);
 
   // Add spiderfier
   oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
@@ -907,8 +906,6 @@ function setUpMap() {
         });
       }
       // Add a marker for us
-      var ownPosLayer = new L.LayerGroup();
-      ownPosLayer.addTo(map);
       var m = L.marker(myPos, {icon: L.ExtraMarkers.icon({
         icon: "fa-tower-cell",
         markerColor: 'gray',
@@ -917,7 +914,7 @@ function setUpMap() {
         svg: true
       })});
       m.tooltip = "You are here!";
-      ownPosLayer.addLayer(m);
+      repeatingMarkerLayer.addMarker(m);
       oms.addMarker(m);
       // Update map objects to add distance and bearing to tooltips
       updateMapObjects();
@@ -1133,7 +1130,7 @@ $("#passiveDisplay").change(function() {
   // When toggling passive display on or off, delete and regenerate all markers
   markers.forEach(function(marker, uid, map) {
     marker.closePopup();
-    markersLayer.removeLayer(marker);
+    repeatingMarkerLayer.removeMarker(marker);
     markers.delete(uid);
   });
   localStorage.setItem('passiveDisplay', passiveDisplay);
