@@ -351,9 +351,8 @@ async function updateMapObjects() {
         var m = L.marker(pos, {icon: getIcon(s)});
         m.uid = s.uid;
 
-        // Add to map and spiderfier
+        // Add to map
         repeatingMarkerLayer.addMarker(m);
-        oms.addMarker(m);
 
         // Set tooltip
         m.tooltip = getTooltipText(s);
@@ -933,15 +932,15 @@ function setUpMap() {
   backgroundTileLayer.addTo(map);
   backgroundTileLayer.bringToBack();
 
-  // Add repeating marker support (for wrapping longitude)
-  repeatingMarkerLayer = L.gridLayer.repeatedMarkers().addTo(map);
-
   // Add spiderfier
   oms = new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, legWeight: 2.0} );
   globalPopup = new L.Popup({offset: L.point({x: 0, y: -20})});
   oms.addListener('click', function(marker) {
     openSpiderfierPopup(marker);
   });
+
+  // Add repeating marker support (for wrapping longitude)
+  repeatingMarkerLayer = L.gridLayer.repeatedMarkers({oms: oms}).addTo(map);
 
   // Add terminator/greyline
   terminator = L.terminator();
@@ -971,7 +970,6 @@ function setUpMap() {
       })});
       m.tooltip = "You are here!";
       repeatingMarkerLayer.addMarker(m);
-      oms.addMarker(m);
       // Update map objects to add distance and bearing to tooltips
       updateMapObjects();
     });
