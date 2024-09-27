@@ -418,11 +418,18 @@ async function recalculateBandsPanelContent() {
   var columnWidthPercent = Math.max(30, 100 / bandToSpots.size);
   var columnIndex = 0;
   bandToSpots.forEach(function (spotList, bandName, map) {
+    // Get the band for these spots and prepare the header
     band = BANDS.filter(function (b) { return b.name == bandName; })[0];
     html += "<div class='bandCol' style='width:" + columnWidthPercent + "%'>";
     html += "<div class='bandColHeader' style='background-color:" + band.color + "; color:" + band.contrastColor + "'>" + band.name + "</div>";
     html += "<div class='bandColMiddle'>";
 
+    // Do some harsher de-duping. Because we only display callsign, frequency and mode here, the previous
+    // de-duplication could have let some through that don't look like dupes on the map, but would do here.
+    // Typically that's a person activating two programs at the same time, e.g. POTA & WWFF.
+    spotList = removeDuplicatesForBandPanel(spotList);
+
+    // Start printing the band
     var freqStep = (band.stopFreq - band.startFreq) / 40.0;
     html += "<ul>";
     html += "<li><span>-</span></li>";
@@ -442,7 +449,7 @@ async function recalculateBandsPanelContent() {
       if (spotsInStep.length > 0) {
         // If this step has spots in it, print them
         html += "<li class='withSpots'><span>";
-        spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0))
+        spotsInStep.sort((a,b) => (a.freq > b.freq) ? 1 : ((b.freq > a.freq) ? -1 : 0));
         spotsInStep.forEach(function(s) {
           // Figure out the class to use for the spot's div, which defines its colour.
           var spotDivClass = "bandColSpotCurrent";
@@ -451,10 +458,11 @@ async function recalculateBandsPanelContent() {
           } else if (preQSYStatusShouldShowGrey(s.preqsy)) {
             spotDivClass = "bandColSpotOld";
           }
-          html += "<div class='bandColSpot " + spotDivClass + "' onClick='centreAndPopupMarker(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+          html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
           if (s.mode != null && s.mode.length > 0 && s.mode != "Unknown") {
-            html += " " + s.mode + "</div>";
+            html += " " + s.mode;
           }
+          html += "</div>";
         });
         html += "</li></span>";
 
@@ -477,6 +485,9 @@ async function recalculateBandsPanelContent() {
   });
   // Update the DOM with the band HTML
   $("#bandsPanelInner").html(html);
+
+  // Desktop mouse wheel to scroll bands horizontally if used on the headers
+  $(".bandColHeader").on("wheel", (e) => $("#bandsPanelInner").scrollLeft( $("#bandsPanelInner").scrollLeft() + event.deltaY / 10.0));
 
   // On desktop, resize the bands panel. By default this is 30em, roughly matching 100% of a mobile device width,
   // but it looks better on desktop if we size it to something larger or smaller depending on the number of bands
@@ -562,6 +573,21 @@ function getIconPosition(s) {
     return [s["lat"], s["lon"]];
   } else {
     return null;
+  }
+}
+
+// Handler for clicking a spot in the band panel.
+function handleBandPanelSpotClick(uid) {
+  // Open the popup for the marker
+  centreAndPopupMarker(uid);
+
+  // If on mobile, hide the band panel so you can see what happened
+  if (onMobile) {
+    if (enableAnimation) {
+      $("#bandsPanel").hide("slide", { direction: "right" }, 500);
+    } else {
+      $("#bandsPanel").hide();
+    }
   }
 }
 
@@ -664,6 +690,36 @@ function removeDuplicates() {
   spotsToRemove.forEach(function(uid) {
     spots.delete(uid);
   });
+}
+
+// Iterate through a temporary list of spots, merging duplicates in a way suitable for the band panel. If two or more
+// spots with the activator, mode and frequency are found, these will be merged and reduced until only one remains,
+// with the best data. Note that unlike removeDuplicates(), which operates on the main spot map, this operates only
+// on the temporary array of spots provided as an argument, and returns the output, for use when constructing the 
+// band panel.
+function removeDuplicatesForBandPanel(spotList) {
+  var spotsToRemove = [];
+  spotList.forEach(function(check) {
+    spotList.forEach(function(s) {
+      if (s != check) {
+        if (s.activator == check.activator && s.freq == check.freq) {
+          if (s.mode == check.mode || s.mode == "Unknown" || check.mode == "Unknown") {
+            // Find which one to keep and which to delete
+            var checkSpotNewer = check.time.isAfter(s.time);
+            var keepSpot = checkSpotNewer ? check : s;
+            var deleteSpot = checkSpotNewer ? s : check;
+            // Update the "keep" spot if the older one had better data
+            if (keepSpot.mode == "Unknown" && deleteSpot.mode != "Unknown") {
+              keepSpot.mode = deleteSpot.mode;
+            }
+            // Aggregate list of spots to remove
+            spotsToRemove.push(deleteSpot.uid);
+          }
+        }
+      }
+    });
+  });
+  return spotList.filter(s => !spotsToRemove.includes(s.uid));
 }
 
 
@@ -1145,10 +1201,6 @@ $("#enableAnimation").change(function() {
   enableAnimation = $(this).is(':checked');
   localStorage.setItem('enableAnimation', enableAnimation);
 });
-
-// Desktop mouse wheel to scroll bands horizontally if necessary
-$("#bandsPanelInner").on("wheel", (e) => event.currentTarget.scrollLeft += event.deltaY / 10.0);
-
 
 /////////////////////////////
 // LOCAL STORAGE FUNCTIONS //
