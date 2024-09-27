@@ -43,7 +43,7 @@ var globalPopup;
 var terminator;
 var currentPopupSpotUID = null;
 var currentLineToSpot = null;
-var alreadyMovedMap = true;
+var alreadyMovedMap = false;
 var onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 
