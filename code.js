@@ -568,9 +568,25 @@ function getPassiveDisplayTooltipText(s) {
   return ttt;
 }
 
+// Gets the lat/long position for the icon representing a spot. Null is returned if the position
+// is unknown. If the user's own geolocation has been provided, we adjust the longitude of the
+// spot to be their longitude +-180 degrees, so that we are correctly displaying markers either
+// side of them on the map, and calculating the great circle distance and bearing as the short
+// path.
 function getIconPosition(s) {
   if (s["lat"] != null && s["lon"] != null && !isNaN(s["lat"]) && !isNaN(s["lon"])) {
-    return [s["lat"], s["lon"]];
+    var wrapEitherSideOfLon = 0;
+    if (myPos != null) {
+      wrapEitherSideOfLon = myPos.lng;
+    }
+    var tmpLon = s["lon"];
+    while (tmpLon < wrapEitherSideOfLon - 180) {
+      tmpLon += 360;
+    }
+    while (tmpLon > wrapEitherSideOfLon + 180) {
+      tmpLon -= 360;
+    }
+    return [s["lat"], tmpLon];
   } else {
     return null;
   }
@@ -921,7 +937,7 @@ function setUpMap() {
   // Create map
   map = L.map('map', {
     zoomControl: false,
-    minZoom: 3,
+    minZoom: 2,
     maxZoom: 12
   });
 
