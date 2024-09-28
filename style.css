@@ -195,7 +195,7 @@ i.markerPopupIcon {
 }
 span.popupRefName {
     display:inline-block;
-    white-space: wrap;
+    white-space: normal;
     margin-right: 1em;
 }
 
@@ -212,7 +212,7 @@ div.bandColMiddle {
 p#bandPanelNoSpots {
     margin-left: 1em;
     margin-right: 1em;
-    white-space: wrap;
+    white-space: normal;
 }
 div.bandColSpot {
     display: block;
