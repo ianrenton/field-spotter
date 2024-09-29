@@ -515,7 +515,7 @@ function getTooltipText(s) {
   if (callsignURL != null) {
     ttt += "<a href='" + callsignURL + "' target='_blank'>";
   }
-  ttt += "<i class='fa-solid fa-user markerPopupIcon'></i> " + s.activator;
+  ttt += "<i class='fa-solid fa-user markerPopupIcon'></i>&nbsp;" + s.activator;
   if (callsignURL != null) {
     ttt += "</a>";
   }
@@ -525,28 +525,27 @@ function getTooltipText(s) {
   ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
   if (s.program == "POTA") {
-    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i> ";
+    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i>&nbsp;";
   } else if (s.program == "SOTA") {
-    ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i> ";
+    ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i>&nbsp;";
   } else {
-    ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i> ";
+    ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i>&nbsp;";
   }
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
 
   // Frequency & band
-  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i> " + s.freq.toFixed(3) + " MHz ";
-  // Show the band alongside the frequency for convenience, or if this is a "pre-QSY" spot, warn about that.
-  if (s.preqsy) {
-    ttt += "&nbsp;&nbsp; <i class='fa-solid fa-triangle-exclamation'></i> Pre-QSY";
-  } else {
-    ttt += "(" + s.band + ")";
-  }
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + s.freq.toFixed(3) + " MHz (" + s.band + ")";
 
   // Mode
   if (s.mode != "Unknown") {
-    ttt += "&nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i> " + s.mode;
+    ttt += " &nbsp;&nbsp; <i class='fa-solid fa-wave-square markerPopupIcon'></i>&nbsp;" + s.mode;
   }
   ttt += "<br/>";
+
+  // Pre-QSY warning
+  if (s.preqsy) {
+    ttt += "<i class='fa-solid fa-triangle-exclamation'></i>&nbsp;Pre-QSY<br/>";
+  }
 
   // Distance & bearing
   if (myPos != null) {
@@ -554,11 +553,11 @@ function getTooltipText(s) {
     bearing = L.GeometryUtil.bearing(myPos, spotLatLng);
     if (bearing < 0) bearing = bearing + 360;
     distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
-    ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i> " + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i> " + bearing.toFixed(0) + "°<br/>";
+    ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i>&nbsp;" + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i>&nbsp;" + bearing.toFixed(0) + "°<br/>";
   }
 
   // Time
-  ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i> " + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
+  ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i>&nbsp;" + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
 
   // Comment
   if (s.comment != null && s.comment.length > 0) {
