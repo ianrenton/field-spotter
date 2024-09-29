@@ -1357,7 +1357,7 @@ function loadLocalStorage() {
 
   // link to WebSDR
   linkToWebSDREnabled = localStorageGetOrDefault('linkToWebSDREnabled', linkToWebSDREnabled);
-  $("#linkToWebSDREnabled").val(linkToWebSDREnabled);
+  $("#linkToWebSDREnabled").prop('checked', linkToWebSDREnabled);
   $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
   linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
   $("#linkToWebSDRURL").val(linkToWebSDRURL);
