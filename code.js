@@ -63,6 +63,8 @@ var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "10mingrace", "show
 var passiveDisplay = false;
 var enableAnimation = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
+var linkToWebSDREnabled = false;
+var linkToWebSDRURL = "http://hackgreensdr.org:8901/";
 
 
 /////////////////////////////
@@ -534,7 +536,16 @@ function getTooltipText(s) {
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
 
   // Frequency & band
-  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + s.freq.toFixed(3) + " MHz (" + s.band + ")";
+  var urlForFreq = getURLForFrequency(s.freq);
+  if (urlForFreq != null) {
+    ttt += "<a href='" + urlForFreq + "' target='_blank'>";
+  }
+  ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + s.freq.toFixed(3) + " MHz";
+  if (urlForFreq != null) {
+    ttt += "</a>";
+  }
+
+  ttt += " (" + s.band + ")";
 
   // Mode
   if (s.mode != "Unknown") {
@@ -886,6 +897,21 @@ function getURLforReference(program, reference) {
   }
 }
 
+// Take a frequency, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
+// Freq in MHz.
+function getURLForFrequency(freq) {
+  if (linkToWebSDREnabled) {
+    var url = linkToWebSDRURL;
+    if (url.slice(-1) == "/") {
+      url = url.slice(0, -1); 
+    }
+    url += "/?tune=" + (freq * 1000).toFixed(0);
+    return url;
+  } else {
+    return null;
+  }
+}
+
 // Is the spot's program allowed through the filter?
 function programAllowedByFilters(program) {
   return programs.includes(program);
@@ -1230,6 +1256,19 @@ $("#callsignLookupService").change(function() {
   updateMapObjects();
 });
 
+// Link to WebSDR
+$("#linkToWebSDREnabled").change(function() {
+  linkToWebSDREnabled = $(this).is(':checked');
+  localStorage.setItem('linkToWebSDREnabled', linkToWebSDREnabled);
+  updateMapObjects();
+  $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+});
+$("#linkToWebSDRURL").change(function() {
+  linkToWebSDRURL = $(this).val();
+  localStorage.setItem('linkToWebSDRURL', JSON.stringify(linkToWebSDRURL));
+  updateMapObjects();
+});
+
 // Passive mode
 $("#passiveDisplay").change(function() {
   passiveDisplay = $(this).is(':checked');
@@ -1315,6 +1354,13 @@ function loadLocalStorage() {
   // Callsign lookup service
   callsignLookupService = localStorageGetOrDefault('callsignLookupService', callsignLookupService);
   $("#callsignLookupService").val(callsignLookupService);
+
+  // link to WebSDR
+  linkToWebSDREnabled = localStorageGetOrDefault('linkToWebSDREnabled', linkToWebSDREnabled);
+  $("#linkToWebSDREnabled").val(linkToWebSDREnabled);
+  $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+  linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
+  $("#linkToWebSDRURL").val(linkToWebSDRURL);
 
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);

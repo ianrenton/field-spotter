@@ -169,6 +169,10 @@ label.configLabel {
 select.configSelect {
     font-size: 1em;
 }
+input {
+    font-size: 1em;
+    font-family: sans-serif;
+}
 div.bandColMiddle ul {
     display: table;
     table-layout: fixed;
