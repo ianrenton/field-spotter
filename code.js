@@ -59,7 +59,7 @@ var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
-var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "show", "grey"
+var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "10mingrace", "show", "grey"
 var passiveDisplay = false;
 var enableAnimation = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
@@ -329,7 +329,7 @@ async function updateMapObjects() {
     // Also filter out spots where comments include "QRT" (shut down), and those before
     // "QSY" (frequency change) if requested.
     if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
-         && qrtStatusAllowedByFilters(s.qrt) && preQSYStatusAllowedByFilters(s.preqsy)) {
+         && qrtStatusAllowedByFilters(s.qrt) && preQSYStatusAllowedByFilters(s.preqsy, s.time)) {
 
       if (markers.has(s.uid) && pos != null) {
         // Existing marker, so update it
@@ -916,8 +916,14 @@ function qrtStatusAllowedByFilters(qrt) {
 }
 
 // Is the spot's pre-QSY (older than latest known frequency/mode change) status allowed through the filter?
-function preQSYStatusAllowedByFilters(preqsy) {
-  return !preqsy || qsyOldSpotBehaviour == "show" || qsyOldSpotBehaviour == "grey";
+// The result depends on the user's selection of what to do with old spots after QSY is detected. If the
+// spot is not "pre-QSY" this always returns true. If the user has selected to show pre-QSY spots indefinitely
+// or to grey them out but show them indefinitely, this also always returns true. If the user has selected
+// to give such spots a 10-minute grace period, the spot time is factored in and true is returned if the
+// age of the spot is <10 minutes.
+function preQSYStatusAllowedByFilters(preqsy, spotTime) {
+  return !preqsy || qsyOldSpotBehaviour == "show" || qsyOldSpotBehaviour == "grey"
+    || (qsyOldSpotBehaviour == "10mingrace" && moment().diff(spotTime, 'minutes') < 10);
 }
 
 // Should the spot's pre-QSY (older than latest known frequency/mode change) status result in the spot being

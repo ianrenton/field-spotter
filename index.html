@@ -123,13 +123,13 @@
                 </div>
                 <br/>
                 <table><tr><td><label for="hideQRT" class="configLabel"><input type="checkbox" id="hideQRT" name="hideQRT" checked="true">&nbsp;Hide QRT</label></td></tr>
-                <tr><td><label for="qsyOldSpotBehaviour">After QSY, </label>
+                <tr><td><label for="qsyOldSpotBehaviour">After QSY, old spots are </label>
                 <select id="qsyOldSpotBehaviour" class="configSelect">
-                    <option value="hide" selected="selected">hide</option>
-                    <option value="grey">grey out</option>
-                    <option value="show">show</option>
-                </select>
-                <label>previous spots</label></td></tr></table>
+                    <option value="hide" selected="selected">hidden immediately</option>
+                    <option value="10mingrace">kept for 10 minutes</option>
+                    <option value="grey">kept but greyed out</option>
+                    <option value="show">kept indefinitely</option>
+                </select></td></tr></table>
 
                 <h2>Display</h2>
                 <div class="optionlist">
