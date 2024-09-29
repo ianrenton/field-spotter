@@ -64,7 +64,7 @@ var passiveDisplay = false;
 var enableAnimation = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
 var linkToWebSDREnabled = false;
-var linkToWebSDRURL = "http://hackgreensdr.org:8901/";
+var linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
 
 
 /////////////////////////////
