@@ -137,7 +137,7 @@ function fetchWWFFData() {
     $.ajax({
       url: WWFF_SPOTS_URL,
       dataType: 'json',
-      timeout: 10000,
+      timeout: 30000,
       success: async function(result) {
         handleWWFFData(result);
         wwffDataTime = moment(0);
