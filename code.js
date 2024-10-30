@@ -557,11 +557,11 @@ function getTooltipText(s) {
   ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
   if (s.program == "POTA") {
-    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i>&nbsp;";
+    ttt += "<i class='markerPopupIcon'>🌲</i>&nbsp;";
   } else if (s.program == "SOTA") {
-    ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i>&nbsp;";
+    ttt += "<i class='markerPopupIcon'>⛰️</i>&nbsp;";
   } else {
-    ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i>&nbsp;";
+    ttt += "<i class='markerPopupIcon'>🌼</i>&nbsp;";
   }
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
 
@@ -852,16 +852,17 @@ function freqToContrastColor(f) {
 
 // Get an icon for a spot, based on its band, using PSK Reporter colours, its program etc.
 function getIcon(s) {
-  var icon = "fa-tree";
+  var icon = "🌲";
   if (s.program == "SOTA") {
-    icon = "fa-mountain-sun";
+    icon = "⛰️";
   } else if (s.program == "WWFF") {
-    icon = "fa-paw";
+    icon = "🌼";
   }
   return L.ExtraMarkers.icon({
-    icon: icon,
+    icon: "fa-number",
     iconColor: preQSYStatusShouldShowGrey(s.preqsy) ? "black" : freqToContrastColor(s.freq),
     markerColor: preQSYStatusShouldShowGrey(s.preqsy) ? "gray" : freqToColor(s.freq),
+    number: icon,
     shape: 'circle',
     prefix: 'fa',
     svg: true

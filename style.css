@@ -247,6 +247,14 @@ a {
     background: none;
 }
 
+/* Icon styles. fa-number is intended to display a number but will actually display any character
+   including emoji that's included as its "number" property. We use this for rendering emoji onto
+   ExtraMarkers' markers, which would otherwise constrain us to just the Font Awesome set. */
+i.fa-number {
+    font-size: 1.2em;
+    filter: sepia(1) saturate(100) grayscale(100%);
+}
+
 /* Mobile */
 @media only screen and (max-width: 800px) {
     span.hideonmobile {
