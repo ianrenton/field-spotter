@@ -4,8 +4,8 @@
 
 const VERSION = "0.1";
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
-const SOTA_SPOTS_URL = "https://api2.sota.org.uk/api/spots/-1/all";
-const SOTA_SUMMIT_URL_ROOT = "https://api2.sota.org.uk/api/summits/";
+const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
+const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
@@ -225,12 +225,13 @@ async function handleSOTAData(result) {
 
     var newSpot = {
       uid: uid,
-      ref: spot.associationCode + "/" + spot.summitCode,
-      refName: spot.summitDetails,
+      ref: spot.summitCode,
+      refName: spot.summitName,
       activator: spot.activatorCallsign,
+      // Note for future me: spot.callsign is the *reporter* callsign not the activator callsign
       mode: normaliseMode(spot.mode, spot.comments),
-      freq: parseFloat(spot.frequency),
-      band: freqToBand(parseFloat(spot.frequency)),
+      freq: spot.frequency,
+      band: freqToBand(spot.frequency),
       time: moment.utc(spot.timeStamp),
       comment: filterComment(spot.comments),
       // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
@@ -244,11 +245,11 @@ async function handleSOTAData(result) {
 
     // For SOTA we have to separately look up the summit to get the lat/long. If we have it cached, look
     // it up in the cache, if not then trigger a call to the API to get it, then cache it
-    var cacheKey = "sotacache-"+ spot.associationCode + "-" + spot.summitCode;
+    var cacheKey = "sotacache-"+ spot.summitCode;
     var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
     if (null === cacheHit) {
       $.ajax({
-        url: SOTA_SUMMIT_URL_ROOT + spot.associationCode + "/" + spot.summitCode,
+        url: SOTA_SUMMIT_URL_ROOT + spot.summitCode,
         dataType: 'json',
         timeout: 10000,
         success: async function(result) {
@@ -273,7 +274,6 @@ async function updateSOTASpot(uid, cacheKey, apiResponse) {
   if (updateSpot != null) {
     updateSpot.lat = summitData.get("latitude");
     updateSpot.lon = summitData.get("longitude");
-    updateSpot.refName = summitData.get("name");
     spots.set(uid, updateSpot);
     updateMapObjects();
   }
