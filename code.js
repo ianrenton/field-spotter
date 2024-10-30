@@ -1005,17 +1005,19 @@ function requestGeolocation() {
         ownPosLayer.removeLayer(ownPosMarker);
         oms.removeMarker(ownPosMarker);
       }
-      ownPosMarker = L.marker(myPos, {icon: L.ExtraMarkers.icon({
-        icon: 'fa-tower-cell',
-        iconColor: 'white',
-        markerColor: 'gray',
-        shape: 'circle',
-        prefix: 'fa',
-        svg: true
-      })});
-      ownPosMarker.tooltip = "You are here!";
-      ownPosLayer.addLayer(ownPosMarker);
-      oms.addMarker(ownPosMarker);
+      setTimeout(function() {
+        ownPosMarker = L.marker(myPos, {icon: L.ExtraMarkers.icon({
+          icon: 'fa-tower-cell',
+          iconColor: 'white',
+          markerColor: 'gray',
+          shape: 'circle',
+          prefix: 'fa',
+          svg: true
+        })});
+        ownPosMarker.tooltip = "You are here!";
+        ownPosLayer.addLayer(ownPosMarker);
+        oms.addMarker(ownPosMarker);
+      }, 1000);
 
       // Update map objects to add distance and bearing to tooltips
       updateMapObjects();
