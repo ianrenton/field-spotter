@@ -6,6 +6,7 @@ const VERSION = "0.1";
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
 const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
+const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
@@ -43,6 +44,7 @@ var ownPosMarker;
 var oms;
 var globalPopup;
 var terminator;
+var lastSeenSOTAAPIEpoch = "";
 var currentPopupSpotUID = null;
 var currentLineToSpot = null;
 var alreadyMovedMap = false;
@@ -111,22 +113,44 @@ function fetchPOTAData() {
 function fetchSOTAData() {
   if (programs.includes("SOTA")) {
     $("span#sotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+
+    // Before we query the main SOTA spot API, we need to query its "epoch" to figure out if data
+    // has actually changed since the last time we queried it. This spares their API from too
+    // many calls.
     $.ajax({
-      url: SOTA_SPOTS_URL,
-      dataType: 'json',
+      url: SOTA_EPOCH_URL,
+      dataType: 'text',
       timeout: 10000,
       success: async function(result) {
-        handleSOTAData(result);
-        sotaDataTime = moment(0);
-        removeDuplicates();
-        markPreQSYSpots();
-        updateMapObjects();
-        $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+        if (result != lastSeenSOTAAPIEpoch) {
+          // OK, SOTA API data has changed, *now* we need to do a real query
+          $.ajax({
+            url: SOTA_SPOTS_URL,
+            dataType: 'json',
+            timeout: 10000,
+            success: async function(result) {
+              handleSOTAData(result);
+              sotaDataTime = moment(0);
+              removeDuplicates();
+              markPreQSYSpots();
+              updateMapObjects();
+              $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+            },
+            error: function() {
+              $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+            }
+          });
+
+        } else {
+          // No new data since last query, so don't bother querying the API
+          $("span#sotaApiStatus").html("<i class='fa-solid fa-check'></i> Still current");
+        }
       },
-      error: function() {
+      error: function(result) {
         $("span#sotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
       }
     });
+
   } else {
     $("span#sotaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
   }
@@ -221,7 +245,6 @@ async function handleSOTAData(result) {
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.forEach(spot => {
-  console.log(JSON.stringify(spot));
     var uid = "SOTA-" + spot.id
 
     var newSpot = {
@@ -262,6 +285,10 @@ async function handleSOTAData(result) {
     } else {
       updateSOTASpot(uid, cacheKey, cacheHit);
     }
+
+    // Store the epoch field. This will be the same for every spot. We use this globally to decide whether it's worth
+    // re-querying the SOTA API to see if anything has changed.
+    lastSeenSOTAAPIEpoch = spot.epoch;
   });
 }
 
