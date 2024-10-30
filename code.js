@@ -38,6 +38,8 @@ var lastUpdateTime = moment(0);
 var myPos = null;
 var map;
 var markersLayer;
+var ownPosLayer;
+var ownPosMarker;
 var oms;
 var globalPopup;
 var terminator;
@@ -978,6 +980,52 @@ function hashCode(spot) {
   return h;
 }
 
+// Use the browser API to request the user's own position. If found, display a marker there and move the view
+// to centre it, so long as the view hasn't yet been panned somewhere else.
+function requestGeolocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
+
+      // Pan and zoom the map to show the user's location. Suppress this if the user has already been
+      // moving the map around, to avoid disrupting their experience
+      if (!alreadyMovedMap) {
+        map.setView(myPos, 5, {
+          animate: enableAnimation,
+          duration: enableAnimation ? 1.0 : 0.0
+        });
+      }
+
+      // Add a marker for us
+      if (ownPosLayer == null) {
+        ownPosLayer = new L.LayerGroup();
+        ownPosLayer.addTo(map);
+      }
+      if (ownPosMarker != null) {
+        ownPosLayer.removeLayer(ownPosMarker);
+        oms.removeMarker(ownPosMarker);
+      }
+      ownPosMarker = L.marker(myPos, {icon: L.ExtraMarkers.icon({
+        icon: "fa-tower-cell",
+        markerColor: "gray",
+        shape: "circle",
+        prefix: "fa",
+        svg: true
+      })});
+      ownPosMarker.tooltip = "You are here!";
+      ownPosLayer.addLayer(ownPosMarker);
+      oms.addMarker(ownPosMarker);
+
+      // Update map objects to add distance and bearing to tooltips
+      updateMapObjects();
+    }, function(error) {
+      console.log("Could not get geolocation: " + error.message);
+    });
+  } else {
+    console.log("Browser cannot provide geolocation.");
+  }
+}
+
 
 /////////////////////////////
 //       MAP SETUP         //
@@ -1015,36 +1063,10 @@ function setUpMap() {
   terminator.setStyle({fillColor: '#00000050'});
   terminator.addTo(map);
 
-  // Request geolocation
+  // Display a default view, then request geolocation which will display the own position marker
+  // and move the view to it.
   map.setView([30, 0], 3);
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
-      // Pan and zoom the map to show the user's location. Suppress this if the user has already been
-      // moving the map around, to avoid disrupting their experience
-      if (!alreadyMovedMap) {
-        map.setView(myPos, 5, {
-          animate: enableAnimation,
-          duration: enableAnimation ? 1.0 : 0.0
-        });
-      }
-      // Add a marker for us
-      var ownPosLayer = new L.LayerGroup();
-      ownPosLayer.addTo(map);
-      var m = L.marker(myPos, {icon: L.ExtraMarkers.icon({
-        icon: "fa-tower-cell",
-        markerColor: 'gray',
-        shape: 'circle',
-        prefix: 'fa',
-        svg: true
-      })});
-      m.tooltip = "You are here!";
-      ownPosLayer.addLayer(m);
-      oms.addMarker(m);
-      // Update map objects to add distance and bearing to tooltips
-      updateMapObjects();
-    });
-  }
+  requestGeolocation();
 
   // Add callbacks on moving the view
   map.on('moveend', function() {
