@@ -8,6 +8,8 @@ const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
 const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
+const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/"
+const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?"
 const BASEMAP_NAME = "Esri.NatGeoWorldMap";
 const BASEMAP_OPACITY = 0.5;
 const BANDS = [
@@ -57,7 +59,7 @@ var onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-var programs = ["POTA", "SOTA", "WWFF"];
+var programs = ["POTA", "SOTA", "WWFF", "GMA", "IOTA", "Castles", "Lighthouses", "Mills"];
 var modes = ["Phone", "CW", "Digi"];
 var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
 var updateIntervalMin = 5;
@@ -81,6 +83,7 @@ function fetchData() {
   fetchPOTAData();
   fetchSOTAData();
   fetchWWFFData();
+  fetchGMAData();
   lastUpdateTime = moment();
 }
 
@@ -94,7 +97,6 @@ function fetchPOTAData() {
       timeout: 10000,
       success: async function(result) {
         handlePOTAData(result);
-        potaDataTime = moment(0);
         removeDuplicates();
         markPreQSYSpots();
         updateMapObjects();
@@ -130,7 +132,6 @@ function fetchSOTAData() {
             timeout: 10000,
             success: async function(result) {
               handleSOTAData(result);
-              sotaDataTime = moment(0);
               removeDuplicates();
               markPreQSYSpots();
               updateMapObjects();
@@ -166,7 +167,6 @@ function fetchWWFFData() {
       timeout: 30000,
       success: async function(result) {
         handleWWFFData(result);
-        wwffDataTime = moment(0);
         removeDuplicates();
         markPreQSYSpots();
         updateMapObjects();
@@ -178,6 +178,30 @@ function fetchWWFFData() {
     });
   } else {
     $("span#wwffApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+  }
+}
+
+// Fetch GMA data, updating the internal data model and the map on success
+function fetchGMAData() {
+  if (programs.includes("GMA") || programs.includes("IOTA") || programs.includes("Castles") || programs.includes("Lighthouses") || programs.includes("Mills")) {
+    $("span#gmaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+    $.ajax({
+      url: GMA_SPOTS_URL,
+      dataType: 'json',
+      timeout: 30000,
+      success: async function(result) {
+        handleGMAData(result);
+        removeDuplicates();
+        markPreQSYSpots();
+        updateMapObjects();
+        $("span#gmaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+      },
+      error: function() {
+        $("span#gmaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+      }
+    });
+  } else {
+    $("span#gmaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
   }
 }
 
@@ -292,7 +316,7 @@ async function handleSOTAData(result) {
   });
 }
 
-// Update a SOTA spot with lat/lon and summit name. Called with "apiResponse" either direct from the API,
+// Update a SOTA spot with lat/lon. Called with "apiResponse" either direct from the API,
 // or a cached version loaded from localStorage.
 async function updateSOTASpot(uid, cacheKey, apiResponse) {
   summitData = objectToMap(apiResponse);
@@ -344,6 +368,87 @@ async function handleWWFFData(result) {
     spots.set(uid, newSpot);
   });
 }
+
+// Interpret GMA data and update the internal data model
+async function handleGMAData(result) {
+  // Clear existing GMA-sourced spots from the internal list. Note this doesn't include WWFF. GMA does provide WWFF spots,
+  // but we ignore them, preferring instead the better list of WWFF spots from the dedicated API call.
+  Object.keys(spots).forEach(function (k) {
+      if (spots[k].program === "GMA" || spots[k].program === "IOTA" || spots[k].program === "Castles" || spots[k].program === "Lighthouses" || spots[k].program === "Mills") {
+          spots.delete(k);
+      }
+  });
+
+  // Add the retrieved spots to the list
+  spotUpdate = objectToMap(result);
+  spotUpdate.get("RCD").forEach(spot => {
+    // GMA API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
+    var uid = "GMA-" + hashCode(spot);
+
+    var newSpot = {
+      uid: uid,
+      ref: spot.REF,
+      refName: spot.NAME,
+      activator: spot.ACTIVATOR.toUpperCase(),
+      mode: normaliseMode(spot.MODE, spot.TEXT),
+      freq: parseFloat(spot.QRG) / 1000.0,
+      band: freqToBand(parseFloat(spot.QRG) / 1000.0),
+      time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
+      comment: filterComment(spot.TEXT),
+      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+      // string "QRT", which is how operators typically report it.
+      qrt: (spot.TEXT != null) ? spot.TEXT.toUpperCase().includes("QRT") : false,
+      // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+      preqsy: false
+    }
+    spots.set(uid, newSpot);
+
+    // For GMA we have to separately look up the activation location to get what programme it is. We actually get
+    // the lat/lon from here as well, not because it isn't in the original spot API response, but so that we don't
+    // place a marker until we know the programme type. Now perform that lookup for the spot. If we have it cached,
+    // look it up in the cache, if not then trigger a call to the API to get it, then cache it
+    var cacheKey = "gmacache-"+ spot.REF;
+    var cacheHit = JSON.parse(localStorage.getItem(cacheKey));
+    if (null === cacheHit) {
+      $.ajax({
+        url: GMA_REF_INFO_URL_ROOT + spot.REF,
+        dataType: 'json',
+        timeout: 30000,
+        success: async function(result) {
+          if (result != null) {
+            updateGMASpot(uid, cacheKey, result);
+          }
+        }
+      });
+    } else {
+      updateGMASpot(uid, cacheKey, cacheHit);
+    }
+  });
+}
+
+// Update a GMA spot with lat/lon and programme. Called with "apiResponse" either direct from the API,
+// or a cached version loaded from localStorage.
+async function updateGMASpot(uid, cacheKey, apiResponse) {
+  refData = objectToMap(apiResponse);
+  updateSpot = spots.get(uid);
+  // Spot might not be present in our list because it was a removed duplicate, so
+  // need to check for that.
+  if (updateSpot != null) {
+    // Apply an ugly hack here to delete any spots from the general GMA API that turn out to be WWFF,
+    // because we already get these from a different API.
+    if (refData.get("reftype") != "WWFF") {
+      updateSpot.program = gmaRefTypeToProgram(refData.get("reftype"));
+      updateSpot.lat = parseFloat(refData.get("latitude"));
+      updateSpot.lon = parseFloat(refData.get("longitude"));
+      spots.set(uid, updateSpot);
+    } else {
+      spots.delete(uid);
+    }
+    updateMapObjects();
+  }
+  localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
+
 
 /////////////////////////////
 //   UI UPDATE FUNCTIONS   //
@@ -556,13 +661,7 @@ function getTooltipText(s) {
   // Park/summit
   ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
-  if (s.program == "POTA") {
-    ttt += "<i class='fa-solid fa-tree markerPopupIcon'></i>&nbsp;";
-  } else if (s.program == "SOTA") {
-    ttt += "<i class='fa-solid fa-mountain-sun markerPopupIcon'></i>&nbsp;";
-  } else {
-    ttt += "<i class='fa-solid fa-paw markerPopupIcon'></i>&nbsp;";
-  }
+  ttt += "<i class='fa-solid " + getIconName(s.program) + " markerPopupIcon'></i>&nbsp;";
   ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
 
   // Frequency & band
@@ -850,22 +949,58 @@ function freqToContrastColor(f) {
   return "black";
 }
 
+// Convert a "reftype" from the GMA API into a program name string.
+function gmaRefTypeToProgram(reftype) {
+  if (reftype == "Summit") {
+    return "GMA";
+  } else if (reftype == "WWFF") {
+    return "WWFF";
+  } else if (reftype == "IOTA Island") {
+    return "IOTA";
+  } else if (reftype == "Lighthouse (ILLW)" || reftype == "Lighthouse (ARLHS)") {
+    return "Lighthouses";
+  } else if (reftype == "Castle") {
+    return "Castles";
+  } else if (reftype == "Mill") {
+    return "Mills";
+  } else {
+    return "";
+  }
+}
+
 // Get an icon for a spot, based on its band, using PSK Reporter colours, its program etc.
 function getIcon(s) {
-  var icon = "fa-tree";
-  if (s.program == "SOTA") {
-    icon = "fa-mountain-sun";
-  } else if (s.program == "WWFF") {
-    icon = "fa-paw";
-  }
   return L.ExtraMarkers.icon({
-    icon: icon,
+    icon: getIconName(s.program),
     iconColor: preQSYStatusShouldShowGrey(s.preqsy) ? "black" : freqToContrastColor(s.freq),
     markerColor: preQSYStatusShouldShowGrey(s.preqsy) ? "gray" : freqToColor(s.freq),
     shape: 'circle',
     prefix: 'fa',
     svg: true
   });
+}
+
+// Get Font Awesome icon name from the name of the program (e.g. POTA, SOTA)
+function getIconName(program) {
+  if (program == "POTA") {
+    return "fa-tree";
+  } else if (program == "SOTA") {
+    return "fa-mountain-sun";
+  } else if (program == "WWFF") {
+    return "fa-seedling";
+  } else if (program == "GMA") {
+    return "fa-person-hiking";
+  } else if (program == "IOTA") {
+    return "fa-umbrella-beach";
+  } else if (program == "Castles") {
+    return "fa-chess-rook";
+  } else if (program == "Lighthouses") {
+    return "fa-tower-observation";
+  } else if (program == "Mills") {
+    return "fa-fan";
+  } else {
+    return "fa-question";
+  }
 }
 
 // Normalise a mode to caps and replace blanks with "Unknown". If the mode is not provided but a comment
@@ -921,8 +1056,10 @@ function getURLforReference(program, reference) {
   } else if (program == "SOTA") {
     return "https://www.sotadata.org.uk/en/summit/" + reference;
   } else if (program == "WWFF") {
-    return "https://wwff.co/directory/?showRef=";
-  } else if (program == "WWFF") {
+    return "https://wwff.co/directory/?showRef=" + reference;
+  } else if (program == "GMA" || program == "IOTA" || program == "Castles" || program == "Lighthouses" || program == "Mills") {
+    return "https://www.cqgma.org/zinfo.php?ref=" + reference;
+  } else {
     return null;
   }
 }
