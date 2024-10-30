@@ -169,6 +169,9 @@ label.configLabel {
 select.configSelect {
     font-size: 1em;
 }
+button#updateNow {
+    font-size: 1em;
+}
 input {
     font-size: 1em;
     font-family: sans-serif;

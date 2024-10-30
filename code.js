@@ -1006,10 +1006,11 @@ function requestGeolocation() {
         oms.removeMarker(ownPosMarker);
       }
       ownPosMarker = L.marker(myPos, {icon: L.ExtraMarkers.icon({
-        icon: "fa-tower-cell",
-        markerColor: "gray",
-        shape: "circle",
-        prefix: "fa",
+        icon: 'fa-tower-cell',
+        iconColor: 'white',
+        markerColor: 'gray',
+        shape: 'circle',
+        prefix: 'fa',
         svg: true
       })});
       ownPosMarker.tooltip = "You are here!";
