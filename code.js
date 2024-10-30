@@ -1395,7 +1395,7 @@ function loadLocalStorage() {
 
 
 /////////////////////////////
-//      PWA INSTALL        //
+//     PWA FUNCTIONS       //
 /////////////////////////////
 
 // Prevent the Chrome/Safari default install prompt, instead use the event to show our own in the info panel
@@ -1430,6 +1430,16 @@ if (navigator.standalone || window.matchMedia('(display-mode: standalone)').matc
   $("#installOnAnotherDevice").hide();
   $("#installPrompt").hide();
 }
+
+// On window restore (e.g. if the PWA was backgrounded but has now come to the foreground)
+// request new geolocation and update all data.
+window.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible") {
+    requestGeolocation();
+    fetchData();
+    terminator.setTime();
+  }
+});
 
 
 /////////////////////////////
