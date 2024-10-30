@@ -221,6 +221,7 @@ async function handleSOTAData(result) {
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.forEach(spot => {
+  console.log(JSON.stringify(spot));
     var uid = "SOTA-" + spot.id
 
     var newSpot = {
@@ -234,9 +235,9 @@ async function handleSOTAData(result) {
       band: freqToBand(spot.frequency),
       time: moment.utc(spot.timeStamp),
       comment: filterComment(spot.comments),
-      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
-      // string "QRT", which is how operators typically report it.
-      qrt: (spot.comments != null) ? spot.comments.toUpperCase().includes("QRT") : false,
+      // Check for QRT. The API does now give us this, but for backwards compatibility we still monitor spot 
+      // comments for the string "QRT", which is how operators typically report it.
+      qrt: (spot.type != null && spot.type == "QRT") || (spot.comments != null && spot.comments.toUpperCase().includes("QRT")),
       // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
       preqsy: false,
       program: "SOTA"
