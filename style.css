@@ -1,6 +1,24 @@
-:root {
+:root[color-mode="light"] {
     --background: white;
+    --popup-background: white;
+    --box-background: white;
     --text: black;
+    --link-color: #0078a8;
+    --band-col-spot: #f9f06b;
+    --band-col-spot-old: lightgrey;
+    --band-col-spot-selected: lightblue;
+    --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+:root[color-mode="dark"] {
+    --background: black;
+    --popup-background: #222;
+    --box-background: #222;
+    --text: white;
+    --link-color: #5ed1ff;
+    --band-col-spot: #3e3b1b;
+    --band-col-spot-old: #1e1e1e;
+    --band-col-spot-selected: #252562;
+    --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='white'><polygon points='0,0 100,0 50,50'/></svg>");
 }
 
 /* Overall */
@@ -168,6 +186,22 @@ label.configLabel {
 }
 select.configSelect {
     font-size: 1em;
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    background: var(--config-select-bg) no-repeat;
+    background-size: 12px;
+    background-position: calc(100% + 1em - 20px) calc(50% + 3px);
+    background-repeat: no-repeat;
+    background-color: var(--box-background) !important;
+    color: var(--text);
+}
+button.configButton {
+    padding: 0.3em;
+    font-size: 1em;
+    background-color: var(--box-background);
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    color: var(--text);
 }
 button#updateNow {
     font-size: 1em;
@@ -194,6 +228,16 @@ p#installPrompt {
 }
 
 /* Marker and popup styles */
+.leaflet-tooltip, .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background-color: var(--popup-background);
+    color: var(--text);
+}
+.leaflet-tooltip {
+    border: 1px solid var(--popup-background);
+}
+.leaflet-tooltip-top::before {
+    border-top-color: var(--popup-background);
+}
 i.markerPopupIcon {
     display: inline-block;
     vertical-align: top;
@@ -227,24 +271,25 @@ div.bandColSpot {
     padding: 3px;
 }
 div.bandColSpotCurrent {
-    background: #f9f06b;
+    background: var(--band-col-spot);
 }
 div.bandColSpotOld {
-    background: lightgrey;
+    background: var(--band-col-spot-old);
 }
 div.bandColSpotSelected {
-    background: lightblue;
+    background: var(--band-col-spot-selected);
 }
 
 /* Text/link styles */
-a {
-    color: #0078a8;
+a, .leaflet-container a {
+    color: var(--link-color);
     text-decoration: none;
 }
 
 /* Leaflet.js mods */
 .leaflet-container .leaflet-control-attribution {
     background: none;
+    color: var(--text);
 }
 
 /* Mobile */

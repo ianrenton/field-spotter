@@ -10,8 +10,9 @@ const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/"
 const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?"
-const BASEMAP_NAME = "Esri.NatGeoWorldMap";
-const BASEMAP_OPACITY = 0.5;
+const BASEMAP_LIGHT = "CartoDB.Voyager";
+const BASEMAP_DARK = "CartoDB.DarkMatter";
+const BASEMAP_OPACITY = 1.0;
 const BANDS = [
 { name: "160m", startFreq: 1.8, stopFreq: 2.0, color: "#7cfc00", contrastColor: "black" },
 { name: "80m", startFreq: 3.5, stopFreq: 4.0, color: "#e550e5", contrastColor: "black" },
@@ -40,6 +41,7 @@ var markers = new Map(); // uid -> marker
 var lastUpdateTime = moment(0);
 var myPos = null;
 var map;
+var backgroundTileLayer;
 var markersLayer;
 var ownPosLayer;
 var ownPosMarker;
@@ -66,6 +68,7 @@ var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
 var hideQRT = true;
 var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "10mingrace", "show", "grey"
+var darkMode = false;
 var passiveDisplay = false;
 var enableAnimation = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
@@ -1200,6 +1203,34 @@ function requestGeolocation() {
   }
 }
 
+// Depending on whether you are in light or dark mode, get the basemap name.
+function getBasemapForTheme() {
+  return darkMode ? BASEMAP_DARK : BASEMAP_LIGHT;
+}
+
+// Sets the UI to dark or light mode, and store the setting
+function setDarkMode(newDarkMode) {
+  darkMode = newDarkMode;
+
+  document.documentElement.setAttribute("color-mode", darkMode ? "dark" : "light");
+  var metaThemeColor = document.querySelector("meta[name=theme-color]");
+  metaThemeColor.setAttribute("content", darkMode ? "black" : "white");
+
+  $("#map").css('background-color', darkMode ? "black" : "white");
+
+  if (backgroundTileLayer != null) {
+    map.removeLayer(backgroundTileLayer);
+  }
+  backgroundTileLayer = L.tileLayer.provider(getBasemapForTheme(), {
+    opacity: BASEMAP_OPACITY,
+    edgeBufferTiles: 1
+  });
+  backgroundTileLayer.addTo(map);
+  backgroundTileLayer.bringToBack();
+
+  localStorage.setItem('darkMode', darkMode);
+}
+
 
 /////////////////////////////
 //       MAP SETUP         //
@@ -1214,7 +1245,7 @@ function setUpMap() {
   });
 
   // Add basemap
-  backgroundTileLayer = L.tileLayer.provider(BASEMAP_NAME, {
+  backgroundTileLayer = L.tileLayer.provider(getBasemapForTheme(), {
     opacity: BASEMAP_OPACITY,
     edgeBufferTiles: 1
   });
@@ -1465,6 +1496,11 @@ $("#linkToWebSDRURL").change(function() {
   updateMapObjects();
 });
 
+// Dark mode
+$("#darkMode").change(function() {
+  setDarkMode($(this).is(':checked'));
+});
+
 // Passive mode
 $("#passiveDisplay").change(function() {
   passiveDisplay = $(this).is(':checked');
@@ -1557,6 +1593,11 @@ function loadLocalStorage() {
   $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
   linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
   $("#linkToWebSDRURL").val(linkToWebSDRURL);
+
+  // Dark mode
+  darkMode = localStorageGetOrDefault('darkMode', darkMode);
+  $("#darkMode").prop('checked', darkMode);
+  setDarkMode(darkMode);
 
   // Passive display mode
   passiveDisplay = localStorageGetOrDefault('passiveDisplay', passiveDisplay);
