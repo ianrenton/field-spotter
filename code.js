@@ -758,8 +758,11 @@ function handleBandPanelSpotClick(uid) {
 // Centre on the marker representing the spot with the provided UID, and open its popup.
 // Used when clicking a spot in the band display.
 function centreAndPopupMarker(uid) {
-  // Close any existing popup
+  // Close any existing popup and remove any existing line
   map.closePopup();
+  if (currentLineToSpot != null) {
+    map.removeLayer(currentLineToSpot);
+  }
 
   // Get the new marker to centre and pop up on
   var m = markers.get(uid);
@@ -804,6 +807,9 @@ function openSpiderfierPopup(marker) {
 
   // Draw a line linking the marker to my position.
   if (myPos != null && spots.get(marker.uid) != null) {
+    if (currentLineToSpot != null) {
+      map.removeLayer(currentLineToSpot);
+    }
     currentLineToSpot = L.geodesic([myPos, marker.getLatLng()], {
       color: freqToColor(spots.get(marker.uid).freq),
       wrap: false,
