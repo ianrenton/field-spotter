@@ -10,10 +10,10 @@
     --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>");
 }
 :root[color-mode="dark"] {
-    --background: black;
+    --background: #111;
     --popup-background: #222;
     --box-background: #222;
-    --text: white;
+    --text: #eee;
     --link-color: #5ed1ff;
     --band-col-spot: #3e3b1b;
     --band-col-spot-old: #1e1e1e;

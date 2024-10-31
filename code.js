@@ -1264,7 +1264,9 @@ function setUpMap() {
   });
 
   // Add terminator/greyline
-  terminator = L.terminator();
+  terminator = L.terminator({
+    interactive: false
+  });
   terminator.setStyle({fillColor: '#00000050'});
   terminator.addTo(map);
 
