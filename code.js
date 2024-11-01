@@ -1653,8 +1653,10 @@ if (navigator.standalone || window.matchMedia('(display-mode: standalone)').matc
 window.addEventListener("visibilitychange", function () {
   if (document.visibilityState === "visible") {
     requestGeolocation();
-    fetchData();
     terminator.setTime();
+    // Wait a second before fetching data to give the rest of the software time
+    // to catch up and e.g. delete timed-out entries before new ones are added
+    setTimeout(fetchData, 1000);
   }
 });
 
