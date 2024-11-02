@@ -485,9 +485,11 @@ async function updateGMASpot(uid, cacheKey, apiResponse) {
 // Update the objects that are rendered on the map. Clear old markers and draw new ones. This is
 // called when the data model changes due to a server query.
 async function updateMapObjects() {
-  // Iterate through spots. For each, update an existing marker
+  // Iterate through spots, sorted by time so that new markers are created on top of older ones. For each, update an existing marker
   // or create a new marker if required.
-  spots.forEach(function(s) {
+  var spotObjects = Array.from(spots.values());
+  spotObjects.sort((a, b) => a.time.diff(b.time));
+  spotObjects.forEach(function(s) {
     var pos = getIconPosition(s);
 
     // Filter for the time threshold, programs, bands and modes we are interested in.
