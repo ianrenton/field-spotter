@@ -720,12 +720,12 @@ function getPassiveDisplayTooltipText(s) {
 }
 
 // Gets the lat/long position for the icon representing a spot. Null is returned if the position
-// is unknown. If the user's own geolocation has been provided, we adjust the longitude of the
+// is unknown or 0,0. If the user's own geolocation has been provided, we adjust the longitude of the
 // spot to be their longitude +-180 degrees, so that we are correctly displaying markers either
 // side of them on the map, and calculating the great circle distance and bearing as the short
 // path.
 function getIconPosition(s) {
-  if (s["lat"] != null && s["lon"] != null && !isNaN(s["lat"]) && !isNaN(s["lon"])) {
+  if (s["lat"] != null && s["lon"] != null && !isNaN(s["lat"]) && !isNaN(s["lon"]) && (s["lat"] != 0.0 || s["lon"] != 0.0)) {
     var wrapEitherSideOfLon = 0;
     if (myPos != null) {
       wrapEitherSideOfLon = myPos.lng;
