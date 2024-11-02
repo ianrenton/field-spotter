@@ -258,6 +258,31 @@ async function handlePOTAData(result) {
     }
     spots.set(uid, newSpot);
   });
+
+
+
+var now = moment();
+  var uid = "POTA-99999999";
+    var newSpot = {
+      uid: uid,
+      lat: 50.7872684,
+      lon: -1.8958419,
+      ref: "GB-1723",
+      refName: "Poor Common Nature Reserve",
+      activator: "M0TRT",
+      mode: "SSB",
+      freq: 14.320,
+      band: "20m",
+      time: now,
+      comment: "",
+      // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+      // string "QRT", which is how operators typically report it.
+      qrt: false,
+      // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+      preqsy: false,
+      program: "POTA"
+    }
+    spots.set(uid, newSpot);
 }
 
 // Interpret SOTA data and update the internal data model
@@ -1387,6 +1412,7 @@ $("#showWWFF").change(function() {
 
 // Modes
 function setModeEnable(type, enable) {
+  document.querySelector("body").requestFullscreen();
   if (enable) {
     modes.push(type);
   } else {
