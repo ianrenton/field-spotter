@@ -73,6 +73,7 @@ var darkMode = false;
 var passiveDisplay = false;
 var enableAnimation = true;
 var linkToCallsignLookupServiceEnabled = true;
+var linkToProgramRefEnabled = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 var linkToWebSDREnabled = false;
 var linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";

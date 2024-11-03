@@ -64,7 +64,11 @@ function loadLocalStorage() {
   qsyOldSpotBehaviour = localStorageGetOrDefault('qsyOldSpotBehaviour', qsyOldSpotBehaviour);
   $("#qsyOldSpotBehaviour").val(qsyOldSpotBehaviour);
 
-  // Callsign lookup service
+  // Link to program page
+  linkToProgramRefEnabled = localStorageGetOrDefault('linkToProgramRefEnabled', linkToProgramRefEnabled);
+  $("#linkToProgramRefEnabled").prop('checked', linkToProgramRefEnabled);
+
+  // Link to callsign lookup service
   linkToCallsignLookupServiceEnabled = localStorageGetOrDefault('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
   $("#linkToCallsignLookupServiceEnabled").prop('checked', linkToCallsignLookupServiceEnabled);
   $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");

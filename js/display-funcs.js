@@ -199,20 +199,26 @@ function getTooltipText(s) {
   // Activator
   ttt = "";
   var callsignURL = getURLforCallsign(s.activator);
-  if (callsignURL != null) {
+  if (linkToCallsignLookupServiceEnabled && callsignURL != null) {
     ttt += "<a href='" + callsignURL + "' target='_blank'>";
   }
   ttt += "<i class='fa-solid fa-user markerPopupIcon'></i>&nbsp;" + s.activator;
-  if (callsignURL != null) {
+  if (linkToCallsignLookupServiceEnabled && callsignURL != null) {
     ttt += "</a>";
   }
   ttt += "<br/>";
 
   // Park/summit
-  ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
+  if (linkToProgramRefEnabled) {
+    ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
+  }
   ttt += "<span style='display:inline-block; white-space: nowrap;'>";
   ttt += "<i class='fa-solid " + getIconName(s.program) + " markerPopupIcon'></i>&nbsp;";
-  ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span></a><br/>";
+  ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span>";
+  if (linkToProgramRefEnabled) {
+    ttt += "</a>";
+  }
+  ttt += "<br/>";
 
   // Frequency & band
   var urlForFreq = getURLForFrequency(s.freq);

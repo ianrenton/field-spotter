@@ -206,6 +206,13 @@ $("#qsyOldSpotBehaviour").change(function() {
   updateMapObjects();
 });
 
+// Link to program reference page
+$("#linkToProgramRefEnabled").change(function() {
+  linkToProgramRefEnabled = $(this).is(':checked');
+  localStorage.setItem('linkToProgramRefEnabled', linkToProgramRefEnabled);
+  updateMapObjects();
+});
+
 // Callsign lookup service
 $("#linkToCallsignLookupServiceEnabled").change(function() {
   linkToCallsignLookupServiceEnabled = $(this).is(':checked');
