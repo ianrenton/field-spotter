@@ -78,7 +78,7 @@
                 <p id="installPrompt">You can install Field Spotter on your device! This is a Progressive Web App (PWA), which means you can add it to your home screen by clicking the button below. An internet connection is still required to retrieve the latest data.<br/><span style="text-align: center; display: block;"><button id="installApp">Add to Home Screen</button></span></p>
                 <p id="installOnAnotherDevice">Field Spotter is a Progressive Web App, which means you can install it on an Android or iOS device by opening this site in Chrome or Safari respectively, and returning to this information panel.</p>
                 <h3>Privacy</h3>
-                <p>This website collects no data about you. If you share your location, the information stays on your device. There are no trackers and no cookies.</p>
+                <p>This website collects no data about you. If you share your location, callsign etc., the information stays on your device. There are no trackers and no cookies.</p>
             </div>
         </div>
         <div id="filtersPanel" class="rightbox">
@@ -161,7 +161,7 @@
                 <h2>Re-Spotting</h2>
                 <div class="optionlist">
                     <tr><td><label for="respottingEnabled" class="configLabel"><input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="true">&nbsp;Enable Re-Spotting (currently POTA only)</label></td></tr>
-                    <tr><td><label id="myCallsignLabel" for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:&nbsp;<input type="text" id="myCallsign" class="textBox" name="myCallsign" placeholder="N0CALL" style="width: 6em;"></label></td></tr>
+                    <tr><td><label id="myCallsignLabel" for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:&nbsp;<input type="text" id="myCallsign" class="textBox" name="myCallsign" placeholder="N0CALL" oninput="this.value = this.value.toUpperCase()" style="width: 6em;"></label></td></tr>
                     </table>
                 </div>
 
