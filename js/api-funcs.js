@@ -390,7 +390,7 @@ async function potaRespot(uid, comment, statusIndicator) {
     data: JSON.stringify({
       activator: spot.activator,
       spotter: myCallsign,
-      frequency: spot.freq,
+      frequency: spot.freq * 1000,
       reference: spot.ref,
       mode: spot.mode,
       source: "Field Spotter",
