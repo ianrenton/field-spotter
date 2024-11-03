@@ -166,14 +166,20 @@ $("#show13cm").change(function() {
   setBandEnable("13cm", $(this).is(':checked'));
 });
 
-// Hide QRT
-$("#hideQRT").change(function() {
-  hideQRT = $(this).is(':checked');
-  localStorage.setItem('hideQRT', hideQRT);
+// Show QRT
+$("#showQRT").change(function() {
+  showQRT = $(this).is(':checked');
+  localStorage.setItem('showQRT', showQRT);
   updateMapObjects();
 });
 
 // QSY old spot behaviour
+$("#showPreQSY").change(function() {
+  showPreQSY = $(this).is(':checked');
+  localStorage.setItem('showPreQSY', showPreQSY);
+  $("#qsyOldSpotBehaviour").css("display", showPreQSY ? "inline-block" : "none");
+  updateMapObjects();
+});
 $("#qsyOldSpotBehaviour").change(function() {
   qsyOldSpotBehaviour = $(this).val();
   localStorage.setItem('qsyOldSpotBehaviour', JSON.stringify(qsyOldSpotBehaviour));
@@ -181,6 +187,12 @@ $("#qsyOldSpotBehaviour").change(function() {
 });
 
 // Callsign lookup service
+$("#linkToCallsignLookupServiceEnabled").change(function() {
+  linkToCallsignLookupServiceEnabled = $(this).is(':checked');
+  localStorage.setItem('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
+  $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
+  updateMapObjects();
+});
 $("#callsignLookupService").change(function() {
   callsignLookupService = $(this).val();
   localStorage.setItem('callsignLookupService', JSON.stringify(callsignLookupService));

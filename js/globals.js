@@ -66,11 +66,13 @@ var modes = ["Phone", "CW", "Digi"];
 var bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
 var updateIntervalMin = 5;
 var maxSpotAgeMin = 60;
-var hideQRT = true;
-var qsyOldSpotBehaviour = "hide"; // Allowed values: "hide", "10mingrace", "show", "grey"
+var showQRT = false;
+var showPreQSY = false;
+var qsyOldSpotBehaviour = "show"; // Allowed values: "show", "grey", "10mingrace". Only honoured if showPreQSY = true.
 var darkMode = false;
 var passiveDisplay = false;
 var enableAnimation = true;
-var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH", "None"
+var linkToCallsignLookupServiceEnabled = true;
+var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 var linkToWebSDREnabled = false;
 var linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";

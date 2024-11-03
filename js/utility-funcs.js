@@ -282,7 +282,7 @@ function ageAllowedByFilters(spotTime) {
 
 // Is the spot's QRT (shut down) status allowed through the filter?
 function qrtStatusAllowedByFilters(qrt) {
-  return !qrt || !hideQRT;
+  return !qrt || showQRT;
 }
 
 // Is the spot's pre-QSY (older than latest known frequency/mode change) status allowed through the filter?
@@ -292,7 +292,7 @@ function qrtStatusAllowedByFilters(qrt) {
 // to give such spots a 10-minute grace period, the spot time is factored in and true is returned if the
 // age of the spot is <10 minutes.
 function preQSYStatusAllowedByFilters(preqsy, spotTime) {
-  return !preqsy || qsyOldSpotBehaviour == "show" || qsyOldSpotBehaviour == "grey"
+  return !preqsy || showPreQSY || qsyOldSpotBehaviour == "grey"
     || (qsyOldSpotBehaviour == "10mingrace" && moment().diff(spotTime, 'minutes') < 10);
 }
 

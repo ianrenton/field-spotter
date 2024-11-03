@@ -53,15 +53,21 @@ function loadLocalStorage() {
   $("#show23cm").prop('checked', bands.includes("23cm"));
   $("#show13cm").prop('checked', bands.includes("13cm"));
 
-  // Hide QRT
-  hideQRT = localStorageGetOrDefault('hideQRT', hideQRT);
-  $("#hideQRT").prop('checked', hideQRT);
+  // Show QRT
+  showQRT = localStorageGetOrDefault('showQRT', showQRT);
+  $("#showQRT").prop('checked', showQRT);
 
   // QSY old spot behaviour
+  showPreQSY = localStorageGetOrDefault('showPreQSY', showPreQSY);
+  $("#showPreQSY").prop('checked', showPreQSY);
+  $("#qsyOldSpotBehaviour").css("display", showPreQSY ? "inline-block" : "none");
   qsyOldSpotBehaviour = localStorageGetOrDefault('qsyOldSpotBehaviour', qsyOldSpotBehaviour);
   $("#qsyOldSpotBehaviour").val(qsyOldSpotBehaviour);
 
   // Callsign lookup service
+  linkToCallsignLookupServiceEnabled = localStorageGetOrDefault('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
+  $("#linkToCallsignLookupServiceEnabled").prop('checked', linkToCallsignLookupServiceEnabled);
+  $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
   callsignLookupService = localStorageGetOrDefault('callsignLookupService', callsignLookupService);
   $("#callsignLookupService").val(callsignLookupService);
 
