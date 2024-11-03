@@ -11,11 +11,17 @@ button.slideOutButton {
 button#infoButton {
     top: 0.5em;
 }
-button#configButton {
+button#filtersButton {
     top: 3em;
 }
-button#bandsButton {
+button#displayButton {
     top: 5.5em;
+}
+button#dataButton {
+    top: 8em;
+}
+button#bandsButton {
+    top: 10.5em;
 }
 button.slideOutButton i {
     padding: 0;

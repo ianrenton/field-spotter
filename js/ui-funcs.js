@@ -3,7 +3,7 @@
 /////////////////////////////
 
 // Manage boxes that slide out from the right
-function manageRightBoxes(toggle, hide1, hide2, callback) {
+function manageRightBoxes(toggle, hide1, hide2, hide3, hide4, callback) {
   var showDelay = 0;
   if (enableAnimation) {
     if ($(hide1).is(":visible")) {
@@ -12,6 +12,14 @@ function manageRightBoxes(toggle, hide1, hide2, callback) {
     }
     if ($(hide2).is(":visible")) {
       $(hide2).hide("slide", { direction: "right" }, 500);
+      showDelay = 600;
+    }
+    if ($(hide3).is(":visible")) {
+      $(hide3).hide("slide", { direction: "right" }, 500);
+      showDelay = 600;
+    }
+    if ($(hide4).is(":visible")) {
+      $(hide4).hide("slide", { direction: "right" }, 500);
       showDelay = 600;
     }
 
@@ -24,18 +32,30 @@ function manageRightBoxes(toggle, hide1, hide2, callback) {
     if ($(hide2).is(":visible")) {
       $(hide2).hide();
     }
+    if ($(hide3).is(":visible")) {
+      $(hide3).hide();
+    }
+    if ($(hide4).is(":visible")) {
+      $(hide4).hide();
+    }
     $(toggle).toggle(0, callback);
   }
 }
 
 $("#infoButton").click(function() {
-  manageRightBoxes("#infoPanel", "#configPanel", "#bandsPanel", null);
+  manageRightBoxes("#infoPanel", "#filtersPanel", "#displayPanel", "#dataPanel", "#bandsPanel", null);
 });
-$("#configButton").click(function() {
-  manageRightBoxes("#configPanel", "#infoPanel", "#bandsPanel", null);
+$("#filtersButton").click(function() {
+  manageRightBoxes("#filtersPanel", "#displayPanel", "#dataPanel", "#infoPanel", "#bandsPanel", null);
+});
+$("#displayButton").click(function() {
+  manageRightBoxes("#displayPanel", "#filtersPanel", "#dataPanel", "#infoPanel", "#bandsPanel", null);
+});
+$("#dataButton").click(function() {
+  manageRightBoxes("#dataPanel", "#filtersPanel", "#displayPanel", "#infoPanel", "#bandsPanel", null);
 });
 $("#bandsButton").click(function() {
-  manageRightBoxes("#bandsPanel", "#configPanel", "#infoPanel", function() {
+  manageRightBoxes("#bandsPanel", "#filtersPanel", "#displayPanel", "#dataPanel", "#infoPanel", function() {
     // Check if we showed the bands panel, if so recalculate its content
     if ($("#bandsPanel").is(":visible")) {
       recalculateBandsPanelContent();

@@ -55,21 +55,26 @@
     <body>
         <div id="menu">
             <button id="infoButton" class="slideOutButton"><i class="fa-solid fa-circle-info"></i></button>
-            <button id="configButton" class="slideOutButton"><i class="fa-solid fa-gear"></i></button>
+            <button id="filtersButton" class="slideOutButton"><i class="fa-solid fa-filter"></i></button>
+            <button id="displayButton" class="slideOutButton"><i class="fa-solid fa-display"></i></button>
+            <button id="dataButton" class="slideOutButton"><i class="fa-solid fa-cloud-arrow-down"></i></button>
             <button id="bandsButton" class="slideOutButton"><i class="fa-solid fa-ruler-vertical textFlipHorizontal"></i></button>
         </div>
         <div id="map"></div>
         <div id="infoPanel" class="rightbox">
             <div class="rightboxInner">
-                <h1>Field Spotter</h1>
+                <h1><img src="img/favicon.svg" style="width: 40px; height: 40px; position: relative; top: 5px;"/> Field Spotter</h1>
                 <p id="subtitle">A spotting tool for portable amateur radio adventures</p>
                 <p>By <a href="https://ianrenton.com">Ian Renton MØTRT</a></p>
                 <ul><li><a href="https://ianrenton.com/projects/field-spotter">About the Project</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter">Source Code</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter/issues">Issue Tracker</a></li></ul>
+                <br/>
                 <h3>Using the tool</h3>
                 <p>Spots from portable amateur radio activities such as POTA, SOTA &amp; WWFF are displayed on the map. Click a marker to view details such as activator, park/summit code, distance and how old the spot is. Older spots appear faded out. When a location has multiple spots, click the marker to expand out the set of spots.</p>
-                <p>The <i class="fa-solid fa-gear"></i> button allows you to filter by mode and band, as well as adjusting other settings.</p>
+                <p>The <i class="fa-solid fa-filter"></i> button allows you to filter spots by program, mode and band.</p>
+                <p>The <i class="fa-solid fa-display"></i> button allows you to configure display settings and extra features.</p>
+                <p>The <i class="fa-solid fa-cloud-arrow-down"></i> button allows you to configure update rates and view API status.</p>
                 <p>The <i class="fa-solid fa-ruler-horizontal"></i> button takes the spots currently on the map and shows where they are on the bands as well.</p>
                 <p id="installPrompt">You can install Field Spotter on your device! This is a Progressive Web App (PWA), which means you can add it to your home screen by clicking the button below. An internet connection is still required to retrieve the latest data.<br/><span style="text-align: center; display: block;"><button id="installApp">Add to Home Screen</button></span></p>
                 <p id="installOnAnotherDevice">Field Spotter is a Progressive Web App, which means you can install it on an Android or iOS device by opening this site in Chrome or Safari respectively, and returning to this information panel.</p>
@@ -77,7 +82,7 @@
                 <p>This website collects no data about you. If you share your location, the information stays on your device. There are no trackers and no cookies.</p>
             </div>
         </div>
-        <div id="configPanel" class="rightbox">
+        <div id="filtersPanel" class="rightbox">
             <div class="rightboxInner">
                 <h2>Filters</h2>
                 <label for="maxSpotAge">Show spots up to</label>
@@ -142,15 +147,19 @@
                         <option value="10mingrace">for 10 minutes</option>
                     </select></td></tr></table>
                 </div>
+            </div>
+        </div>
 
-                <h2>Display</h2>
+        <div id="displayPanel" class="rightbox">
+            <div class="rightboxInner">
+                <h2>Display Options</h2>
                 <div class="optionlist">
                     <table><tr><td><label for="darkMode" class="configLabel"><input type="checkbox" id="darkMode" name="darkMode">&nbsp;Dark mode</label></td></tr>
                     <tr><td><label for="passiveDisplay" class="configLabel"><input type="checkbox" id="passiveDisplay" name="passiveDisplay">&nbsp;Passive display mode</label></td></tr>
                     <tr><td><label for="enableAnimation" class="configLabel"><input type="checkbox" id="enableAnimation" name="enableAnimation" checked="true">&nbsp;Enable animation</label></td></tr></table>
                 </div>
 
-                <h2>Lookups</h2>
+                <h2>Features</h2>
                 <div class="optionlist">
                     <table><tr><td><label for="linkToCallsignLookupServiceEnabled" class="configLabel"><input type="checkbox" id="linkToCallsignLookupServiceEnabled" name="linkToCallsignLookupServiceEnabled" checked="false">&nbsp;Callsign links to lookup service</label></td></tr>
                     <tr><td><select id="callsignLookupService" class="configSelect" style="margin-left: 1.7em;">
@@ -161,8 +170,18 @@
                     <tr><td><input type="text" id="linkToWebSDRURL" name="linkToWebSDRURL" placeholder="http://websdr.ewi.utwente.nl:8901/" style="margin-left: 1.7em; width: 18em;"></label></td></tr>
                     </table>
                 </div>
+            </div>
+        </div>
 
+        <div id="dataPanel" class="rightbox">
+            <div class="rightboxInner">
+                <h2>API Status</h2>
+                <p>POTA API Status: <span id="potaApiStatus"></span><br/>
+                SOTA API Status: <span id="sotaApiStatus"></span><br/>
+                WWFF API Status: <span id="wwffApiStatus"></span><br/>
+                GMA API Status: <span id="gmaApiStatus"></span></p>
                 <h2>Updates</h2>
+                <p>Last updated at <span id="lastUpdateTime"></span></p>
                 <label for="updateInterval">Update data every</label>
                 <select id="updateInterval" class="configSelect">
                     <option value="2">2 minutes</option>
@@ -170,11 +189,6 @@
                     <option value="10">10 minutes</option>
                     <option value="20">20 minutes</option>
                 </select>
-                <p>Last updated at <span id="lastUpdateTime"></span></p>
-                <p>POTA API Status: <span id="potaApiStatus"></span></p>
-                <p>SOTA API Status: <span id="sotaApiStatus"></span></p>
-                <p>WWFF API Status: <span id="wwffApiStatus"></span></p>
-                <p>GMA API Status: <span id="gmaApiStatus"></span></p>
                 <p><button id="updateNow" class="configButton">Update now</button></p><br/>
             </div>
         </div>
