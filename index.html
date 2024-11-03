@@ -168,7 +168,9 @@
                     </select></td></tr>
                     <table><tr><td><label for="linkToProgramRefEnabled" class="configLabel"><input type="checkbox" id="linkToProgramRefEnabled" name="linkToProgramRefEnabled" checked="true">&nbsp;Reference links to program site</label></td></tr>
                     <tr><td><label for="linkToWebSDREnabled" class="configLabel"><input type="checkbox" id="linkToWebSDREnabled" name="linkToWebSDREnabled" checked="false">&nbsp;Frequency links to WebSDR</label></td></tr>
-                    <tr><td><input type="text" id="linkToWebSDRURL" name="linkToWebSDRURL" placeholder="http://websdr.ewi.utwente.nl:8901/" style="margin-left: 1.7em; width: 18em;"></label></td></tr>
+                    <tr><td><input type="text" id="linkToWebSDRURL" class="textBox" name="linkToWebSDRURL" placeholder="http://websdr.ewi.utwente.nl:8901/" style="margin-left: 1.7em; width: 18em;"></label></td></tr>
+                    <tr><td><label for="respottingEnabled" class="configLabel"><input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="true">&nbsp;Show Re-Spot button (currently POTA only)</label></td></tr>
+                    <tr><td><label for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:</label><input type="text" id="myCallsign" class="textBox" name="myCallsign" placeholder="N0CALL" style="width: 8em;"></label></td></tr>
                     </table>
                 </div>
             </div>
@@ -190,7 +192,7 @@
                     <option value="10">10 minutes</option>
                     <option value="20">20 minutes</option>
                 </select>
-                <p><button id="updateNow" class="configButton">Update now</button></p><br/>
+                <p><button class="configButton">Update now</button></p><br/>
             </div>
         </div>
         <div id="bandsPanel" class="rightbox">

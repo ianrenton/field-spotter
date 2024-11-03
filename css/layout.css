@@ -117,3 +117,16 @@ div.bandColMiddle ul li span {
     display: table-cell;
     vertical-align: middle;
 }
+
+/** Popup inner layout */
+form.respotForm {
+    margin-top: 0.3em;
+}
+input.respotCommentBox {
+    margin-left: 1.5em;
+    margin-right: 0.4em;
+    width: 9em;
+}
+.respotButton {
+    margin-top: 0.1em;
+}

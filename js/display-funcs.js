@@ -259,6 +259,12 @@ function getTooltipText(s) {
   if (s.comment != null && s.comment.length > 0) {
     ttt += "<br/><i class='fa-solid fa-comment markerPopupIcon'></i> " + s.comment;
   }
+
+  // Respotting form
+  if (respottingEnabled && myCallsign.length > 0 && s.program == "POTA") {
+    ttt += "<form onsubmit='respot(\"" + s.uid + "\"); return false;' class='respotForm'><input type='text' id='respotCommentFor" + s.uid + "' class='respotCommentBox textBox' name='comment' placeholder='Comment' /><button type='submit' class='configButton respotButton'>Re-Spot</button>&nbsp;<span id='respotStatusFor" + s.uid + "' /></form>";
+  }
+
   return ttt;
 }
 

@@ -239,6 +239,20 @@ $("#linkToWebSDRURL").change(function() {
   updateMapObjects();
 });
 
+// Re-spotting
+$("#respottingEnabled").change(function() {
+  respottingEnabled = $(this).is(':checked');
+  localStorage.setItem('respottingEnabled', respottingEnabled);
+  updateMapObjects();
+});
+
+// My callsign (for re-spotting)
+$("#myCallsign").change(function() {
+  myCallsign = $(this).val();
+  localStorage.setItem('myCallsign', JSON.stringify(myCallsign));
+  updateMapObjects();
+});
+
 // Dark mode
 $("#darkMode").change(function() {
   setDarkMode($(this).is(':checked'));
@@ -262,3 +276,12 @@ $("#enableAnimation").change(function() {
   enableAnimation = $(this).is(':checked');
   localStorage.setItem('enableAnimation', enableAnimation);
 });
+
+// Respot form handling
+function respot(uid) {
+  // Fetch the user's comment from the form
+  var comment = $("input#respotCommentFor" + uid).val();
+
+  // Post to POTA API
+  potaRespot(uid, comment, $("span#respotStatusFor" + uid));
+}

@@ -82,6 +82,14 @@ function loadLocalStorage() {
   linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
   $("#linkToWebSDRURL").val(linkToWebSDRURL);
 
+  // Re-spotting
+  respottingEnabled = localStorageGetOrDefault('respottingEnabled', respottingEnabled);
+  $("#respottingEnabled").prop('checked', respottingEnabled);
+
+  // My callsign (for re-spotting)
+  myCallsign = localStorageGetOrDefault('myCallsign', myCallsign);
+  $("#myCallsign").val(myCallsign);
+
   // Dark mode
   darkMode = localStorageGetOrDefault('darkMode', darkMode);
   $("#darkMode").prop('checked', darkMode);

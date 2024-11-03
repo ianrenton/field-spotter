@@ -2,8 +2,8 @@
 //        CONSTANTS        //
 /////////////////////////////
 
-const VERSION = "0.1";
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
+const POTA_POST_SPOT_URL = "https://api.pota.app/spot"
 const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
 const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
@@ -77,3 +77,5 @@ var linkToProgramRefEnabled = true;
 var callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 var linkToWebSDREnabled = false;
 var linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
+var respottingEnabled = false;
+var myCallsign = ""; // For spotting

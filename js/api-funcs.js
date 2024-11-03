@@ -373,3 +373,38 @@ async function updateGMASpot(uid, cacheKey, apiResponse) {
   }
   localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
 }
+
+// Post a re-spot to the POTA API
+async function potaRespot(uid, comment, statusIndicator) {
+    // Set "in progress" indicator
+  statusIndicator.html("<i class='fa-solid fa-hourglass-half'></i>");
+
+  // Fetch the corresponding spot
+  var spot = spots.get(uid);
+
+  // Post to POTA API
+  $.ajax({
+    type: "POST",
+    url: POTA_POST_SPOT_URL,
+    dataType: "json",
+    data: JSON.stringify({
+      activator: spot.activator,
+      spotter: myCallsign,
+      frequency: spot.freq,
+      reference: spot.ref,
+      mode: spot.mode,
+      source: "Field Spotter",
+      comments: comment
+    }), 
+    success: async function(result) {
+      handleGMAData(result);
+      removeDuplicates();
+      markPreQSYSpots();
+      updateMapObjects();
+      statusIndicator.html("<i class='fa-solid fa-check'></i>");
+    },
+    error: function() {
+      statusIndicator.html("<i class='fa-solid fa-triangle-exclamation'></i>");
+    }
+  });
+}
