@@ -85,6 +85,7 @@ function loadLocalStorage() {
   // Re-spotting
   respottingEnabled = localStorageGetOrDefault('respottingEnabled', respottingEnabled);
   $("#respottingEnabled").prop('checked', respottingEnabled);
+  $("#myCallsignLabel").css("display", respottingEnabled ? "inline-block" : "none");
 
   // My callsign (for re-spotting)
   myCallsign = localStorageGetOrDefault('myCallsign', myCallsign);

@@ -244,6 +244,7 @@ $("#respottingEnabled").change(function() {
   respottingEnabled = $(this).is(':checked');
   localStorage.setItem('respottingEnabled', respottingEnabled);
   updateMapObjects();
+  $("#myCallsignLabel").css("display", respottingEnabled ? "inline-block" : "none");
 });
 
 // My callsign (for re-spotting)

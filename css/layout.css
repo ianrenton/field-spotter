@@ -55,6 +55,12 @@ div.rightboxInner {
     margin-left: 1em;
     margin-right: 2em;
 }
+div.rightboxInner h2:not(:first-child) {
+    margin-top: 2em;
+}
+div.rightboxInner h3:not(:first-child) {
+    margin-top: 2em;
+}
 div.rightboxInner p:last-child {
     margin-bottom: 2em;
 }

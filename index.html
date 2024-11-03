@@ -69,7 +69,6 @@
                 <ul><li><a href="https://ianrenton.com/projects/field-spotter">About the Project</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter">Source Code</a></li>
                     <li><a href="https://github.com/ianrenton/field-spotter/issues">Issue Tracker</a></li></ul>
-                <br/>
                 <h3>Using the tool</h3>
                 <p>Spots from portable amateur radio activities such as POTA, SOTA &amp; WWFF are displayed on the map. Click a marker to view details such as activator, park/summit code, distance and how old the spot is. Older spots appear faded out. When a location has multiple spots, click the marker to expand out the set of spots.</p>
                 <p>The <i class="fa-solid fa-filter"></i> button allows you to filter spots by program, mode and band.</p>
@@ -159,7 +158,14 @@
                     <tr><td><label for="enableAnimation" class="configLabel"><input type="checkbox" id="enableAnimation" name="enableAnimation" checked="true">&nbsp;Enable animation</label></td></tr></table>
                 </div>
 
-                <h2>Popup Features</h2>
+                <h2>Re-Spotting</h2>
+                <div class="optionlist">
+                    <tr><td><label for="respottingEnabled" class="configLabel"><input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="true">&nbsp;Enable Re-Spotting (currently POTA only)</label></td></tr>
+                    <tr><td><label id="myCallsignLabel" for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:&nbsp;<input type="text" id="myCallsign" class="textBox" name="myCallsign" placeholder="N0CALL" style="width: 6em;"></label></td></tr>
+                    </table>
+                </div>
+
+                <h2>Popup Links</h2>
                 <div class="optionlist">
                     <table><tr><td><label for="linkToCallsignLookupServiceEnabled" class="configLabel"><input type="checkbox" id="linkToCallsignLookupServiceEnabled" name="linkToCallsignLookupServiceEnabled" checked="true">&nbsp;Callsign links to lookup service</label></td></tr>
                     <tr><td><select id="callsignLookupService" class="configSelect" style="margin-left: 1.7em;">
@@ -169,8 +175,6 @@
                     <table><tr><td><label for="linkToProgramRefEnabled" class="configLabel"><input type="checkbox" id="linkToProgramRefEnabled" name="linkToProgramRefEnabled" checked="true">&nbsp;Reference links to program site</label></td></tr>
                     <tr><td><label for="linkToWebSDREnabled" class="configLabel"><input type="checkbox" id="linkToWebSDREnabled" name="linkToWebSDREnabled" checked="false">&nbsp;Frequency links to WebSDR</label></td></tr>
                     <tr><td><input type="text" id="linkToWebSDRURL" class="textBox" name="linkToWebSDRURL" placeholder="http://websdr.ewi.utwente.nl:8901/" style="margin-left: 1.7em; width: 18em;"></label></td></tr>
-                    <tr><td><label for="respottingEnabled" class="configLabel"><input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="true">&nbsp;Show Re-Spot button (currently POTA only)</label></td></tr>
-                    <tr><td><label for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:</label><input type="text" id="myCallsign" class="textBox" name="myCallsign" placeholder="N0CALL" style="width: 8em;"></label></td></tr>
                     </table>
                 </div>
             </div>
