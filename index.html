@@ -9,7 +9,7 @@
         <meta name="theme-color" content="white" />
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-status-bar-style" content="white-translucent">
 
         <meta property="og:title" content="Field Spotter" />
         <meta property="twitter:title" content="Field Spotter" />
@@ -17,8 +17,8 @@
         <meta property="og:description" content="A mobile Amateur Radio spotting tool for POTA, SOTA, WWFF and similar programs" />
         <link rel="canonical" href="https://fieldspotter.radio/" />
         <meta property="og:url" content="https://fieldspotter.radio/" />
-        <meta property="og:image" content="https://fieldspotter.radio/banner2.png" />
-        <meta property="twitter:image" content="https://fieldspotter.radio/banner2.png" />
+        <meta property="og:image" content="https://fieldspotter.radio/img/banner2.png" />
+        <meta property="twitter:image" content="https://fieldspotter.radio/img/banner2.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="author" content="Ian Renton" />
         <meta property="og:locale" content="en_GB" />
@@ -26,7 +26,11 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-extra-markers@1.2.2/dist/css/leaflet.extra-markers.min.css">
-        <link rel="stylesheet" href="style.css" type="text/css">
+
+        <link rel="stylesheet" href="css/base.css" type="text/css">
+        <link rel="stylesheet" href="css/layout.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="stylesheet" href="css/mobile.css" type="text/css">
 
         <script src="https://kit.fontawesome.com/eb1770b90a.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -41,11 +45,11 @@
         <script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
         <script src="https://cdn.jsdelivr.net/npm/@joergdietrich/leaflet.terminator@1.1.0/L.Terminator.min.js"></script>
 
-        <link rel="icon" type="image/svg+xml" href="favicon.svg">
-        <link rel="alternate icon" type="image/png" href="favicon.png">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-        <link rel="alternate icon" type="image/png" href="favicon-192.png">
-        <link rel="alternate icon" type="image/png" href="favicon-512.png">
+        <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+        <link rel="alternate icon" type="image/png" href="img/favicon.png">
+        <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+        <link rel="alternate icon" type="image/png" href="img/favicon-192.png">
+        <link rel="alternate icon" type="image/png" href="img/favicon-512.png">
         <link rel="manifest" href="manifest.webmanifest">
     </head>
     <body>
@@ -176,6 +180,14 @@
             <div class="rightboxInner" id="bandsPanelInner"></div>
         </div>
 
-        <script src="code.js"></script>
+        <script src="js/globals.js"></script>
+        <script src="js/api-funcs.js"></script>
+        <script src="js/display-funcs.js"></script>
+        <script src="js/utility-funcs.js"></script>
+        <script src="js/map-setup-funcs.js"></script>
+        <script src="js/ui-funcs.js"></script>
+        <script src="js/local-storage-funcs.js"></script>
+        <script src="js/pwa-funcs.js"></script>
+        <script src="js/startup.js"></script>
     </body>
 </html>

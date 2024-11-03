@@ -8,17 +8,17 @@
     "start_url": "https://fieldspotter.radio/",
     "background_color": "white",
     "theme_color": "white",
-    "description": "An Amateur Radio utility providing a geographic and band spotting map of POTA SOTA & WWFF activations",
+    "description": "A mobile Amateur Radio spotting tool for POTA, SOTA, WWFF and similar programs",
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [
     {
-      "src": "/favicon-192.png",
+      "src": "/img/favicon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/favicon-512.png",
+      "src": "/img/favicon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

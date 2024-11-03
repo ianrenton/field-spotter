@@ -2,14 +2,25 @@ const CACHE_NAME = 'Field Spotter';
 const CACHE_URLS = [
   'index.html',
   './'
-  'style.css',
-  'code.js',
-  'apple-touch-icon.png',
-  'favicon.png',
-  'favicon-32.png',
-  'favicon.svg',
-  'favicon-192.png',
-  'favicon-512.png'
+  'css/base.css',
+  'css/layout.css',
+  'css/style.css',
+  'css/mobile.css',
+  'js/globals.js',
+  'js/api-funcs.js',
+  'js/display-funcs.js',
+  'js/utility-funcs.js',
+  'js/map-setup-funcs.js',
+  'js/ui-funcs.js',
+  'js/local-storage-funcs.js',
+  'js/pwa-funcs.js',
+  'js/startup.js',
+  'img/apple-touch-icon.png',
+  'img/favicon.png',
+  'img/favicon-32.png',
+  'img/favicon.svg',
+  'img/favicon-192.png',
+  'img/favicon-512.png'
 ];
 
 self.addEventListener('fetch', (event) => {

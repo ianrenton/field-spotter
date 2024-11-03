@@ -1,0 +1,12 @@
+/* Mobile */
+@media only screen and (max-width: 800px) {
+    span.hideonmobile {
+        display: none;
+    }
+    div.rightbox {
+        width: 100%;
+    }
+    .leaflet-container .leaflet-control-attribution {
+        display: none;
+    }
+}

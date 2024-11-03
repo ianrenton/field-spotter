@@ -1,0 +1,144 @@
+
+
+
+
+
+/* Button styles */
+button.slideOutButton {
+    background-color: var(--background);
+    border: 1px solid var(--text);
+    border-radius: 3px;
+}
+.textFlipHorizontal {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+
+/* Right box styles */
+div.rightbox {
+    background-color: var(--background);
+}
+div.rightbox p#subtitle {
+    margin-right: 4em;
+    font-weight: bold;
+}
+div.optionlist {
+    line-height: 150%;
+}
+div.optionlist label {
+    margin-right: 2em;
+}
+label.configLabel {
+    display: inline-block;
+    white-space: nowrap;
+}
+select.configSelect {
+    font-size: 1em;
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    background: var(--config-select-bg) no-repeat;
+    background-size: 12px;
+    background-position: calc(100% + 1em - 20px) calc(50% + 3px);
+    background-repeat: no-repeat;
+    background-color: var(--box-background) !important;
+    color: var(--text);
+}
+button.configButton {
+    padding: 0.3em;
+    font-size: 1em;
+    background-color: var(--box-background);
+    border: 1px solid var(--text);
+    border-radius: 3px;
+    color: var(--text);
+}
+button#updateNow {
+    font-size: 1em;
+}
+input {
+    font-size: 1em;
+    font-family: sans-serif;
+}
+div.bandColMiddle ul {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 2px dotted;
+}
+
+/* PWA install prompt hidden unless appropriate */
+p#installPrompt {
+    display: none;
+}
+
+/* Marker and popup styles */
+.leaflet-tooltip, .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background-color: var(--popup-background);
+    color: var(--text);
+}
+.leaflet-tooltip {
+    border: 1px solid var(--popup-background);
+}
+.leaflet-tooltip-top::before {
+    border-top-color: var(--popup-background);
+}
+i.markerPopupIcon {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 0.1em;
+    width: 1.2em;
+}
+span.popupRefName {
+    display:inline-block;
+    white-space: normal;
+    margin-right: 1em;
+}
+
+/* Bands panel inner styles */
+div.bandColHeader {
+    text-align: center;
+    font-weight: bold;
+    padding: 0.5em;
+}
+div.bandColMiddle {
+    margin-left: 3px;
+    border-left: 2px dotted --text;
+}
+p#bandPanelNoSpots {
+    margin-left: 1em;
+    margin-right: 1em;
+    white-space: normal;
+}
+div.bandColSpot {
+    display: block;
+    border-radius: 3px;
+    padding: 3px;
+}
+div.bandColSpotCurrent {
+    background: var(--band-col-spot);
+}
+div.bandColSpotOld {
+    background: var(--band-col-spot-old);
+}
+div.bandColSpotSelected {
+    background: var(--band-col-spot-selected);
+}
+
+/* Text/link styles */
+a, .leaflet-container a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+/* Leaflet.js mods */
+.leaflet-container .leaflet-control-attribution {
+    background: none;
+    color: var(--text);
+}

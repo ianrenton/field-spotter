@@ -1,0 +1,38 @@
+:root[color-mode="light"] {
+    --background: white;
+    --popup-background: white;
+    --box-background: white;
+    --text: black;
+    --link-color: #0078a8;
+    --band-col-spot: #f9f06b;
+    --band-col-spot-old: lightgrey;
+    --band-col-spot-selected: lightblue;
+    --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+:root[color-mode="dark"] {
+    --background: #111;
+    --popup-background: #222;
+    --box-background: #222;
+    --text: #eee;
+    --link-color: #5ed1ff;
+    --band-col-spot: #3e3b1b;
+    --band-col-spot-old: #1e1e1e;
+    --band-col-spot-selected: #252562;
+    --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='white'><polygon points='0,0 100,0 50,50'/></svg>");
+}
+
+/* Overall */
+html, body, div#map { 
+    width:100%; 
+    height:100%; 
+    margin:0; 
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    font-size: 16px;
+    cursor: default;
+}
+html, body {
+    background-color: var(--background);
+}

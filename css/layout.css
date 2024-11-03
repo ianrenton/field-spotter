@@ -1,0 +1,113 @@
+/* Main layout */
+button.slideOutButton {
+    font-size: 1.5em;
+    width: 2em;
+    height: 2em;
+    position: absolute;
+    right: 0.5em;
+    padding: 0;
+    z-index: 1002;
+}
+button#infoButton {
+    top: 0.5em;
+}
+button#configButton {
+    top: 3em;
+}
+button#bandsButton {
+    top: 5.5em;
+}
+button.slideOutButton i {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    top: 0;
+    left: 0;
+    color: var(--text);
+}
+div#map { 
+    width:auto; 
+    height:100%; 
+    margin:0; 
+    overflow: hidden;
+}
+div.rightbox {
+    width: 30em;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+    padding: 0px;
+    z-index: 1001;
+    display: none;
+    overflow: auto;
+}
+div.rightboxInner {
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-left: 1em;
+    margin-right: 2em;
+}
+div.rightboxInner p:last-child {
+    margin-bottom: 2em;
+}
+div#bandsPanel {
+    overflow: hidden;
+}
+div#bandsPanelInner {
+    height: 100%;
+    margin: 0 4.5em 0 0;
+    padding: 0px;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+    display: flex;
+    overscroll-behavior-x: none;
+}
+
+/* Bands panel inner layout */
+div.bandCol {
+    display: inline-block;
+    height: 100%;
+    min-width: 8em;
+    display: flex;
+    flex-flow: column;
+    overflow-y: clip;
+}
+div.bandColHeader {
+    flex: 0 1 auto;
+}
+div.bandColMiddle {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+.bandColMiddle {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overscroll-behavior-y: none;
+}
+.bandColMiddle::-webkit-scrollbar { 
+    display: none;
+}
+div.bandColMiddle ul {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+div.bandColMiddle ul li {
+    display: table-row;
+    line-height: 0.5em;
+}
+div.bandColMiddle ul li.withSpots {
+    line-height: 1em;
+}
+div.bandColMiddle ul li span {
+    display: table-cell;
+    vertical-align: middle;
+}
