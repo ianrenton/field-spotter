@@ -6,6 +6,8 @@
 setUpMap();
 // Load settings
 loadLocalStorage();
+// Request geolocation
+requestGeolocation();
 // Load data for the first time
 fetchData();
 // Every second, check if we need to update data based on the user's configured update interval,

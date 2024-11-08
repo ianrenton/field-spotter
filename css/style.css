@@ -99,6 +99,10 @@ span.popupRefName {
     white-space: normal;
     margin-right: 1em;
 }
+span.youAreHereNote {
+    font-size: 0.7em;
+    font-style: italic;
+}
 
 /* Bands panel inner styles */
 div.bandColHeader {

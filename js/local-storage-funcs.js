@@ -103,4 +103,14 @@ function loadLocalStorage() {
   // Enable animation
   enableAnimation = localStorageGetOrDefault('enableAnimation', enableAnimation);
   $("#enableAnimation").prop('checked', enableAnimation);
+
+  // Overridden geolocation
+  ownPosOverride = localStorageGetOrDefault('ownPosOverride', ownPosOverride);
+  var ownPosOverrideSet = ownPosOverride != null;
+  $("#ownPosOverrideCheckbox").prop('checked', ownPosOverrideSet);
+  $("#ownPosOverrideConfig").css("display", ownPosOverrideSet ? "inline-block" : "none");
+  if (ownPosOverrideSet) {
+    $("#ownPosOverrideLat").val(ownPosOverride.lat.toFixed(5));
+    $("#ownPosOverrideLon").val(ownPosOverride.lng.toFixed(5));
+  }
 }

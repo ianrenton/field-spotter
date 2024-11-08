@@ -323,55 +323,6 @@ function hashCode(spot) {
   return h;
 }
 
-// Use the browser API to request the user's own position. If found, display a marker there and move the view
-// to centre it, so long as the view hasn't yet been panned somewhere else.
-function requestGeolocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      myPos = new L.latLng(position.coords.latitude, position.coords.longitude);
-
-      // Pan and zoom the map to show the user's location. Suppress this if the user has already been
-      // moving the map around, to avoid disrupting their experience
-      if (!alreadyMovedMap) {
-        map.setView(myPos, 5, {
-          animate: enableAnimation,
-          duration: enableAnimation ? 1.0 : 0.0
-        });
-      }
-
-      // Add a marker for us
-      if (ownPosLayer == null) {
-        ownPosLayer = new L.LayerGroup();
-        ownPosLayer.addTo(map);
-      }
-      if (ownPosMarker != null) {
-        ownPosLayer.removeLayer(ownPosMarker);
-        oms.removeMarker(ownPosMarker);
-      }
-      setTimeout(function() {
-        ownPosMarker = L.marker(myPos, {icon: L.ExtraMarkers.icon({
-          icon: 'fa-tower-cell',
-          iconColor: 'white',
-          markerColor: 'gray',
-          shape: 'circle',
-          prefix: 'fa',
-          svg: true
-        })});
-        ownPosMarker.tooltip = "You are here!";
-        ownPosLayer.addLayer(ownPosMarker);
-        oms.addMarker(ownPosMarker);
-      }, 1000);
-
-      // Update map objects to add distance and bearing to tooltips
-      updateMapObjects();
-    }, function(error) {
-      console.log("Could not get geolocation: " + error.message);
-    });
-  } else {
-    console.log("Browser cannot provide geolocation.");
-  }
-}
-
 // Depending on whether you are in light or dark mode, get the basemap name.
 function getBasemapForTheme() {
   return darkMode ? BASEMAP_DARK : BASEMAP_LIGHT;

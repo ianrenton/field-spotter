@@ -36,10 +36,10 @@ function setUpMap() {
   terminator.setStyle({fillColor: '#00000050'});
   terminator.addTo(map);
 
-  // Display a default view, then request geolocation which will display the own position marker
-  // and move the view to it.
+  // Display a default view. Soon a geolocation request will happen, which will display the own
+  // position marker and move the view to it, but this is a default for now or in case geolocation
+  // doesn't work.
   map.setView([30, 0], 3);
-  requestGeolocation();
 
   // Add callbacks on moving the view
   map.on('moveend', function() {

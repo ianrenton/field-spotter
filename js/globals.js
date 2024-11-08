@@ -10,6 +10,8 @@ const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/"
 const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?"
+const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
+const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
 const BASEMAP_LIGHT = "CartoDB.Voyager";
 const BASEMAP_DARK = "CartoDB.DarkMatter";
 const BASEMAP_OPACITY = 1.0;
@@ -79,3 +81,4 @@ var linkToWebSDREnabled = false;
 var linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
 var respottingEnabled = false;
 var myCallsign = ""; // For spotting
+var ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.

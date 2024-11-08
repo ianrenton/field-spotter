@@ -42,6 +42,20 @@ function manageRightBoxes(toggle, hide1, hide2, hide3, hide4, callback) {
   }
 }
 
+// Set own position to the provided value and store it
+function setOwnPositionOverride(latlon) {
+  myPos = latlon;
+  ownPosOverride = latlon;
+  localStorage.setItem('ownPosOverride', JSON.stringify(latlon));
+  $("#ownPosOverrideCheckbox").prop('checked', true);
+  $("#ownPosOverrideConfig").css("display", "inline-block");
+  $("#ownPosOverrideLat").val(latlon.lat.toFixed(5));
+  $("#ownPosOverrideLon").val(latlon.lng.toFixed(5));
+
+  // Update map objects to add distance and bearing to tooltips
+  updateMapObjects();
+}
+
 $("#infoButton").click(function() {
   manageRightBoxes("#infoPanel", "#filtersPanel", "#displayPanel", "#dataPanel", "#bandsPanel", null);
 });
@@ -237,6 +251,28 @@ $("#linkToWebSDRURL").change(function() {
   linkToWebSDRURL = $(this).val();
   localStorage.setItem('linkToWebSDRURL', JSON.stringify(linkToWebSDRURL));
   updateMapObjects();
+});
+
+// Position override - checkbox
+$("#ownPosOverrideCheckbox").change(function() {
+  // If unchecked, remove the own position override and process automatic geolocation again.
+  // If checked, *don't* actually do anything yet besides making the config visible. The
+  // "Set" button must be clicked to actually set the value, otherwise we'll be moving markers
+  // and regenerating objects on every digit entered.
+  var ownPosOverrideSet = $(this).is(':checked');
+  if (!ownPosOverrideSet) {
+    ownPosOverride = null;
+    localStorage.setItem('ownPosOverride', null);
+    requestGeolocation();
+  }
+  $("#ownPosOverrideConfig").css("display", ownPosOverrideSet ? "inline-block" : "none");
+});
+
+// Position override - set button
+$("#ownPosOverrideSetButton").click(function() {
+  ownPosOverride = new L.latLng(parseFloat($("#ownPosOverrideLat").val()), parseFloat($("#ownPosOverrideLon").val()));
+  setOwnLocation(ownPosOverride);
+  localStorage.setItem('ownPosOverride', JSON.stringify(ownPosOverride));
 });
 
 // Re-spotting
