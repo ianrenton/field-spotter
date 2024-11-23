@@ -9,6 +9,7 @@ function fetchData() {
     fetchSOTAData();
     fetchWWFFData();
     fetchGMAData();
+    fetchPNPData();
     lastUpdateTime = moment();
 }
 
@@ -131,6 +132,31 @@ function fetchGMAData() {
         });
     } else {
         $("span#gmaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+    }
+}
+
+// Fetch Parks n Peaks data, updating the internal data model and the map on success
+function fetchPNPData() {
+    if (programs.includes("POTA") || programs.includes("SOTA") || programs.includes("WWFF")) {
+        $("span#pnpApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+        $.ajax({
+            url: PARKSNPEAKS_SPOTS_URL,
+            dataType: 'json',
+            timeout: 10000,
+            success: async function(result) {
+                handlePNPData(result);
+                cleanDataStore();
+                removeDuplicates();
+                markPreQSYSpots();
+                updateMapObjects();
+                $("span#pnpApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+            },
+            error: function() {
+                $("span#pnpApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+            }
+        });
+    } else {
+        $("span#pnpApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
     }
 }
 
@@ -347,6 +373,36 @@ function updateGMASpot(uid, cacheKey, apiResponse) {
         updateMapObjects();
     }
     localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
+
+// Interpret PNP data and update the internal data model
+function handlePNPData(result) {
+    // Add the retrieved spots to the list
+    result.forEach(spot => {
+        // Add spot if its program was something we recognise
+        if (spot.actClass === "POTA" || spot.actClass === "SOTA" || spot.actClass === "WWFF") {
+            let uid = "PNP-" + spot.actID
+            let newSpot = {
+                uid: uid,
+                // @todo no lat/long in PNP data - workaround to fill in from other programmes?
+                ref: spot.actSiteID,
+                refName: spot.actLocation,
+                activator: spot.actCallsign,
+                mode: normaliseMode(spot.actMode, spot.actComments),
+                freq: spot.actFreq,
+                band: freqToBand(spot.actFreq),
+                time: moment.utc(spot.actTime, "YYYY-MM-DD HH:mm:ss"),
+                comment: filterComment(spot.actComments),
+                // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+                // string "QRT", which is how operators typically report it.
+                qrt: (spot.actComments != null) ? spot.actComments.toUpperCase().includes("QRT") : false,
+                // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+                preqsy: false,
+                program: spot.actClass
+            }
+            spots.set(uid, newSpot);
+        }
+    });
 }
 
 // Post a re-spot to the POTA API
