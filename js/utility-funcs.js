@@ -8,7 +8,7 @@ async function cleanDataStore() {
     // Clear existing POTA spots from the internal list
     Object.keys(spots).forEach(function (uid) {
         if (moment().diff(spots[uid].time, 'hours') > 1) {
-            spots.delete(k);
+            spots.delete(uid);
         }
     });
 }
