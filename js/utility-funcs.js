@@ -4,7 +4,7 @@
 
 // Clean the data store by removing all spots older than the maximum allowed spot time of 1 hour. This ensures we do
 // not endlessly use more memory if the software is left running.
-async function cleanDataStore() {
+function cleanDataStore() {
     // Clear existing POTA spots from the internal list
     Object.keys(spots).forEach(function (uid) {
         if (moment().diff(spots[uid].time, 'hours') > 1) {

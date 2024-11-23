@@ -53,7 +53,7 @@ function setUpMap() {
 
 // Callback on map projection (pan/zoom) change. Used to update the list of
 // spots needing to be drawn on the band popout, if it is visible
-async function mapProjChanged() {
+function mapProjChanged() {
     if ($("#bandsPanel").is(":visible")) {
         recalculateBandsPanelContent();
     }

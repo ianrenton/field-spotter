@@ -151,7 +151,7 @@ function checkForUpdate() {
 /////////////////////////////
 
 // Interpret POTA data and update the internal data model
-async function handlePOTAData(result) {
+function handlePOTAData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
     spotUpdate.forEach(spot => {
@@ -180,7 +180,7 @@ async function handlePOTAData(result) {
 }
 
 // Interpret SOTA data and update the internal data model
-async function handleSOTAData(result) {
+function handleSOTAData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
     spotUpdate.forEach(spot => {
@@ -233,7 +233,7 @@ async function handleSOTAData(result) {
 
 // Update a SOTA spot with lat/lon. Called with "apiResponse" either direct from the API,
 // or a cached version loaded from localStorage.
-async function updateSOTASpot(uid, cacheKey, apiResponse) {
+function updateSOTASpot(uid, cacheKey, apiResponse) {
     let summitData = objectToMap(apiResponse);
     let updateSpot = spots.get(uid);
     // Spot might not be present in our list because it was a removed duplicate, so
@@ -248,7 +248,7 @@ async function updateSOTASpot(uid, cacheKey, apiResponse) {
 }
 
 // Interpret WWFF data and update the internal data model
-async function handleWWFFData(result) {
+function handleWWFFData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
     spotUpdate.get("RCD").forEach(spot => {
@@ -278,7 +278,7 @@ async function handleWWFFData(result) {
 }
 
 // Interpret GMA data and update the internal data model
-async function handleGMAData(result) {
+function handleGMAData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
     spotUpdate.get("RCD").forEach(spot => {
@@ -328,7 +328,7 @@ async function handleGMAData(result) {
 
 // Update a GMA spot with lat/lon and programme. Called with "apiResponse" either direct from the API,
 // or a cached version loaded from localStorage.
-async function updateGMASpot(uid, cacheKey, apiResponse) {
+function updateGMASpot(uid, cacheKey, apiResponse) {
     let refData = objectToMap(apiResponse);
     let updateSpot = spots.get(uid);
     // Spot might not be present in our list because it was a removed duplicate, so
@@ -350,7 +350,7 @@ async function updateGMASpot(uid, cacheKey, apiResponse) {
 }
 
 // Post a re-spot to the POTA API
-async function potaRespot(uid, comment, statusIndicator) {
+function potaRespot(uid, comment, statusIndicator) {
     // Set "in progress" indicator
     statusIndicator.html("<i class='fa-solid fa-hourglass-half'></i>");
 
