@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/temp" />
+      <excludeFolder url="file://$MODULE_DIR$/tmp" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="leaflet.geodesic" level="application" />
+    <orderEntry type="library" name="leaflet" level="application" />
+    <orderEntry type="library" name="moment" level="application" />
+    <orderEntry type="library" name="jquery" level="application" />
+    <orderEntry type="library" name="jquery-ui" level="application" />
+    <orderEntry type="library" name="leaflet-geometryutil" level="application" />
+    <orderEntry type="library" name="eb1770b90a" level="application" />
+    <orderEntry type="library" name="leaflet-extra-markers" level="application" />
+    <orderEntry type="library" name="leaflet-providers" level="application" />
+    <orderEntry type="library" name="overlapping-marker-spiderfier-leaflet" level="application" />
+    <orderEntry type="library" name="leaflet-edgebuffer" level="application" />
+    <orderEntry type="library" name="@joergdietrich/leaflet.terminator" level="application" />
+  </component>
+</module>

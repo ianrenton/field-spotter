@@ -8,21 +8,27 @@ button.slideOutButton {
     padding: 0;
     z-index: 1002;
 }
+
 button#infoButton {
     top: 0.5em;
 }
+
 button#filtersButton {
     top: 3em;
 }
+
 button#displayButton {
     top: 5.5em;
 }
+
 button#dataButton {
     top: 8em;
 }
+
 button#bandsButton {
     top: 10.5em;
 }
+
 button.slideOutButton i {
     padding: 0;
     margin: 0;
@@ -31,46 +37,54 @@ button.slideOutButton i {
     left: 0;
     color: var(--text);
 }
-div#map { 
-    width:auto; 
-    height:100%; 
-    margin:0; 
+
+div#map {
+    width: auto;
+    height: 100%;
+    margin: 0;
     overflow: hidden;
 }
+
 div.rightbox {
     width: 30em;
     height: 100%;
     position: absolute;
-    top: 0px;
-    right: 0px;
-    margin: 0px;
-    padding: 0px;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
     z-index: 1001;
     display: none;
     overflow: auto;
 }
+
 div.rightboxInner {
     overflow-x: hidden;
     overflow-y: auto;
     margin-left: 1em;
     margin-right: 2em;
 }
+
 div.rightboxInner h2:not(:first-child) {
     margin-top: 2em;
 }
+
 div.rightboxInner h3:not(:first-child) {
     margin-top: 2em;
 }
+
 div.rightboxInner p:last-child {
     margin-bottom: 2em;
 }
+
 div#bandsPanel {
     overflow: hidden;
 }
+
 div#bandsPanelInner {
     height: 100%;
     margin: 0 4.5em 0 0;
-    padding: 0px;
+    padding: 0;
     overflow-x: auto;
     overflow-y: auto;
     white-space: nowrap;
@@ -80,28 +94,32 @@ div#bandsPanelInner {
 
 /* Bands panel inner layout */
 div.bandCol {
-    display: inline-block;
     height: 100%;
     min-width: 8em;
     display: flex;
     flex-flow: column;
     overflow-y: clip;
 }
+
 div.bandColHeader {
     flex: 0 1 auto;
 }
+
 div.bandColMiddle {
     flex: 1 1 auto;
     overflow-y: auto;
 }
+
 .bandColMiddle {
     -ms-overflow-style: none;
     scrollbar-width: none;
     overscroll-behavior-y: none;
 }
-.bandColMiddle::-webkit-scrollbar { 
+
+.bandColMiddle::-webkit-scrollbar {
     display: none;
 }
+
 div.bandColMiddle ul {
     display: table;
     table-layout: fixed;
@@ -112,13 +130,17 @@ div.bandColMiddle ul {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
 div.bandColMiddle ul li {
     display: table-row;
     line-height: 0.5em;
 }
+
+/*noinspection CssUnusedSymbol*/
 div.bandColMiddle ul li.withSpots {
     line-height: 1em;
 }
+
 div.bandColMiddle ul li span {
     display: table-cell;
     vertical-align: middle;
@@ -128,11 +150,13 @@ div.bandColMiddle ul li span {
 form.respotForm {
     margin-top: 0.3em;
 }
+
 input.respotCommentBox {
     margin-left: 1.5em;
     margin-right: 0.4em;
     width: 9em;
 }
+
 .respotButton {
     margin-top: 0.1em;
 }

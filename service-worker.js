@@ -1,7 +1,7 @@
 const CACHE_NAME = 'Field Spotter';
 const CACHE_URLS = [
   'index.html',
-  './'
+  './',
   'css/base.css',
   'css/layout.css',
   'css/style.css',
@@ -43,6 +43,5 @@ self.addEventListener('fetch', (event) => {
     }));
   } else {
     // Not a cacheable request, must be a call to the API, so no cache involved just go to the network
-    return;
   }
 });

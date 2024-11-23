@@ -14,4 +14,6 @@ fetchData();
 // and update other UI elements regarding data age.
 setInterval(checkForUpdate, 1000);
 // Update terminator/greyline every 5 minutes
-setInterval(function() { terminator.setTime() }, 300);
+setInterval(function () {
+    terminator.setTime()
+}, 300);

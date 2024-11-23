@@ -9,6 +9,7 @@
     --band-col-spot-selected: lightblue;
     --config-select-bg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='black'><polygon points='0,0 100,0 50,50'/></svg>");
 }
+
 :root[color-mode="dark"] {
     --background: #111;
     --popup-background: #222;
@@ -22,10 +23,10 @@
 }
 
 /* Overall */
-html, body, div#map { 
-    width:100%; 
-    height:100%; 
-    margin:0; 
+html, body, div#map {
+    width: 100%;
+    height: 100%;
+    margin: 0;
     overflow: hidden;
     font-family: sans-serif;
     background-color: var(--background);
@@ -33,6 +34,7 @@ html, body, div#map {
     font-size: 16px;
     cursor: default;
 }
+
 html, body {
     background-color: var(--background);
 }
