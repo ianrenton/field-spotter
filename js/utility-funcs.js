@@ -2,6 +2,16 @@
 //    UTILITY FUNCTIONS    //
 /////////////////////////////
 
+// Clean the data store by removing all spots older than the maximum allowed spot time of 1 hour. This ensures we do
+// not endlessly use more memory if the software is left running.
+async function cleanDataStore() {
+  // Clear existing POTA spots from the internal list
+  Object.keys(spots).forEach(function (uid) {
+    if (moment().diff(spots[uid].time, 'hours') > 1) {
+      spots.delete(k);
+    }
+  });
+}
 
 // Iterate through the list of spots, merging duplicates. If two or more spots with the same program, activator, reference, mode
 // and frequency are found, these will be merged and reduced until only one remains, with the most recent timestamp and
@@ -39,7 +49,7 @@ function removeDuplicates() {
 // Iterate through a temporary list of spots, merging duplicates in a way suitable for the band panel. If two or more
 // spots with the activator, mode and frequency are found, these will be merged and reduced until only one remains,
 // with the best data. Note that unlike removeDuplicates(), which operates on the main spot map, this operates only
-// on the temporary array of spots provided as an argument, and returns the output, for use when constructing the 
+// on the temporary array of spots provided as an argument, and returns the output, for use when constructing the
 // band panel.
 function removeDuplicatesForBandPanel(spotList) {
   var spotsToRemove = [];
@@ -92,7 +102,7 @@ function markPreQSYSpots() {
 function objectToMap(o) {
   let m = new Map();
   for(let k of Object.keys(o)) {
-    m.set(k, o[k]); 
+    m.set(k, o[k]);
   }
   return m;
 }
@@ -248,7 +258,7 @@ function getURLForFrequency(freq) {
   if (linkToWebSDREnabled) {
     var url = linkToWebSDRURL;
     if (url.slice(-1) == "/") {
-      url = url.slice(0, -1); 
+      url = url.slice(0, -1);
     }
     url += "/?tune=" + (freq * 1000).toFixed(0);
     return url;

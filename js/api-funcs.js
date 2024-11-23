@@ -22,6 +22,7 @@ function fetchPOTAData() {
       timeout: 10000,
       success: async function(result) {
         handlePOTAData(result);
+        cleanDataStore();
         removeDuplicates();
         markPreQSYSpots();
         updateMapObjects();
@@ -57,6 +58,7 @@ function fetchSOTAData() {
             timeout: 10000,
             success: async function(result) {
               handleSOTAData(result);
+              cleanDataStore();
               removeDuplicates();
               markPreQSYSpots();
               updateMapObjects();
@@ -92,6 +94,7 @@ function fetchWWFFData() {
       timeout: 30000,
       success: async function(result) {
         handleWWFFData(result);
+        cleanDataStore();
         removeDuplicates();
         markPreQSYSpots();
         updateMapObjects();
@@ -116,6 +119,7 @@ function fetchGMAData() {
       timeout: 30000,
       success: async function(result) {
         handleGMAData(result);
+        cleanDataStore();
         removeDuplicates();
         markPreQSYSpots();
         updateMapObjects();
@@ -148,13 +152,6 @@ function checkForUpdate() {
 
 // Interpret POTA data and update the internal data model
 async function handlePOTAData(result) {
-  // Clear existing POTA spots from the internal list
-  Object.keys(spots).forEach(function (k) {
-      if (spots[k].program === "POTA") {
-          spots.delete(k);
-      }
-  });
-
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.forEach(spot => {
@@ -184,13 +181,6 @@ async function handlePOTAData(result) {
 
 // Interpret SOTA data and update the internal data model
 async function handleSOTAData(result) {
-  // Clear existing SOTA spots from the internal list
-  Object.keys(spots).forEach(function (k) {
-      if (spots[k].program === "SOTA") {
-          spots.delete(k);
-      }
-  });
-
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.forEach(spot => {
@@ -207,7 +197,7 @@ async function handleSOTAData(result) {
       band: freqToBand(spot.frequency),
       time: moment.utc(spot.timeStamp),
       comment: filterComment(spot.comments),
-      // Check for QRT. The API does now give us this, but for backwards compatibility we still monitor spot 
+      // Check for QRT. The API does now give us this, but for backwards compatibility we still monitor spot
       // comments for the string "QRT", which is how operators typically report it.
       qrt: (spot.type != null && spot.type == "QRT") || (spot.comments != null && spot.comments.toUpperCase().includes("QRT")),
       // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
@@ -259,13 +249,6 @@ async function updateSOTASpot(uid, cacheKey, apiResponse) {
 
 // Interpret WWFF data and update the internal data model
 async function handleWWFFData(result) {
-  // Clear existing WWFF spots from the internal list
-  Object.keys(spots).forEach(function (k) {
-      if (spots[k].program === "WWFF") {
-          spots.delete(k);
-      }
-  });
-
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.get("RCD").forEach(spot => {
@@ -296,14 +279,6 @@ async function handleWWFFData(result) {
 
 // Interpret GMA data and update the internal data model
 async function handleGMAData(result) {
-  // Clear existing GMA-sourced spots from the internal list. Note this doesn't include WWFF. GMA does provide WWFF spots,
-  // but we ignore them, preferring instead the better list of WWFF spots from the dedicated API call.
-  Object.keys(spots).forEach(function (k) {
-      if (spots[k].program === "GMA" || spots[k].program === "IOTA" || spots[k].program === "Castles" || spots[k].program === "Lighthouses" || spots[k].program === "Mills") {
-          spots.delete(k);
-      }
-  });
-
   // Add the retrieved spots to the list
   spotUpdate = objectToMap(result);
   spotUpdate.get("RCD").forEach(spot => {
@@ -395,7 +370,7 @@ async function potaRespot(uid, comment, statusIndicator) {
       mode: spot.mode,
       source: "Field Spotter",
       comments: comment
-    }), 
+    }),
     success: async function(result) {
       handleGMAData(result);
       removeDuplicates();
