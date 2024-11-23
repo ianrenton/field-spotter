@@ -24,6 +24,13 @@ function manageRightBoxes(toggle, hide1, hide2, hide3, hide4, callback) {
             showDelay = 600;
         }
 
+        if (! $(toggle).is(":visible")) {
+            setTimeout(function () {
+                $("#closeButton").show();
+            }, showDelay + 500);
+        } else {
+            $("#closeButton").hide();
+        }
         setTimeout(function () {
             $(toggle).toggle("slide", {direction: "right"}, 500, callback);
         }, showDelay);
@@ -42,6 +49,26 @@ function manageRightBoxes(toggle, hide1, hide2, hide3, hide4, callback) {
             $(hide4).hide();
         }
         $(toggle).toggle(0, callback);
+        if ($(toggle).is(":visible")) {
+            $("#closeButton").show();
+        } else {
+            $("#closeButton").hide();
+        }
+    }
+}
+
+// Close all right boxes
+function closeRightBoxes() {
+    let allBoxes = ["#infoPanel", "#filtersPanel", "#displayPanel", "#dataPanel", "#bandsPanel"];
+    for (let i = 0; i < allBoxes.length; i++) {
+        if (enableAnimation) {
+            if ($(allBoxes[i]).is(":visible")) {
+                $(allBoxes[i]).hide("slide", {direction: "right"}, 500);
+            }
+        } else {
+            $(allBoxes[i]).hide();
+        }
+        $("#closeButton").hide();
     }
 }
 
@@ -78,6 +105,9 @@ $("#bandsButton").click(function () {
             recalculateBandsPanelContent();
         }
     });
+});
+$("#closeButton").click(function () {
+    closeRightBoxes();
 });
 
 // Manual update button

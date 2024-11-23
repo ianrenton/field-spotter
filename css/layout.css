@@ -29,6 +29,10 @@ button#bandsButton {
     top: 10.5em;
 }
 
+button#closeButton {
+    top: 13em;
+}
+
 button.slideOutButton i {
     padding: 0;
     margin: 0;
