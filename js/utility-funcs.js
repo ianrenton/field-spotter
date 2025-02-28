@@ -196,7 +196,7 @@ function getIconName(program) {
 function normaliseMode(m, comment) {
     if (!m || m.length === 0) {
         let mode = "Unknown";
-        ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV"].forEach(function (test) {
+        ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV", "JS8"].forEach(function (test) {
             if (comment.toUpperCase().includes(test)) {
                 mode = test;
             }
@@ -277,8 +277,8 @@ function programAllowedByFilters(program) {
 // Is the spot's mode allowed through the filter?
 function modeAllowedByFilters(mode) {
     return modes.includes(mode)
-        || (modes.includes("Phone") && (mode === "SSB" || mode === "USB" || mode === "LSB" || mode === "AM" || mode === "FM" || mode === "DV" || mode === "Unknown"))
-        || (modes.includes("Digi") && (mode === "DATA" || mode === "FT8" || mode === "FT4" || mode === "RTTY" || mode === "SSTV"));
+        || (modes.includes("Phone") && (mode === "PHONE" || mode === "SSB" || mode === "USB" || mode === "LSB" || mode === "AM" || mode === "FM" || mode === "DV" || mode === "Unknown"))
+        || (modes.includes("Digi") && (mode === "DIGI" || mode === "DATA" || mode === "FT8" || mode === "FT4" || mode === "RTTY" || mode === "SSTV" || mode === "JS8"));
 }
 
 // Is the spot's band allowed through the filter?
