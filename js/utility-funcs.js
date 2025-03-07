@@ -254,15 +254,26 @@ function getURLforReference(program, reference) {
     }
 }
 
-// Take a frequency, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
+// Take frequency and mode, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
 // Freq in MHz.
-function getURLForFrequency(freq) {
+function getURLForFrequency(freq, mode) {
     if (linkToWebSDREnabled) {
         let url = linkToWebSDRURL;
         if (url.slice(-1) === "/") {
             url = url.slice(0, -1);
         }
-        url += "/?tune=" + (freq * 1000).toFixed(0);
+        if (mode === "CW") {
+          // docs: http://websdr1.kfsdr.com:8901/url_params.html
+          // from websdr: "CW uses a center frequency of 750 Hz and LSB by default."
+          // in my testing, websdr takes the demodulated audio at the center of the passband and shifts it +750hz to make it audible
+          // however, when passing "cw" mode as a url parameter, websdr ALSO shifts the tuning frequency +750hz as though it was not shifting the demodulated audio. in effect this moves the passband away from the signal so it cannot be heard
+          //
+          // workaround this behavior by pre-adjusting the tuning frequency down 750hz 
+          url += "/?tune=" + ((freq * 1000)-0.75).toFixed(2);
+          url += mode;
+        } else {
+          url += "/?tune=" + (freq * 1000).toFixed(0);
+        }
         return url;
     } else {
         return null;
