@@ -154,11 +154,12 @@ function recalculateBandsPanelContent() {
                     } else if (preQSYStatusShouldShowGrey(s.preqsy)) {
                         spotDivClass = "bandColSpotOld";
                     }
-                    html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+
+                    html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'><span class='bandColSpot'>" + s.activator + "<br/><span class='bandColSpotFreq'>" + getFormattedFrequency(s.freq) + "</span>";
                     if (s.mode != null && s.mode.length > 0 && s.mode !== "Unknown") {
-                        html += " " + s.mode;
+                        html += "<span class='bandColSpotMode'>" + s.mode + "</span>";
                     }
-                    html += "</div>";
+                    html += "</span></div>";
                 });
                 html += "</li></span>";
 
@@ -233,7 +234,7 @@ function getTooltipText(s) {
     if (urlForFreq != null) {
         ttt += "<a href='" + urlForFreq + "' target='_blank'>";
     }
-    ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + s.freq.toFixed(3) + " MHz";
+    ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + getFormattedFrequency(s.freq) + " MHz";
     if (urlForFreq != null) {
         ttt += "</a>";
     }
@@ -274,6 +275,17 @@ function getTooltipText(s) {
     }
 
     return ttt;
+}
+
+// Returns an HTML-formatted version of the frequency.
+function getFormattedFrequency(freqMHz) {
+    let mhzkhz = freqMHz.toFixed(4).slice(0, -1);
+    let hundredHz = freqMHz.toFixed(4).slice(-1);
+    if (hundredHz === "0") {
+        return mhzkhz;
+    } else {
+        return mhzkhz + "<span class='hundredhz'>" + hundredHz + "</span>";
+    }
 }
 
 // Tooltip text for the "passive mode" permanent tooltips
