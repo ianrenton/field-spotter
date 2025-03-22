@@ -230,7 +230,7 @@ function getTooltipText(s) {
     ttt += "<br/>";
 
     // Frequency & band
-    const urlForFreq = getURLForFrequency(s.freq);
+    const urlForFreq = getURLForFrequency(s.freq, s.mode);
     if (urlForFreq != null) {
         ttt += "<a href='" + urlForFreq + "' target='_blank'>";
     }
