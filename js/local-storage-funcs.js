@@ -80,8 +80,11 @@ function loadLocalStorage() {
     linkToWebSDREnabled = localStorageGetOrDefault('linkToWebSDREnabled', linkToWebSDREnabled);
     $("#linkToWebSDREnabled").prop('checked', linkToWebSDREnabled);
     $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRRequiresCWOffsetLabel").css("display", linkToWebSDREnabled ? "block" : "none");
     linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
     $("#linkToWebSDRURL").val(linkToWebSDRURL);
+    webSDRRequiresCWOffset = localStorageGetOrDefault('webSDRRequiresCWOffset', webSDRRequiresCWOffset);
+    $("#webSDRRequiresCWOffset").prop('checked', webSDRRequiresCWOffset);
 
     // Re-spotting
     respottingEnabled = localStorageGetOrDefault('respottingEnabled', respottingEnabled);

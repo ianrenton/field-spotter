@@ -294,10 +294,16 @@ $("#linkToWebSDREnabled").change(function () {
     localStorage.setItem('linkToWebSDREnabled', linkToWebSDREnabled);
     updateMapObjects();
     $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRRequiresCWOffsetLabel").css("display", linkToWebSDREnabled ? "block" : "none");
 });
 $("#linkToWebSDRURL").change(function () {
     linkToWebSDRURL = $(this).val();
     localStorage.setItem('linkToWebSDRURL', JSON.stringify(linkToWebSDRURL));
+    updateMapObjects();
+});
+$("#webSDRRequiresCWOffset").change(function () {
+    webSDRRequiresCWOffset = $(this).is(':checked');
+    localStorage.setItem('webSDRRequiresCWOffset', webSDRRequiresCWOffset);
     updateMapObjects();
 });
 

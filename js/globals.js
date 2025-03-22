@@ -80,6 +80,7 @@ let linkToProgramRefEnabled = true;
 let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 let linkToWebSDREnabled = false;
 let linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
+let webSDRRequiresCWOffset = false;
 let respottingEnabled = false;
 let myCallsign = ""; // For spotting
 let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.
