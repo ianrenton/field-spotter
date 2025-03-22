@@ -95,6 +95,16 @@ function loadLocalStorage() {
     myCallsign = localStorageGetOrDefault('myCallsign', myCallsign);
     $("#myCallsign").val(myCallsign);
 
+    // Terminator overlay
+    showTerminator = localStorageGetOrDefault('showTerminator', showTerminator);
+    $("#showTerminator").prop('checked', showTerminator);
+    enableTerminator(showTerminator);
+
+    // Maidenhead grid overlay
+    showMaidenheadGrid = localStorageGetOrDefault('showMaidenheadGrid', showMaidenheadGrid);
+    $("#showMaidenheadGrid").prop('checked', showMaidenheadGrid);
+    enableMaidenheadGrid(showMaidenheadGrid);
+
     // Dark mode
     darkMode = localStorageGetOrDefault('darkMode', darkMode);
     $("#darkMode").prop('checked', darkMode);

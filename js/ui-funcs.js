@@ -344,6 +344,16 @@ $("#myCallsign").change(function () {
     updateMapObjects();
 });
 
+// Show Terminator overlay
+$("#showTerminator").change(function () {
+    enableTerminator($(this).is(':checked'));
+});
+
+// Show Maidenhead grid overlay
+$("#showMaidenheadGrid").change(function () {
+    enableMaidenheadGrid($(this).is(':checked'));
+});
+
 // Dark mode
 $("#darkMode").change(function () {
     setDarkMode($(this).is(':checked'));

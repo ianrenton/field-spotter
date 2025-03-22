@@ -359,6 +359,17 @@ function setDarkMode(newDarkMode) {
 
     $("#map").css('background-color', darkMode ? "black" : "white");
 
+    if (newDarkMode) {
+        maidenheadGrid.options.color = 'rgba(255, 255, 255, 0.4)';
+    } else {
+        maidenheadGrid.options.color = 'rgba(0, 0, 0, 0.4)';
+    }
+    if (showMaidenheadGrid) {
+        map.removeLayer(maidenheadGrid);
+        maidenheadGrid.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+
     if (backgroundTileLayer != null) {
         map.removeLayer(backgroundTileLayer);
     }
@@ -370,4 +381,34 @@ function setDarkMode(newDarkMode) {
     backgroundTileLayer.bringToBack();
 
     localStorage.setItem('darkMode', darkMode);
+}
+
+// Shows/hides the terminator overlay
+function enableTerminator(show) {
+    showTerminator = show;
+    localStorage.setItem('showTerminator', show);
+
+    if (terminator) {
+        if (show) {
+            terminator.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(terminator);
+        }
+    }
+}
+
+// Shows/hides the Maidenhead grid overlay
+function enableMaidenheadGrid(show) {
+    showMaidenheadGrid = show;
+    localStorage.setItem('showMaidenheadGrid', show);
+
+    if (maidenheadGrid) {
+        if (show) {
+            maidenheadGrid.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(maidenheadGrid);
+        }
+    }
 }

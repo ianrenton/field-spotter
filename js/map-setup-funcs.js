@@ -30,12 +30,22 @@ function setUpMap() {
         openSpiderfierPopup(marker);
     });
 
-    // Add terminator/greyline
+    // Add terminator/greyline (toggleable)
     terminator = L.terminator({
         interactive: false
     });
     terminator.setStyle({fillColor: '#00000050'});
-    terminator.addTo(map);
+    if (showTerminator) {
+        terminator.addTo(map);
+    }
+
+    // Add Maidenhead grid (toggleable)
+    maidenheadGrid = L.maidenhead({
+        color : 'rgba(0, 0, 0, 0.4)'
+    });
+    if (showMaidenheadGrid) {
+        maidenheadGrid.addTo(map);
+    }
 
     // Display a default view. Soon a geolocation request will happen, which will display the own
     // position marker and move the view to it, but this is a default for now or in case geolocation

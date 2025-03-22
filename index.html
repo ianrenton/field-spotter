@@ -44,6 +44,7 @@
     <script src="https://cdn.jsdelivr.net/npm/overlapping-marker-spiderfier-leaflet@0.2.7/dist/oms.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
     <script src="https://cdn.jsdelivr.net/npm/@joergdietrich/leaflet.terminator@1.1.0/L.Terminator.min.js"></script>
+    <script src="https://ha8tks.github.io/Leaflet.Maidenhead/src/L.Maidenhead.js"></script>
 
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
     <link rel="alternate icon" type="image/png" href="img/favicon.png">
@@ -201,6 +202,14 @@
         <h2>Display Options</h2>
         <div class="optionlist">
             <table>
+                <tr>
+                    <td><label for="showTerminator" class="configLabel">
+                        <input type="checkbox" id="showTerminator" name="showTerminator" checked="checked">&nbsp;Show terminator (greyline)</label></td>
+                </tr>
+                <tr>
+                    <td><label for="showMaidenheadGrid" class="configLabel">
+                        <input type="checkbox" id="showMaidenheadGrid" name="showMaidenheadGrid" checked="checked">&nbsp;Show Maidenhead grid</label></td>
+                </tr>
                 <tr>
                     <td><label for="darkMode" class="configLabel">
                         <input type="checkbox" id="darkMode" name="darkMode">&nbsp;Dark mode</label></td>

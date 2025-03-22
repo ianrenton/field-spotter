@@ -51,6 +51,7 @@ let ownPosMarker;
 let oms;
 let globalPopup;
 let terminator;
+let maidenheadGrid;
 let lastSeenSOTAAPIEpoch = "";
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
@@ -75,6 +76,8 @@ let qsyOldSpotBehaviour = "show"; // Allowed values: "show", "grey", "10mingrace
 let darkMode = false;
 let passiveDisplay = false;
 let enableAnimation = true;
+let showTerminator = true;
+let showMaidenheadGrid = false;
 let linkToCallsignLookupServiceEnabled = true;
 let linkToProgramRefEnabled = true;
 let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
