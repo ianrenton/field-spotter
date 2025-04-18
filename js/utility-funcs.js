@@ -199,7 +199,7 @@ function normaliseMode(m, comment) {
     if (!m || m.length === 0) {
         let mode = "Unknown";
         ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV", "JS8"].forEach(function (test) {
-            if (comment.toUpperCase().includes(test)) {
+            if (comment && comment.toUpperCase().includes(test)) {
                 mode = test;
             }
         });
