@@ -320,8 +320,8 @@ function qrtStatusAllowedByFilters(qrt) {
 // to give such spots a 10-minute grace period, the spot time is factored in and true is returned if the
 // age of the spot is <10 minutes.
 function preQSYStatusAllowedByFilters(preqsy, spotTime) {
-    return !preqsy || showPreQSY || qsyOldSpotBehaviour === "grey"
-        || (qsyOldSpotBehaviour === "10mingrace" && moment().diff(spotTime, 'minutes') < 10);
+    return !preqsy || (showPreQSY && (qsyOldSpotBehaviour === "show" || qsyOldSpotBehaviour === "grey"
+        || (qsyOldSpotBehaviour === "10mingrace" && moment().diff(spotTime, 'minutes') < 10)));
 }
 
 // Should the spot's pre-QSY (older than latest known frequency/mode change) status result in the spot being
