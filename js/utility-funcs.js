@@ -303,9 +303,17 @@ function bandAllowedByFilters(band) {
 }
 
 // Is the spot's age allowed through the filter?
-function ageAllowedByFilters(spotTime) {
+// Note we have special handling for Bunkers. In BOTA programmes re-spotting doesn't typically happen,
+// instead the activator sets their own spot to Live for the duration of their activation, then to
+// QRT when done. So BOTA spots are allowed to live longer than the cut-off for other programmes,
+// up to a fixed age of 12 hours to cut off anyone who forgot to mark their spot as QRT.
+function ageAllowedByFilters(spotTime, program) {
     const age = moment().diff(spotTime, 'minutes');
-    return age < maxSpotAgeMin;
+    if (program !== "Bunkers") {
+        return age < maxSpotAgeMin;
+    } else {
+        return age < 720;
+    }
 }
 
 // Is the spot's QRT (shut down) status allowed through the filter?

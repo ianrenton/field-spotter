@@ -16,7 +16,7 @@ function updateMapObjects() {
         // Filter for the time threshold, programs, bands and modes we are interested in.
         // Also filter out spots where comments include "QRT" (shut down), and those before
         // "QSY" (frequency change) if requested.
-        if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
+        if (ageAllowedByFilters(s.time, s.program) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
             && qrtStatusAllowedByFilters(s.qrt) && preQSYStatusAllowedByFilters(s.preqsy, s.time)) {
 
             if (markers.has(s.uid) && pos != null) {
