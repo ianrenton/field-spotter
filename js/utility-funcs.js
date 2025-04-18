@@ -178,6 +178,8 @@ function getIconName(program) {
         return "fa-seedling";
     } else if (program === "GMA") {
         return "fa-person-hiking";
+    } else if (program === "Bunkers") {
+        return "fa-radiation";
     } else if (program === "IOTA") {
         return "fa-umbrella-beach";
     } else if (program === "Castles") {
@@ -247,6 +249,12 @@ function getURLforReference(program, reference) {
         return "https://www.sotadata.org.uk/en/summit/" + reference;
     } else if (program === "WWFF") {
         return "https://wwff.co/directory/?showRef=" + reference;
+    } else if (program === "Bunkers") {
+        if (reference.substring(0,3) === "B/G") {
+            return "https://bunkerwiki.org/?s=" + reference;
+        } else {
+            return null;
+        }
     } else if (program === "GMA" || program === "IOTA" || program === "Castles" || program === "Lighthouses" || program === "Mills") {
         return "https://www.cqgma.org/zinfo.php?ref=" + reference;
     } else {

@@ -9,6 +9,7 @@ function fetchData() {
     fetchSOTAData();
     fetchWWFFData();
     fetchGMAData();
+    fetchWWBOTAData();
     lastUpdateTime = moment();
 }
 
@@ -131,6 +132,31 @@ function fetchGMAData() {
         });
     } else {
         $("span#gmaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+    }
+}
+
+// Fetch WWBOTA data, updating the internal data model and the map on success
+function fetchWWBOTAData() {
+    if (programs.includes("Bunkers")) {
+        $("span#wwbotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+        $.ajax({
+            url: WWBOTA_SPOTS_URL,
+            dataType: 'json',
+            timeout: 10000,
+            success: async function (result) {
+                handleWWBOTAData(result);
+                cleanDataStore();
+                removeDuplicates();
+                markPreQSYSpots();
+                updateMapObjects();
+                $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+            },
+            error: function () {
+                $("span#wwbotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+            }
+        });
+    } else {
+        $("span#wwbotaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
     }
 }
 
@@ -347,6 +373,42 @@ function updateGMASpot(uid, cacheKey, apiResponse) {
         updateMapObjects();
     }
     localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
+
+// Interpret WWBOTA data and update the internal data model
+function handleWWBOTAData(result) {
+    // Add the retrieved spots to the list
+    let spotUpdate = objectToMap(result);
+    spotUpdate.forEach(spot => {
+        // WWBOTA API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
+        const uid = "WWBOTA-" + hashCode(spot);
+        const newSpot = {
+            uid: uid,
+            activator: spot.call,
+            mode: normaliseMode(spot.mode, spot.comments),
+            freq: spot.freq,
+            band: freqToBand(spot.freq),
+            time: moment.utc(spot.time),
+            comment: filterComment(spot.comments),
+
+            // WWBOTA spots can contain multiple references for bunkers being activated simultaneously.
+            // Field Spotter doesn't really have a way of handling this and in any case the markers would be on top
+            // of each other at Field Spotter's zoom level, so just take the first one as the reference. The comment
+            // field will probably contain the other references anyway, as it does for POTA etc.
+            lat: spot.references[0].lat,
+            lon: spot.references[0].long,
+            ref: spot.references[0].reference,
+            refName: spot.references[0].name,
+
+            // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
+            // string "QRT", which is how operators typically report it.
+            qrt: (spot.comments != null) ? spot.comments.toUpperCase().includes("QRT") : false,
+            // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+            preqsy: false,
+            program: "Bunkers"
+        };
+        spots.set(uid, newSpot);
+    });
 }
 
 // Post a re-spot to the POTA API

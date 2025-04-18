@@ -158,6 +158,24 @@ $("#showSOTA").change(function () {
 $("#showWWFF").change(function () {
     setProgramEnable("WWFF", $(this).is(':checked'));
 });
+$("#showGMA").change(function () {
+    setProgramEnable("GMA", $(this).is(':checked'));
+});
+$("#showBunkers").change(function () {
+    setProgramEnable("Bunkers", $(this).is(':checked'));
+});
+$("#showIOTA").change(function () {
+    setProgramEnable("IOTA", $(this).is(':checked'));
+});
+$("#showCastles").change(function () {
+    setProgramEnable("Castles", $(this).is(':checked'));
+});
+$("#showLighthouses").change(function () {
+    setProgramEnable("Lighthouses", $(this).is(':checked'));
+});
+$("#showMills").change(function () {
+    setProgramEnable("Mills", $(this).is(':checked'));
+});
 
 // Modes
 function setModeEnable(type, enable) {

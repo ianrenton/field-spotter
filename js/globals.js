@@ -4,13 +4,14 @@
 // noinspection HttpUrlsUsage
 
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
-const POTA_POST_SPOT_URL = "https://api.pota.app/spot"
+const POTA_POST_SPOT_URL = "https://api.pota.app/spot";
 const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
-const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
+const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
-const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/"
-const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?"
+const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
+const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
+const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=12";
 const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
 const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
 const BASEMAP_LIGHT = "CartoDB.Voyager";
@@ -65,7 +66,7 @@ const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-let programs = ["POTA", "SOTA", "WWFF", "GMA", "IOTA", "Castles", "Lighthouses", "Mills"];
+let programs = ["POTA", "SOTA", "WWFF", "GMA", "Bunkers", "IOTA", "Castles", "Lighthouses", "Mills"];
 let modes = ["Phone", "CW", "Digi"];
 let bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
 let updateIntervalMin = 5;

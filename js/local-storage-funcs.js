@@ -28,6 +28,12 @@ function loadLocalStorage() {
     $("#showPOTA").prop('checked', programs.includes("POTA"));
     $("#showSOTA").prop('checked', programs.includes("SOTA"));
     $("#showWWFF").prop('checked', programs.includes("WWFF"));
+    $("#showGMA").prop('checked', programs.includes("GMA"));
+    $("#showBunkers").prop('checked', programs.includes("Bunkers"));
+    $("#showIOTA").prop('checked', programs.includes("IOTA"));
+    $("#showCastles").prop('checked', programs.includes("Castles"));
+    $("#showLighthouses").prop('checked', programs.includes("Lighthouses"));
+    $("#showMills").prop('checked', programs.includes("Mills"));
 
     // Modes
     modes = localStorageGetOrDefault('modes', modes);
