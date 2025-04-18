@@ -400,14 +400,17 @@ function handleWWBOTAData(result) {
             ref: spot.references[0].reference,
             refName: spot.references[0].name,
 
-            // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
-            // string "QRT", which is how operators typically report it.
-            qrt: (spot.comment != null) ? spot.comment.toUpperCase().includes("QRT") : false,
+            // Check for QRT. The API gives us this in the "type" field.
+            qrt: spot.type === "QRT",
             // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
             preqsy: false,
             program: "Bunkers"
         };
-        spots.set(uid, newSpot);
+
+        // Add to the spots list, but reject it if the spot type is "Test".
+        if (spot.type !== "Test") {
+            spots.set(uid, newSpot);
+        }
     });
 }
 
