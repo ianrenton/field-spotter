@@ -218,13 +218,14 @@ function getTooltipText(s) {
     ttt += "<br/>";
 
     // Park/summit
-    if (linkToProgramRefEnabled) {
-        ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
+    let referenceURL = getURLforReference(s.program, s.ref);
+    if (linkToProgramRefEnabled && referenceURL != null) {
+        ttt += "<a href='" + referenceURL + "' target='_blank'>";
     }
     ttt += "<span style='display:inline-block; white-space: nowrap;'>";
     ttt += "<i class='fa-solid " + getIconName(s.program) + " markerPopupIcon'></i>&nbsp;";
     ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span>";
-    if (linkToProgramRefEnabled) {
+    if (linkToProgramRefEnabled && referenceURL != null) {
         ttt += "</a>";
     }
     ttt += "<br/>";
