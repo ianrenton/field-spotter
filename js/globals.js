@@ -11,7 +11,7 @@ const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
 const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
 const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
 const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
-const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=12";
+const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=2";
 const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
 const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
 const BASEMAP_LIGHT = "CartoDB.Voyager";
