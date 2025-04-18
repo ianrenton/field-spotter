@@ -385,11 +385,11 @@ function handleWWBOTAData(result) {
         const newSpot = {
             uid: uid,
             activator: spot.call,
-            mode: normaliseMode(spot.mode, spot.comments),
+            mode: normaliseMode(spot.mode, spot.comment),
             freq: spot.freq,
             band: freqToBand(spot.freq),
             time: moment.utc(spot.time),
-            comment: filterComment(spot.comments),
+            comment: filterComment(spot.comment),
 
             // WWBOTA spots can contain multiple references for bunkers being activated simultaneously.
             // Field Spotter doesn't really have a way of handling this and in any case the markers would be on top
@@ -402,7 +402,7 @@ function handleWWBOTAData(result) {
 
             // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
             // string "QRT", which is how operators typically report it.
-            qrt: (spot.comments != null) ? spot.comments.toUpperCase().includes("QRT") : false,
+            qrt: (spot.comment != null) ? spot.comment.toUpperCase().includes("QRT") : false,
             // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
             preqsy: false,
             program: "Bunkers"
