@@ -36,7 +36,7 @@ function updateMapObjects() {
                 // until explicitly set QRT by the operator so should not fade out.
                 let age = moment().diff(s.time, 'minutes');
                 let opacity = 1.0;
-                if (program !== "Bunkers") {
+                if (s.program !== "Bunkers") {
                     opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
                 }
                 m.setOpacity(opacity);
