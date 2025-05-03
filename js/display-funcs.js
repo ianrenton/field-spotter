@@ -32,9 +32,13 @@ function updateMapObjects() {
                     m.bindTooltip(getPassiveDisplayTooltipText(s), {permanent: true, direction: 'top', offset: L.point(0, -40)});
                 }
 
-                // Set opacity with age
+                // Set opacity with age. Exempt Bunkers from this as respotting is not the norm, they should say live
+                // until explicitly set QRT by the operator so should not fade out.
                 let age = moment().diff(s.time, 'minutes');
-                let opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+                let opacity = 1.0;
+                if (s.program !== "Bunkers") {
+                    opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+                }
                 m.setOpacity(opacity);
 
             } else if (pos != null) {
