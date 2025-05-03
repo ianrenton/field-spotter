@@ -269,7 +269,7 @@
                         <input type="checkbox" id="linkToCallsignLookupServiceEnabled" name="linkToCallsignLookupServiceEnabled" checked="checked">
                         &nbsp;Callsign links to lookup service</label></td>
                 </tr>
-                <tr>
+                <tr id="callsignLookupServiceRow">
                     <td><!--suppress HtmlFormInputWithoutLabel -->
                         <select id="callsignLookupService" class="configSelect" style="margin-left: 1.7em;">
                             <option value="QRZ" selected="selected">QRZ.com</option>
@@ -279,6 +279,13 @@
                 <tr>
                     <td><label for="linkToProgramRefEnabled" class="configLabel">
                         <input type="checkbox" id="linkToProgramRefEnabled" name="linkToProgramRefEnabled" checked="checked">&nbsp;Reference links to program site</label></td>
+                </tr>
+                <tr id="sotaLinksToRow">
+                    <td><label for="sotaLinksTo" class="configLabel" style="margin-left: 1.7em; margin-right: 0;">SOTA refs link to </label>
+                        <select id="sotaLinksTo" class="configSelect">
+                            <option value="Sotlas" selected="selected">Sotlas</option>
+                            <option value="Sotadata">Sotadata</option>
+                        </select></td>
                 </tr>
                 <tr>
                     <td><label for="linkToWebSDREnabled" class="configLabel">

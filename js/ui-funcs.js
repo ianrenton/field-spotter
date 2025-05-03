@@ -290,6 +290,12 @@ $("#qsyOldSpotBehaviour").change(function () {
 $("#linkToProgramRefEnabled").change(function () {
     linkToProgramRefEnabled = $(this).is(':checked');
     localStorage.setItem('linkToProgramRefEnabled', linkToProgramRefEnabled);
+    $("#sotaLinksToRow").css("display", linkToProgramRefEnabled ? "inline-block" : "none");
+    updateMapObjects();
+});
+$("#sotaLinksTo").change(function () {
+    sotaLinksTo = $(this).val();
+    localStorage.setItem('sotaLinksTo', JSON.stringify(sotaLinksTo));
     updateMapObjects();
 });
 
@@ -297,7 +303,7 @@ $("#linkToProgramRefEnabled").change(function () {
 $("#linkToCallsignLookupServiceEnabled").change(function () {
     linkToCallsignLookupServiceEnabled = $(this).is(':checked');
     localStorage.setItem('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
-    $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
+    $("#callsignLookupServiceRow").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
     updateMapObjects();
 });
 $("#callsignLookupService").change(function () {

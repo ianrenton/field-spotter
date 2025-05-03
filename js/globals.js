@@ -81,6 +81,7 @@ let showTerminator = true;
 let showMaidenheadGrid = false;
 let linkToCallsignLookupServiceEnabled = true;
 let linkToProgramRefEnabled = true;
+let sotaLinksTo = "Sotlas" // Allowed values: "Sotlas", "Sotadata". Only honoured if linkToProgramRefEnabled = true.
 let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 let linkToWebSDREnabled = false;
 let linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";

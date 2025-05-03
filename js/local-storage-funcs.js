@@ -74,11 +74,14 @@ function loadLocalStorage() {
     // Link to program page
     linkToProgramRefEnabled = localStorageGetOrDefault('linkToProgramRefEnabled', linkToProgramRefEnabled);
     $("#linkToProgramRefEnabled").prop('checked', linkToProgramRefEnabled);
+    $("#sotaLinksToRow").css("display", linkToProgramRefEnabled ? "inline-block" : "none");
+    sotaLinksTo = localStorageGetOrDefault('sotaLinksTo', sotaLinksTo);
+    $("#sotaLinksTo").val(sotaLinksTo);
 
     // Link to callsign lookup service
     linkToCallsignLookupServiceEnabled = localStorageGetOrDefault('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
     $("#linkToCallsignLookupServiceEnabled").prop('checked', linkToCallsignLookupServiceEnabled);
-    $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
+    $("#callsignLookupServiceRow").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
     callsignLookupService = localStorageGetOrDefault('callsignLookupService', callsignLookupService);
     $("#callsignLookupService").val(callsignLookupService);
 

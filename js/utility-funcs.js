@@ -246,7 +246,13 @@ function getURLforReference(program, reference) {
     if (program === "POTA") {
         return "https://pota.app/#/park/" + reference;
     } else if (program === "SOTA") {
-        return "https://www.sotadata.org.uk/en/summit/" + reference;
+        if (sotaLinksTo === "Sotadata") {
+            return "https://www.sotadata.org.uk/en/summit/" + reference;
+        } else if (sotaLinksTo === "Sotlas") {
+            return "https://sotl.as/summits/" + reference;
+        } else {
+            return null;
+        }
     } else if (program === "WWFF") {
         return "https://wwff.co/directory/?showRef=" + reference;
     } else if (program === "Bunkers") {
