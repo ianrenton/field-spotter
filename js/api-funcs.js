@@ -165,7 +165,7 @@ function fetchWWBOTAData() {
 // interval is configurable, so this gets called rapidly but doesn't often
 // do anything.
 function checkForUpdate() {
-    $("span#lastUpdateTime").text(lastUpdateTime.format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
+    $("span#lastUpdateTime").text(lastUpdateTime.utc().format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
     if (moment().diff(lastUpdateTime, 'minutes') >= updateIntervalMin) {
         fetchData();
     }
