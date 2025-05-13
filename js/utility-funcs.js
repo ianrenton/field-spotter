@@ -394,6 +394,11 @@ function setDarkMode(newDarkMode) {
         maidenheadGrid.addTo(map);
         backgroundTileLayer.bringToBack();
     }
+    if (showWABGrid) {
+        map.removeLayer(wabGrid);
+        enableWABGrid(showWABGrid);
+        backgroundTileLayer.bringToBack();
+    }
 
     if (backgroundTileLayer != null) {
         map.removeLayer(backgroundTileLayer);
@@ -435,5 +440,40 @@ function enableMaidenheadGrid(show) {
         } else {
             map.removeLayer(maidenheadGrid);
         }
+    }
+}
+
+// Shows/hides the WAV grid overlay
+function enableWABGrid(show) {
+    showWABGrid = show;
+    localStorage.setItem('showWABGrid', show);
+
+    if (show) {
+        // If this is the first time we're showing the WAB grid, load it and add it to the map.
+        if (wabGrid == null) {
+            fetch("/data/wab.geojson").then(response => response.json()).then(response => {
+                wabGrid = L.geoJson(response, {
+                    style: {color: '#888888', weight: 1},
+                    pointToLayer: function (feature, latlng) {
+                        return new L.marker(latlng, {
+                            icon: new L.DivIcon({
+                                html: "<div class='gridSquareLabel'>" + feature.properties.name + "</div>",
+                            })
+                        });
+                    }
+                });
+                wabGrid.addTo(map);
+                backgroundTileLayer.bringToBack();
+            });
+
+        } else {
+            // Not the first time we've shown it, so just show the existing layer
+            wabGrid.addTo(map);
+            backgroundTileLayer.bringToBack();
+        }
+
+    } else if (wabGrid) {
+        // Hide it
+        map.removeLayer(wabGrid);
     }
 }

@@ -114,6 +114,11 @@ function loadLocalStorage() {
     $("#showMaidenheadGrid").prop('checked', showMaidenheadGrid);
     enableMaidenheadGrid(showMaidenheadGrid);
 
+    // WAB grid overlay
+    showWABGrid = localStorageGetOrDefault('showWABGrid', showWABGrid);
+    $("#showWABGrid").prop('checked', showWABGrid);
+    enableWABGrid(showMaidenheadGrid);
+
     // Dark mode
     darkMode = localStorageGetOrDefault('darkMode', darkMode);
     $("#darkMode").prop('checked', darkMode);

@@ -80,6 +80,7 @@ let passiveDisplay = false;
 let enableAnimation = true;
 let showTerminator = true;
 let showMaidenheadGrid = false;
+let showWABGrid = false;
 let linkToCallsignLookupServiceEnabled = true;
 let linkToProgramRefEnabled = true;
 let sotaLinksTo = "Sotlas" // Allowed values: "Sotlas", "Sotadata". Only honoured if linkToProgramRefEnabled = true.
