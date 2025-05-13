@@ -20,5 +20,6 @@
     <orderEntry type="library" name="overlapping-marker-spiderfier-leaflet" level="application" />
     <orderEntry type="library" name="leaflet-edgebuffer" level="application" />
     <orderEntry type="library" name="@joergdietrich/leaflet.terminator" level="application" />
+    <orderEntry type="library" name="leaflet-omnivore" level="application" />
   </component>
 </module>

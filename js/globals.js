@@ -53,6 +53,7 @@ let oms;
 let globalPopup;
 let terminator;
 let maidenheadGrid;
+let wabGrid;
 let lastSeenSOTAAPIEpoch = "";
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;

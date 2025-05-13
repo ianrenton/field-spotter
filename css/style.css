@@ -183,6 +183,19 @@ span.bandColSpotMode {
     line-height: 0.4em;
 }
 
+.leaflet-div-icon {
+    background-color: transparent;
+    border: none;
+}
+.gridSquareLabel {
+    position: relative;
+    top: -50%;
+    left: -100%;
+    text-align: center;
+    color: blue;
+    font-weight: bold;
+}
+
 /* Text/link styles */
 a, .leaflet-container a {
     color: var(--link-color);

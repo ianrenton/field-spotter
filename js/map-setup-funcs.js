@@ -47,6 +47,20 @@ function setUpMap() {
         maidenheadGrid.addTo(map);
     }
 
+    // Add WAB squares (toggleable)
+    fetch("/data/wab.geojson").then(response => response.json()).then(response => {
+        wabGrid = L.geoJson(response, {
+            pointToLayer: function (feature, latlng) {
+                return new L.marker(latlng, {
+                    icon: new L.DivIcon({
+                        html: "<div class='gridSquareLabel'>" + feature.properties.name + "</div>",
+                    })
+                });
+            }
+        });
+        wabGrid.addTo(map);
+    });
+
     // Display a default view. Soon a geolocation request will happen, which will display the own
     // position marker and move the view to it, but this is a default for now or in case geolocation
     // doesn't work.
