@@ -6,6 +6,7 @@ const CACHE_URLS = [
   'css/layout.css',
   'css/style.css',
   'css/mobile.css',
+  'data/wab.geojson',
   'js/globals.js',
   'js/api-funcs.js',
   'js/display-funcs.js',
