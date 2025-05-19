@@ -192,8 +192,7 @@ span.bandColSpotMode {
     top: -50%;
     left: -100%;
     text-align: center;
-    color: blue;
-    font-weight: bold;
+    color: #888888;
 }
 
 /* Text/link styles */

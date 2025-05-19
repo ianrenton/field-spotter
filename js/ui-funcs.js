@@ -378,6 +378,11 @@ $("#showMaidenheadGrid").change(function () {
     enableMaidenheadGrid($(this).is(':checked'));
 });
 
+// Show WAB grid overlay
+$("#showWABGrid").change(function () {
+    enableWABGrid($(this).is(':checked'));
+});
+
 // Dark mode
 $("#darkMode").change(function () {
     setDarkMode($(this).is(':checked'));
