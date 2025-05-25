@@ -319,6 +319,7 @@ $("#linkToWebSDREnabled").change(function () {
     updateMapObjects();
     $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
     $("#webSDRRequiresCWOffsetLabel").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRKiwiModeLabel").css("display", linkToWebSDREnabled ? "block" : "none");
 });
 $("#linkToWebSDRURL").change(function () {
     linkToWebSDRURL = $(this).val();
@@ -328,6 +329,11 @@ $("#linkToWebSDRURL").change(function () {
 $("#webSDRRequiresCWOffset").change(function () {
     webSDRRequiresCWOffset = $(this).is(':checked');
     localStorage.setItem('webSDRRequiresCWOffset', webSDRRequiresCWOffset);
+    updateMapObjects();
+});
+$("#webSDRKiwiMode").change(function () {
+    webSDRKiwiMode = $(this).is(':checked');
+    localStorage.setItem('webSDRKiwiMode', webSDRKiwiMode);
     updateMapObjects();
 });
 

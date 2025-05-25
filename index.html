@@ -215,7 +215,8 @@
                 </tr>
                 <tr>
                     <td><label for="showWABGrid" class="configLabel">
-                        <input type="checkbox" id="showWABGrid" name="showWABGrid" checked="checked">&nbsp;Show WAB grid</label></td>
+                        <input type="checkbox" id="showWABGrid" name="showWABGrid" checked="checked">&nbsp;Show WAB grid&nbsp;
+                        <i class="fa-solid fa-circle-question" title="Worked All Britain grid support is a work in progress. Currently it may use a large amount of CPU and memory, so it is not recommended to use this on a low power device."></i></label></td>
                 </tr>
                 <tr>
                     <td><label for="darkMode" class="configLabel">
@@ -223,7 +224,8 @@
                 </tr>
                 <tr>
                     <td><label for="passiveDisplay" class="configLabel">
-                        <input type="checkbox" id="passiveDisplay" name="passiveDisplay">&nbsp;Passive display mode</label></td>
+                        <input type="checkbox" id="passiveDisplay" name="passiveDisplay">&nbsp;Passive display mode&nbsp;
+                        <i class="fa-solid fa-circle-question" title="This mode replaces the interactive, full detail popups with smaller but persistent ones. It's designed to make Field Spotter into a hamclock-style display for hunters."></i></label></td>
                 </tr>
                 <tr>
                     <td><label for="enableAnimation" class="configLabel">
@@ -255,7 +257,8 @@
             <table>
                 <tr>
                     <td><label for="respottingEnabled" class="configLabel">
-                        <input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="checked">&nbsp;Enable Re-Spotting (currently POTA only)</label></td>
+                        <input type="checkbox" id="respottingEnabled" name="respottingEnabled" checked="checked">&nbsp;Enable Re-Spotting&nbsp;
+                        <i class="fa-solid fa-circle-question" title="Re-spotting support is currently a work in progress, and only supports POTA at this time."></i></label></td>
                 </tr>
                 <tr>
                     <td><label id="myCallsignLabel" for="myCallsign" class="configLabel" style="margin-left: 1.7em;">My callsign:&nbsp;
@@ -301,7 +304,13 @@
                 </tr>
                 <tr>
                     <td><label for="webSDRRequiresCWOffset" class="configLabel" id="webSDRRequiresCWOffsetLabel" >
-                        <input type="checkbox" id="webSDRRequiresCWOffset" name="webSDRRequiresCWOffset">&nbsp;WebSDR requires 750Hz offset for CW</label></td>
+                        <input type="checkbox" id="webSDRRequiresCWOffset" name="webSDRRequiresCWOffset">&nbsp;WebSDR requires 750Hz offset for CW&nbsp;
+                        <i class="fa-solid fa-circle-question" title="Not all WebSDR software treats the 'frequency' input in the same way for CW mode. If you find that when linking to the WebSDR for a CW spot, that the CW is not within the audio pass-band, try enabling this checkbox."></i></label></td>
+                </tr>
+                <tr>
+                    <td><label for="webSDRKiwiMode" class="configLabel" id="webSDRKiwiModeLabel" >
+                        <input type="checkbox" id="webSDRKiwiMode" name="webSDRKiwiMode">&nbsp;KiwiSDR mode&nbsp;
+                        <i class="fa-solid fa-circle-question" title="KiwiSDR uses different URL parameters compared to WebSDR. If you are linking to a KiwiSDR, enable this checkbox to ensure the right frequency and mode is selected. Leave this disabled for a non-Kiwi WebSDR."></i></label></td>
                 </tr>
             </table>
         </div>

@@ -276,15 +276,31 @@ function getURLForFrequency(freq, mode) {
         if (url.slice(-1) === "/") {
             url = url.slice(0, -1);
         }
-        url += "/?tune=";
+
         // If the WebSDR requires a tuning offset so that the CW signal ends up in the passband, adjust the tuning accordingly. This
         // only applies to some SDRs (see #45) so it can be toggled by the user.
+        let freqparam = (freq * 1000).toFixed(2);
         if (mode === "CW" && webSDRRequiresCWOffset) {
-          url += ((freq * 1000)-0.75).toFixed(2);
-        } else {
-          url += (freq * 1000).toFixed(2);
+            freqparam = ((freq * 1000)-0.75).toFixed(2);
         }
-        url += mode;
+
+        // Usually a mode from a spot is just "SSB" if SSB is in use, rather than LSB or USB. When giving the mode to
+        // a WebSDR we need to specify USB or LSB.
+        let modeparam = mode;
+        if (mode === "SSB") {
+            if (freq > 10) {
+                modeparam = "USB";
+            } else {
+                modeparam = "LSB";
+            }
+        }
+
+        // KiwiSDR and WebSDR require different URL params
+        if (webSDRKiwiMode) {
+            url += "/?f=" + freqparam + modeparam.toLowerCase();
+        } else {
+            url += "/?tune=" + freqparam + modeparam.toUpperCase();
+        }
         return url;
     } else {
         return null;
