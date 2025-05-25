@@ -120,7 +120,7 @@ function loadLocalStorage() {
     // WAB grid overlay
     showWABGrid = localStorageGetOrDefault('showWABGrid', showWABGrid);
     $("#showWABGrid").prop('checked', showWABGrid);
-    enableWABGrid(showMaidenheadGrid);
+    enableWABGrid(showWABGrid);
 
     // Dark mode
     darkMode = localStorageGetOrDefault('darkMode', darkMode);

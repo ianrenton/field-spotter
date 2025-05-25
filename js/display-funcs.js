@@ -265,6 +265,8 @@ function getTooltipText(s) {
         let distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
         ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i>&nbsp;" + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i>&nbsp;" + bearing.toFixed(0) + "°<br/>";
     }
+    // var osRef = proj4(PROJ_WGS84, PROJ_OSGB,[s["lon"], s["lat"]]);
+    // ttt += "<br/>" + osRef;
 
     // Time
     ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i>&nbsp;" + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
