@@ -8,7 +8,7 @@ const POTA_POST_SPOT_URL = "https://api.pota.app/spot";
 const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
 const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
-const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
+const WWFF_SPOTS_URL = "https://spots.wwff.co/static/spots.json";
 const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
 const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
 const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=2";

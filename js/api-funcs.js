@@ -277,7 +277,47 @@ function updateSOTASpot(uid, cacheKey, apiResponse) {
 function handleWWFFData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
-    spotUpdate.get("RCD").forEach(spot => {
+
+
+    // for (const spot of spots) {
+    //     const spotTime = spot.spot_time * 1000
+    //     if ((today - spotTime) > 1000 * 60 * 60) {
+    //         continue // Some spots can be several hours old: cut off at 1 hour
+    //     }
+    //     const refDetails = await wwffFindOneByReference(spot.reference)
+    //     const qso = {
+    //         their: { call: spot.activator?.toUpperCase() },
+    //         freq: spot.frequency_khz,
+    //         band: spot.frequency_khz ? bandForFrequency(spot.frequency_khz) : 'other',
+    //         mode: spot.mode?.toUpperCase(),
+    //         refs: [{
+    //             ref: spot.reference,
+    //             type: Info.huntingType
+    //         }],
+    //         spot: {
+    //             timeInMillis: spotTime,
+    //             source: Info.key,
+    //             icon: Info.icon,
+    //             label: `${spot.reference}: ${refDetails?.name ?? 'Unknown Park'}`,
+    //             type: spot.remarks.match(/QRT/i) ? 'QRT' : undefined,
+    //             sourceInfo: {
+    //                 comments: spot.remarks,
+    //                 spotter: spot.spotter?.toUpperCase()
+    //             }
+    //         }
+    //     }
+    //     qsos.push(qso)
+    // }
+    // const dedupedQSOs = []
+    // const includedCalls = {}
+    // for (const qso of qsos) {
+    //     if (!includedCalls[qso.their.call]) {
+    //         includedCalls[qso.their.call] = true
+    //         if (qso.spot.type !== 'QRT') dedupedQSOs.push(qso)
+    //     }
+    // }
+
+    spotUpdate.get("spots").forEach(spot => {
         // WWFF API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
         const uid = "WWFF-" + hashCode(spot);
         const newSpot = {
@@ -360,16 +400,10 @@ function updateGMASpot(uid, cacheKey, apiResponse) {
     // Spot might not be present in our list because it was a removed duplicate, so
     // need to check for that.
     if (updateSpot != null) {
-        // Apply an ugly hack here to delete any spots from the general GMA API that turn out to be WWFF,
-        // because we already get these from a different API.
-        if (refData.get("reftype") !== "WWFF") {
-            updateSpot.program = gmaRefTypeToProgram(refData.get("reftype"));
-            updateSpot.lat = parseFloat(refData.get("latitude"));
-            updateSpot.lon = parseFloat(refData.get("longitude"));
-            spots.set(uid, updateSpot);
-        } else {
-            spots.delete(uid);
-        }
+        updateSpot.program = gmaRefTypeToProgram(refData.get("reftype"));
+        updateSpot.lat = parseFloat(refData.get("latitude"));
+        updateSpot.lon = parseFloat(refData.get("longitude"));
+        spots.set(uid, updateSpot);
         updateMapObjects();
     }
     localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
