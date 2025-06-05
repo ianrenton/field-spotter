@@ -277,64 +277,23 @@ function updateSOTASpot(uid, cacheKey, apiResponse) {
 function handleWWFFData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
-
-
-    // for (const spot of spots) {
-    //     const spotTime = spot.spot_time * 1000
-    //     if ((today - spotTime) > 1000 * 60 * 60) {
-    //         continue // Some spots can be several hours old: cut off at 1 hour
-    //     }
-    //     const refDetails = await wwffFindOneByReference(spot.reference)
-    //     const qso = {
-    //         their: { call: spot.activator?.toUpperCase() },
-    //         freq: spot.frequency_khz,
-    //         band: spot.frequency_khz ? bandForFrequency(spot.frequency_khz) : 'other',
-    //         mode: spot.mode?.toUpperCase(),
-    //         refs: [{
-    //             ref: spot.reference,
-    //             type: Info.huntingType
-    //         }],
-    //         spot: {
-    //             timeInMillis: spotTime,
-    //             source: Info.key,
-    //             icon: Info.icon,
-    //             label: `${spot.reference}: ${refDetails?.name ?? 'Unknown Park'}`,
-    //             type: spot.remarks.match(/QRT/i) ? 'QRT' : undefined,
-    //             sourceInfo: {
-    //                 comments: spot.remarks,
-    //                 spotter: spot.spotter?.toUpperCase()
-    //             }
-    //         }
-    //     }
-    //     qsos.push(qso)
-    // }
-    // const dedupedQSOs = []
-    // const includedCalls = {}
-    // for (const qso of qsos) {
-    //     if (!includedCalls[qso.their.call]) {
-    //         includedCalls[qso.their.call] = true
-    //         if (qso.spot.type !== 'QRT') dedupedQSOs.push(qso)
-    //     }
-    // }
-
-    spotUpdate.get("spots").forEach(spot => {
-        // WWFF API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
-        const uid = "WWFF-" + hashCode(spot);
+    spotUpdate.forEach(spot => {
+        const uid = "WWFF-" + spot.id;
         const newSpot = {
             uid: uid,
-            lat: parseFloat(spot.LAT),
-            lon: parseFloat(spot.LON),
-            ref: spot.REF,
-            refName: spot.NAME,
-            activator: spot.ACTIVATOR.toUpperCase(),
-            mode: normaliseMode(spot.MODE, spot.TEXT),
-            freq: parseFloat(spot.QRG) / 1000.0,
-            band: freqToBand(parseFloat(spot.QRG) / 1000.0),
-            time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
-            comment: filterComment(spot.TEXT),
+            lat: spot.latitude,
+            lon: spot.longitude,
+            ref: spot.reference,
+            refName: spot.reference_name,
+            activator: spot.activator.toUpperCase(),
+            mode: normaliseMode(spot.mode, spot.remarks),
+            freq: spot.frequency_khz / 1000.0,
+            band: freqToBand(spot.frequency_khz / 1000.0),
+            time: moment.unix(spot.spot_time).utc(),
+            comment: filterComment(spot.remarks),
             // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
             // string "QRT", which is how operators typically report it.
-            qrt: (spot.TEXT != null) ? spot.TEXT.toUpperCase().includes("QRT") : false,
+            qrt: (spot.remarks != null) ? spot.remarks.toUpperCase().includes("QRT") : false,
             // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
             preqsy: false,
             program: "WWFF"
