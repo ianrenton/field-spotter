@@ -47,8 +47,12 @@ function setUpMap() {
         maidenheadGrid.addTo(map);
     }
 
-    // Add WAB squares (toggleable). Don't even create it if it's not enabled, as it loads 6MB of data!
-    enableWABGrid(showWABGrid);
+    // Add WAB square layer (toggleable)
+    wabGrid = new L.LayerGroup();
+    if (showWABGrid) {
+        wabGrid.addTo(map);
+        regenerateWABGridLayer();
+    }
 
     // Display a default view. Soon a geolocation request will happen, which will display the own
     // position marker and move the view to it, but this is a default for now or in case geolocation

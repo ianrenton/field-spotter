@@ -459,37 +459,40 @@ function enableMaidenheadGrid(show) {
     }
 }
 
-// Shows/hides the WAV grid overlay
+// Shows/hides the WAB grid overlay
 function enableWABGrid(show) {
     showWABGrid = show;
     localStorage.setItem('showWABGrid', show);
 
-    if (show) {
-        // If this is the first time we're showing the WAB grid, load it and add it to the map.
-        if (wabGrid == null) {
-            fetch("/data/wab.geojson").then(response => response.json()).then(response => {
-                wabGrid = L.geoJson(response, {
-                    style: {color: '#888888', weight: 1},
-                    pointToLayer: function (feature, latlng) {
-                        return new L.marker(latlng, {
-                            icon: new L.DivIcon({
-                                html: "<div class='gridSquareLabel'>" + feature.properties.name + "</div>",
-                            })
-                        });
-                    }
-                });
-                wabGrid.addTo(map);
-                backgroundTileLayer.bringToBack();
-            });
-
-        } else {
-            // Not the first time we've shown it, so just show the existing layer
+    if (wabGrid) {
+        if (show) {
             wabGrid.addTo(map);
             backgroundTileLayer.bringToBack();
+            regenerateWABGridLayer();
+        } else {
+            map.removeLayer(wabGrid);
         }
+    }
+}
 
-    } else if (wabGrid) {
-        // Hide it
-        map.removeLayer(wabGrid);
+// Regenerates the WAB grid layer based on the current zoom level, if it is showing.
+// @todo track zoom level changes and only regen if needed
+function regenerateWABGridLayer() {
+    if (showWABGrid) {
+        wabGrid.clearLayers();
+        const squareRef = "SY";
+        const swCorner = OsGridRef.parse(squareRef + " 00000 00000").toLatLon();
+        const neCorner = OsGridRef.parse(squareRef + " 99999 99999").toLatLon();
+        let square = L.rectangle([swCorner, neCorner]);
+        wabGrid.addLayer(square);
+
+        let centre = OsGridRef.parse(squareRef + " 50000 50000").toLatLon();
+        let label = new L.marker(centre, {
+            icon: new L.DivIcon({
+                html: squareRef,
+            })
+        });
+        wabGrid.addLayer(label);
+        // @todo finish implementation
     }
 }

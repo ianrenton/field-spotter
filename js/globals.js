@@ -34,8 +34,6 @@ const BANDS = [
     {name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900", contrastColor: "white"},
     {name: "23cm", startFreq: 1240.0, stopFreq: 1325.0, color: "#5AB8C7", contrastColor: "black"},
     {name: "13cm", startFreq: 2300.0, stopFreq: 2450.0, color: "#FF7F50", contrastColor: "black"}];
-const PROJ_OSGB = '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs ';
-const PROJ_WGS84 = '+proj=longlat +datum=WGS84 +no_defs ';
 
 
 /////////////////////////////
@@ -94,3 +92,5 @@ let webSDRKiwiMode = false;
 let respottingEnabled = false;
 let myCallsign = ""; // For spotting
 let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.
+
+import("https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js");
