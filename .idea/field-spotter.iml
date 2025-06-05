@@ -22,5 +22,9 @@
     <orderEntry type="library" name="@joergdietrich/leaflet.terminator" level="application" />
     <orderEntry type="library" name="leaflet-omnivore" level="application" />
     <orderEntry type="library" name="proj4js" level="application" />
+    <orderEntry type="library" name="geodesy" level="application" />
+    <orderEntry type="library" name="proj4js" level="application" />
+    <orderEntry type="library" name="@joergdietrich/leaflet.terminator" level="application" />
+    <orderEntry type="library" name="overlapping-marker-spiderfier-leaflet" level="application" />
   </component>
 </module>

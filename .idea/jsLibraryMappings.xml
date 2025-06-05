@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{@joergdietrich/leaflet.terminator, eb1770b90a, jquery, jquery-ui, leaflet, leaflet-edgebuffer, leaflet-extra-markers, leaflet-geometryutil, leaflet-omnivore, leaflet-providers, leaflet.geodesic, moment, overlapping-marker-spiderfier-leaflet, proj4js}" />
+    <file url="PROJECT" libraries="{@joergdietrich/leaflet.terminator, eb1770b90a, geodesy, jquery, jquery-ui, leaflet, leaflet-edgebuffer, leaflet-extra-markers, leaflet-geometryutil, leaflet-providers, leaflet.geodesic, moment, overlapping-marker-spiderfier-leaflet, proj4js}" />
   </component>
 </project>
