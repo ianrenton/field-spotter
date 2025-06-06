@@ -34,6 +34,8 @@ const BANDS = [
     {name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900", contrastColor: "white"},
     {name: "23cm", startFreq: 1240.0, stopFreq: 1325.0, color: "#5AB8C7", contrastColor: "black"},
     {name: "13cm", startFreq: 2300.0, stopFreq: 2450.0, color: "#FF7F50", contrastColor: "black"}];
+const WAB_SQUARES_LARGE_GB = ["HP", "HT", "HU", "HW", "HX", "HY", "HZ", "NA", "NB", "NC", "ND", "NF", "NG", "NH", "NJ", "NK", "NL", "NM", "NN", "NO", "NR", "NS", "NT", "NU", "NW", "NX", "NY", "NZ", "SC", "SD", "SE", "SH", "SJ", "SK", "SM", "SN", "SO", "SP", "SR", "SS", "ST", "SU", "SV", "SW", "SX", "SY", "SZ", "TA", "TF", "TG", "TL", "TM", "TR", "TQ", "TV", "WA", "WV"];
+const WAB_SQUARES_LARGE_NI = ["C", "D", "G", "H", "J"];
 
 
 /////////////////////////////
@@ -93,4 +95,20 @@ let respottingEnabled = false;
 let myCallsign = ""; // For spotting
 let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.
 
-import("https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js");
+
+/////////////////////////////
+//     OS GRID LIBRARY     //
+/////////////////////////////
+
+// There is an open source library for transforming between WGS84 and Ordnance Survey grid references,
+// but it is only available as a module, so we need some workarounds to load it in our non-modular code.
+// It's loaded dynamically so we need to handle when it finishes loading asynchronously. We also wrap
+// its functions in our own (in utility-funcs.js) to avoid having to interact with the module's exports
+// directly from other places.
+let osGridLibrary;
+import("https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js")
+    .then(module => {
+        osGridLibrary = module;
+        regenerateWABGridLayer();
+    })
+    .catch(error => console.log("Error loading OS Grid Ref library, WAB squares will not be available."));

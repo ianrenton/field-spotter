@@ -476,23 +476,48 @@ function enableWABGrid(show) {
 }
 
 // Regenerates the WAB grid layer based on the current zoom level, if it is showing.
-// @todo track zoom level changes and only regen if needed
 function regenerateWABGridLayer() {
-    if (showWABGrid) {
+    if (showWABGrid && osGridLibrary) {
         wabGrid.clearLayers();
-        const squareRef = "SY";
-        const swCorner = OsGridRef.parse(squareRef + " 00000 00000").toLatLon();
-        const neCorner = OsGridRef.parse(squareRef + " 99999 99999").toLatLon();
-        let square = L.rectangle([swCorner, neCorner]);
-        wabGrid.addLayer(square);
+        WAB_SQUARES_LARGE_GB.forEach(squareRef => {
+            const swCorner = osGridRefToLatLon(squareRef + " 00000 00000");
+            const nwCorner = osGridRefToLatLon(squareRef + " 99999 00000");
+            const neCorner = osGridRefToLatLon(squareRef + " 99999 99999");
+            const seCorner = osGridRefToLatLon(squareRef + " 00000 99999");
+            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+            wabGrid.addLayer(square);
 
-        let centre = OsGridRef.parse(squareRef + " 50000 50000").toLatLon();
-        let label = new L.marker(centre, {
-            icon: new L.DivIcon({
-                html: squareRef,
-            })
+            let centre = osGridRefToLatLon(squareRef + " 50000 50000");
+            let label = new L.marker(centre, {
+                icon: new L.DivIcon({
+                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
+                })
+            });
+            wabGrid.addLayer(label);
         });
-        wabGrid.addLayer(label);
-        // @todo finish implementation
+        // @todo zoom dependent boxes. Med zoom = this, low zoom = large box saying "Zoom in for WAB", high zoom =
+        // get screen corners, extend a bit, generate small WAB squares for only area on screen
+        // @todo track zoom level changes (store as 0, 1, 2) and only regen if needed. If we are in high zoom, any
+        // map move or zoom needs to regen. If in 0 or 1, just check on zoom events if we have passed a threshold
+        // and need to regen
+        // @todo northern ireland grid
+    }
+}
+
+// OS grid reference to lat/lon
+function osGridRefToLatLon(grid) {
+    if (osGridLibrary) {
+        return osGridLibrary.default.parse(grid).toLatLon();
+    } else {
+        return null;
+    }
+}
+
+// Lat/lon to OS grid reference
+function latLonToOSGridRef(lat, lon) {
+    if (osGridLibrary) {
+        return new osGridLibrary.LatLon(lat, lon).toOsGrid();
+    } else {
+        return null;
     }
 }
