@@ -3,9 +3,12 @@
 /////////////////////////////
 // noinspection DuplicatedCode
 
+import "./globals.js";
+import "./utility-funcs.js";
+
 // Update the objects that are rendered on the map. Clear old markers and draw new ones. This is
 // called when the data model changes due to a server query.
-function updateMapObjects() {
+export function updateMapObjects() {
     // Iterate through spots, sorted by time so that new markers are created on top of older ones. For each, update an existing marker
     // or create a new marker if required.
     const spotObjects = Array.from(spots.values());
@@ -86,7 +89,7 @@ function updateMapObjects() {
 
 // Recalculate the contents of the "bands" popout panel. Called when it is pulled
 // out, plus on every map pan/zoom event while it is open.
-function recalculateBandsPanelContent() {
+export function recalculateBandsPanelContent() {
     // Get all spots currently in view
     const spotsForBandDisplay = getSpotUIDsInView().map(function (uid) {
         return spots.get(uid);
@@ -374,7 +377,7 @@ function centreAndPopupMarker(uid) {
 // a spot in the band display. This is needed instead of just doing marker.openTooltip()
 // due to the way the spiderfier plugin needs to capture click events and manage a single
 // global popup.
-function openSpiderfierPopup(marker) {
+export function openSpiderfierPopup(marker) {
     // Set popup content and position
     globalPopup.setContent(marker.tooltip);
     globalPopup.setLatLng(marker.getLatLng());

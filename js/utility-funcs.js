@@ -2,9 +2,11 @@
 //    UTILITY FUNCTIONS    //
 /////////////////////////////
 
+import "./globals.js";
+
 // Clean the data store by removing all spots older than the maximum allowed spot time of 1 hour. This ensures we do
 // not endlessly use more memory if the software is left running.
-function cleanDataStore() {
+export function cleanDataStore() {
     // Clear existing POTA spots from the internal list
     Object.keys(spots).forEach(function (uid) {
         if (moment().diff(spots[uid].time, 'hours') > 1) {
@@ -16,7 +18,7 @@ function cleanDataStore() {
 // Iterate through the list of spots, merging duplicates. If two or more spots with the same program, activator, reference, mode
 // and frequency are found, these will be merged and reduced until only one remains, with the most recent timestamp and
 // comment.
-function removeDuplicates() {
+export function removeDuplicates() {
     const spotsToRemove = [];
     spots.forEach(function (check) {
         spots.forEach(function (s) {
@@ -51,7 +53,7 @@ function removeDuplicates() {
 // with the best data. Note that unlike removeDuplicates(), which operates on the main spot map, this operates only
 // on the temporary array of spots provided as an argument, and returns the output, for use when constructing the
 // band panel.
-function removeDuplicatesForBandPanel(spotList) {
+export function removeDuplicatesForBandPanel(spotList) {
     const spotsToRemove = [];
     spotList.forEach(function (check) {
         spotList.forEach(function (s) {
@@ -79,7 +81,7 @@ function removeDuplicatesForBandPanel(spotList) {
 
 // Iterate through the list of spots, finding and marking spots that look like they are "pre QSY", i.e. there is another
 // more recent spot with the same program, activator and reference, but on a different frequency or mode.
-function markPreQSYSpots() {
+export function markPreQSYSpots() {
     const spotsToMark = [];
     spots.forEach(function (check) {
         spots.forEach(function (s) {
@@ -99,7 +101,7 @@ function markPreQSYSpots() {
 }
 
 // Utility to convert an object created by JSON.parse() into a proper JS map.
-function objectToMap(o) {
+export function objectToMap(o) {
     let m = new Map();
     for (let k of Object.keys(o)) {
         m.set(k, o[k]);
@@ -108,7 +110,7 @@ function objectToMap(o) {
 }
 
 // Convert a frequency in MHz to an amateur radio frequency band (expressed in wavelength as a string)
-function freqToBand(f) {
+export function freqToBand(f) {
     for (band of BANDS) {
         if (f >= band.startFreq && f <= band.stopFreq) {
             return band.name
@@ -118,7 +120,7 @@ function freqToBand(f) {
 }
 
 // Convert a frequency to a colour to use on markers or frequency band headers.
-function freqToColor(f) {
+export function freqToColor(f) {
     for (band of BANDS) {
         if (f >= band.startFreq && f <= band.stopFreq) {
             return band.color
@@ -128,7 +130,7 @@ function freqToColor(f) {
 }
 
 // Convert a frequency to a colour to use on marker icons or text that should contrast with the normal band colour.
-function freqToContrastColor(f) {
+export function freqToContrastColor(f) {
     for (band of BANDS) {
         if (f >= band.startFreq && f <= band.stopFreq) {
             return band.contrastColor
@@ -138,7 +140,7 @@ function freqToContrastColor(f) {
 }
 
 // Convert a "reftype" from the GMA API into a program name string.
-function gmaRefTypeToProgram(reftype) {
+export function gmaRefTypeToProgram(reftype) {
     if (reftype === "Summit") {
         return "GMA";
     } else if (reftype === "WWFF") {
@@ -157,7 +159,7 @@ function gmaRefTypeToProgram(reftype) {
 }
 
 // Get an icon for a spot, based on its band, using PSK Reporter colours, its program etc.
-function getIcon(s) {
+export function getIcon(s) {
     return L.ExtraMarkers.icon({
         icon: getIconName(s.program),
         iconColor: preQSYStatusShouldShowGrey(s.preqsy) ? "black" : freqToContrastColor(s.freq),
@@ -169,7 +171,7 @@ function getIcon(s) {
 }
 
 // Get Font Awesome icon name from the name of the program (e.g. POTA, SOTA)
-function getIconName(program) {
+export function getIconName(program) {
     if (program === "POTA") {
         return "fa-tree";
     } else if (program === "SOTA") {
@@ -195,7 +197,7 @@ function getIconName(program) {
 
 // Normalise a mode to caps and replace blanks with "Unknown". If the mode is not provided but a comment
 // contains a mode-like string, use that instead
-function normaliseMode(m, comment) {
+export function normaliseMode(m, comment) {
     if (!m || m.length === 0) {
         let mode = "Unknown";
         ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV", "JS8"].forEach(function (test) {
@@ -212,7 +214,7 @@ function normaliseMode(m, comment) {
 // Filter certain things out of comments, such as the software used to report the spot, which just
 // clutter up a mobile screen without being useful. If a null comment is provided, this also converts
 // it to an empty string to avoid needing to null check later on.
-function filterComment(comment) {
+export function filterComment(comment) {
     if (comment == null) {
         return "";
     } else {
@@ -227,7 +229,7 @@ function filterComment(comment) {
 // on the user's choice. If they chose "None", null is returned here.
 // If the callsign has prefixes or suffixes, we can't really tell what's what so assume the longest
 // part of the given callsign is their "simple" callsign. e.g. "EA1/M0TRT/P" becomes "M0TRT".
-function getURLforCallsign(callsign) {
+export function getURLforCallsign(callsign) {
     const shortCall = callsign.split("/").sort(function (a, b) {
         return b.length - a.length;
     })[0];
@@ -242,7 +244,7 @@ function getURLforCallsign(callsign) {
 
 // Take a program and reference, and produce a URL to go to the relevant part/summit/etc. page on
 // the program's website.
-function getURLforReference(program, reference) {
+export function getURLforReference(program, reference) {
     if (program === "POTA") {
         return "https://pota.app/#/park/" + reference;
     } else if (program === "SOTA") {
@@ -256,7 +258,7 @@ function getURLforReference(program, reference) {
     } else if (program === "WWFF") {
         return "https://wwff.co/directory/?showRef=" + reference;
     } else if (program === "Bunkers") {
-        if (reference.substring(0,3) === "B/G") {
+        if (reference.substring(0, 3) === "B/G") {
             return "https://bunkerwiki.org/?s=" + reference;
         } else {
             return null;
@@ -270,7 +272,7 @@ function getURLforReference(program, reference) {
 
 // Take frequency and mode, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
 // Freq in MHz.
-function getURLForFrequency(freq, mode) {
+export function getURLForFrequency(freq, mode) {
     if (linkToWebSDREnabled) {
         let url = linkToWebSDRURL;
         if (url.slice(-1) === "/") {
@@ -281,7 +283,7 @@ function getURLForFrequency(freq, mode) {
         // only applies to some SDRs (see #45) so it can be toggled by the user.
         let freqparam = (freq * 1000).toFixed(2);
         if (mode === "CW" && webSDRRequiresCWOffset) {
-            freqparam = ((freq * 1000)-0.75).toFixed(2);
+            freqparam = ((freq * 1000) - 0.75).toFixed(2);
         }
 
         // Usually a mode from a spot is just "SSB" if SSB is in use, rather than LSB or USB. When giving the mode to
@@ -308,19 +310,19 @@ function getURLForFrequency(freq, mode) {
 }
 
 // Is the spot's program allowed through the filter?
-function programAllowedByFilters(program) {
+export function programAllowedByFilters(program) {
     return programs.includes(program);
 }
 
 // Is the spot's mode allowed through the filter?
-function modeAllowedByFilters(mode) {
+export function modeAllowedByFilters(mode) {
     return modes.includes(mode)
         || (modes.includes("Phone") && (mode === "PHONE" || mode === "SSB" || mode === "USB" || mode === "LSB" || mode === "AM" || mode === "FM" || mode === "DV" || mode === "Unknown"))
         || (modes.includes("Digi") && (mode === "DIGI" || mode === "DATA" || mode === "FT8" || mode === "FT4" || mode === "RTTY" || mode === "SSTV" || mode === "JS8"));
 }
 
 // Is the spot's band allowed through the filter?
-function bandAllowedByFilters(band) {
+export function bandAllowedByFilters(band) {
     return bands.includes(band);
 }
 
@@ -329,7 +331,7 @@ function bandAllowedByFilters(band) {
 // instead the activator sets their own spot to Live for the duration of their activation, then to
 // QRT when done. So BOTA spots are allowed to live longer than the cut-off for other programmes,
 // up to a fixed age of 12 hours to cut off anyone who forgot to mark their spot as QRT.
-function ageAllowedByFilters(spotTime, program) {
+export function ageAllowedByFilters(spotTime, program) {
     const age = moment().diff(spotTime, 'minutes');
     if (program !== "Bunkers") {
         return age < maxSpotAgeMin;
@@ -339,7 +341,7 @@ function ageAllowedByFilters(spotTime, program) {
 }
 
 // Is the spot's QRT (shut down) status allowed through the filter?
-function qrtStatusAllowedByFilters(qrt) {
+export function qrtStatusAllowedByFilters(qrt) {
     return !qrt || showQRT;
 }
 
@@ -349,19 +351,19 @@ function qrtStatusAllowedByFilters(qrt) {
 // or to grey them out but show them indefinitely, this also always returns true. If the user has selected
 // to give such spots a 10-minute grace period, the spot time is factored in and true is returned if the
 // age of the spot is <10 minutes.
-function preQSYStatusAllowedByFilters(preqsy, spotTime) {
+export function preQSYStatusAllowedByFilters(preqsy, spotTime) {
     return !preqsy || (showPreQSY && (qsyOldSpotBehaviour === "show" || qsyOldSpotBehaviour === "grey"
         || (qsyOldSpotBehaviour === "10mingrace" && moment().diff(spotTime, 'minutes') < 10)));
 }
 
 // Should the spot's pre-QSY (older than latest known frequency/mode change) status result in the spot being
 // shown greyed out?
-function preQSYStatusShouldShowGrey(preqsy) {
+export function preQSYStatusShouldShowGrey(preqsy) {
     return preqsy && qsyOldSpotBehaviour === "grey";
 }
 
 // Get the list of spot UIDs in the current map viewport
-function getSpotUIDsInView() {
+export function getSpotUIDsInView() {
     const uids = [];
     map.eachLayer(function (layer) {
         if (layer instanceof L.Marker) {
@@ -374,7 +376,7 @@ function getSpotUIDsInView() {
 }
 
 // Create a hashcode for a spot (or any object). Used to work around the WWFF API not providing unique spot IDs.
-function hashCode(spot) {
+export function hashCode(spot) {
     const s = JSON.stringify(spot);
     let h = 0;
     for (let i = 0; i < s.length; i++) {
@@ -386,12 +388,12 @@ function hashCode(spot) {
 }
 
 // Depending on whether you are in light or dark mode, get the basemap name.
-function getBasemapForTheme() {
+export function getBasemapForTheme() {
     return darkMode ? BASEMAP_DARK : BASEMAP_LIGHT;
 }
 
 // Sets the UI to dark or light mode, and store the setting
-function setDarkMode(newDarkMode) {
+export function setDarkMode(newDarkMode) {
     darkMode = newDarkMode;
 
     document.documentElement.setAttribute("color-mode", darkMode ? "dark" : "light");
@@ -430,7 +432,7 @@ function setDarkMode(newDarkMode) {
 }
 
 // Shows/hides the terminator overlay
-function enableTerminator(show) {
+export function enableTerminator(show) {
     showTerminator = show;
     localStorage.setItem('showTerminator', show);
 
@@ -445,7 +447,7 @@ function enableTerminator(show) {
 }
 
 // Shows/hides the Maidenhead grid overlay
-function enableMaidenheadGrid(show) {
+export function enableMaidenheadGrid(show) {
     showMaidenheadGrid = show;
     localStorage.setItem('showMaidenheadGrid', show);
 
@@ -460,7 +462,7 @@ function enableMaidenheadGrid(show) {
 }
 
 // Shows/hides the WAB grid overlay
-function enableWABGrid(show) {
+export function enableWABGrid(show) {
     showWABGrid = show;
     localStorage.setItem('showWABGrid', show);
 
@@ -477,7 +479,7 @@ function enableWABGrid(show) {
 
 // Regenerates the WAB grid layer based on the current zoom level, if it is showing.
 // @todo track zoom level changes and only regen if needed
-function regenerateWABGridLayer() {
+export function regenerateWABGridLayer() {
     if (showWABGrid) {
         wabGrid.clearLayers();
         const squareRef = "SY";

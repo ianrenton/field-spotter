@@ -3,21 +3,21 @@
 /////////////////////////////
 // noinspection HttpUrlsUsage
 
-const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
-const POTA_POST_SPOT_URL = "https://api.pota.app/spot";
-const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
-const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
-const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
-const WWFF_SPOTS_URL = "https://spots.wwff.co/static/spots.json";
-const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
-const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
-const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=2";
-const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
-const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
-const BASEMAP_LIGHT = "CartoDB.Voyager";
-const BASEMAP_DARK = "CartoDB.DarkMatter";
-const BASEMAP_OPACITY = 1.0;
-const BANDS = [
+export const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
+export const POTA_POST_SPOT_URL = "https://api.pota.app/spot";
+export const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
+export const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
+export const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
+export const WWFF_SPOTS_URL = "https://spots.wwff.co/static/spots.json";
+export const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
+export const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
+export const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=2";
+export const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
+export const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
+export const BASEMAP_LIGHT = "CartoDB.Voyager";
+export const BASEMAP_DARK = "CartoDB.DarkMatter";
+export const BASEMAP_OPACITY = 1.0;
+export const BANDS = [
     {name: "160m", startFreq: 1.8, stopFreq: 2.0, color: "#7cfc00", contrastColor: "black"},
     {name: "80m", startFreq: 3.5, stopFreq: 4.0, color: "#e550e5", contrastColor: "black"},
     {name: "60m", startFreq: 5.25, stopFreq: 5.41, color: "#00008b", contrastColor: "white"},
@@ -40,25 +40,25 @@ const BANDS = [
 //      DATA STORAGE       //
 /////////////////////////////
 
-const spots = new Map(); // uid -> spot data
-const markers = new Map(); // uid -> marker
-let lastUpdateTime = moment(0);
-let myPos = null;
-let map;
-let backgroundTileLayer;
-let markersLayer;
-let ownPosLayer;
-let ownPosMarker;
-let oms;
-let globalPopup;
-let terminator;
-let maidenheadGrid;
-let wabGrid;
-let lastSeenSOTAAPIEpoch = "";
-let currentPopupSpotUID = null;
-let currentLineToSpot = null;
-let alreadyMovedMap = false;
-const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
+export const spots = new Map(); // uid -> spot data
+export const markers = new Map(); // uid -> marker
+export let lastUpdateTime = moment(0);
+export let myPos = null;
+export let map;
+export let backgroundTileLayer;
+export let markersLayer;
+export let ownPosLayer;
+export let ownPosMarker;
+export let oms;
+export let globalPopup;
+export let terminator;
+export let maidenheadGrid;
+export let wabGrid;
+export let lastSeenSOTAAPIEpoch = "";
+export let currentPopupSpotUID = null;
+export let currentLineToSpot = null;
+export let alreadyMovedMap = false;
+export const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 
 /////////////////////////////
@@ -67,30 +67,28 @@ const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-let programs = ["POTA", "SOTA", "WWFF", "GMA", "Bunkers", "IOTA", "Castles", "Lighthouses", "Mills"];
-let modes = ["Phone", "CW", "Digi"];
-let bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
-let updateIntervalMin = 5;
-let maxSpotAgeMin = 60;
-let showQRT = false;
-let showPreQSY = false;
-let qsyOldSpotBehaviour = "show"; // Allowed values: "show", "grey", "10mingrace". Only honoured if showPreQSY = true.
-let darkMode = false;
-let passiveDisplay = false;
-let enableAnimation = true;
-let showTerminator = true;
-let showMaidenheadGrid = false;
-let showWABGrid = false;
-let linkToCallsignLookupServiceEnabled = true;
-let linkToProgramRefEnabled = true;
-let sotaLinksTo = "Sotlas" // Allowed values: "Sotlas", "Sotadata". Only honoured if linkToProgramRefEnabled = true.
-let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
-let linkToWebSDREnabled = false;
-let linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
-let webSDRRequiresCWOffset = false;
-let webSDRKiwiMode = false;
-let respottingEnabled = false;
-let myCallsign = ""; // For spotting
-let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.
-
-import("https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js");
+export let programs = ["POTA", "SOTA", "WWFF", "GMA", "Bunkers", "IOTA", "Castles", "Lighthouses", "Mills"];
+export let modes = ["Phone", "CW", "Digi"];
+export let bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
+export let updateIntervalMin = 5;
+export let maxSpotAgeMin = 60;
+export let showQRT = false;
+export let showPreQSY = false;
+export let qsyOldSpotBehaviour = "show"; // Allowed values: "show", "grey", "10mingrace". Only honoured if showPreQSY = true.
+export let darkMode = false;
+export let passiveDisplay = false;
+export let enableAnimation = true;
+export let showTerminator = true;
+export let showMaidenheadGrid = false;
+export let showWABGrid = false;
+export let linkToCallsignLookupServiceEnabled = true;
+export let linkToProgramRefEnabled = true;
+export let sotaLinksTo = "Sotlas" // Allowed values: "Sotlas", "Sotadata". Only honoured if linkToProgramRefEnabled = true.
+export let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
+export let linkToWebSDREnabled = false;
+export let linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
+export let webSDRRequiresCWOffset = false;
+export let webSDRKiwiMode = false;
+export let respottingEnabled = false;
+export let myCallsign = ""; // For spotting
+export let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.

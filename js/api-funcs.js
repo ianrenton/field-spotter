@@ -2,8 +2,10 @@
 //   API CALL FUNCTIONS    //
 /////////////////////////////
 
+import "./globals.js";
+
 // Kick off by fetching POTA, SOTA and WWFF data.
-function fetchData() {
+export function fetchData() {
     spots.length = 0;
     fetchPOTAData();
     fetchSOTAData();
@@ -164,7 +166,7 @@ function fetchWWBOTAData() {
 // the server so long as the next update time has been reached. The update
 // interval is configurable, so this gets called rapidly but doesn't often
 // do anything.
-function checkForUpdate() {
+export function checkForUpdate() {
     $("span#lastUpdateTime").text(lastUpdateTime.utc().format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
     if (moment().diff(lastUpdateTime, 'minutes') >= updateIntervalMin) {
         fetchData();
@@ -408,7 +410,7 @@ function handleWWBOTAData(result) {
 }
 
 // Post a re-spot to the POTA API
-function potaRespot(uid, comment, statusIndicator) {
+export function potaRespot(uid, comment, statusIndicator) {
     // Set "in progress" indicator
     statusIndicator.html("<i class='fa-solid fa-hourglass-half'></i>");
 

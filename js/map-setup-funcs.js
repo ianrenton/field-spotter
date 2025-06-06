@@ -2,7 +2,11 @@
 //       MAP SETUP         //
 /////////////////////////////
 
-function setUpMap() {
+import "./globals.js";
+import {getBasemapForTheme, regenerateWABGridLayer} from "./utility-funcs.js";
+import {openSpiderfierPopup, recalculateBandsPanelContent} from "./display-funcs.js";
+
+export function setUpMap() {
     // Create map
     map = L.map('map', {
         zoomControl: false,
@@ -41,7 +45,7 @@ function setUpMap() {
 
     // Add Maidenhead grid (toggleable)
     maidenheadGrid = L.maidenhead({
-        color : 'rgba(0, 0, 0, 0.4)'
+        color: 'rgba(0, 0, 0, 0.4)'
     });
     if (showMaidenheadGrid) {
         maidenheadGrid.addTo(map);

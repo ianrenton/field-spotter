@@ -2,12 +2,14 @@
 //       GEOLOCATION       //
 /////////////////////////////
 
+import "./globals.js";
+
 // Request geolocation, using in order:
 // 1. A manually set location (e.g. loaded from localstorage)
 // 2. Browser geolocation
 // 3. An online lookup service
 // A marker will be created and the map zoomed to the location.
-function requestGeolocation() {
+export function requestGeolocation() {
     if (ownPosOverride != null) {
         setOwnLocation(new L.LatLng(ownPosOverride.lat, ownPosOverride.lng));
     } else if (navigator.geolocation) {
@@ -52,7 +54,7 @@ function requestGeolocationOnline() {
 
 // Set the user's location to the provided value, add/update the marker, and move the view
 // to centre it, so long as the view hasn't yet been panned somewhere else.
-function setOwnLocation(newPos) {
+export function setOwnLocation(newPos) {
     // Store position
     myPos = newPos;
 

@@ -3,6 +3,8 @@
 /////////////////////////////
 // noinspection JSJQueryEfficiency
 
+import "./globals.js";
+
 // Load from local storage or use default
 function localStorageGetOrDefault(key, defaultVal) {
     const valStr = localStorage.getItem(key);
@@ -14,7 +16,7 @@ function localStorageGetOrDefault(key, defaultVal) {
 }
 
 // Load from local storage and set GUI up appropriately
-function loadLocalStorage() {
+export function loadLocalStorage() {
     // Update interval
     updateIntervalMin = localStorageGetOrDefault('updateIntervalMin', updateIntervalMin);
     $("#updateInterval").val(updateIntervalMin);
