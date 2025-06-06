@@ -34,8 +34,9 @@ const BANDS = [
     {name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900", contrastColor: "white"},
     {name: "23cm", startFreq: 1240.0, stopFreq: 1325.0, color: "#5AB8C7", contrastColor: "black"},
     {name: "13cm", startFreq: 2300.0, stopFreq: 2450.0, color: "#FF7F50", contrastColor: "black"}];
-const WAB_SQUARES_LARGE_GB = ["HP", "HT", "HU", "HW", "HX", "HY", "HZ", "NA", "NB", "NC", "ND", "NF", "NG", "NH", "NJ", "NK", "NL", "NM", "NN", "NO", "NR", "NS", "NT", "NU", "NW", "NX", "NY", "NZ", "SC", "SD", "SE", "SH", "SJ", "SK", "SM", "SN", "SO", "SP", "SR", "SS", "ST", "SU", "SV", "SW", "SX", "SY", "SZ", "TA", "TF", "TG", "TL", "TM", "TR", "TQ", "TV", "WA", "WV"];
+const WAB_SQUARES_LARGE_GB = ["HP", "HT", "HU", "HW", "HX", "HY", "HZ", "NA", "NB", "NC", "ND", "NF", "NG", "NH", "NJ", "NK", "NL", "NM", "NN", "NO", "NR", "NS", "NT", "NU", "NW", "NX", "NY", "NZ", "OV", "SC", "SD", "SE", "SH", "SJ", "SK", "SM", "SN", "SO", "SP", "SR", "SS", "ST", "SU", "SV", "SW", "SX", "SY", "SZ", "TA", "TF", "TG", "TL", "TM", "TR", "TQ", "TV"];
 const WAB_SQUARES_LARGE_NI = ["C", "D", "G", "H", "J"];
+const WAB_SQUARES_LARGE_CI = ["WA", "WV"];
 
 
 /////////////////////////////
@@ -106,9 +107,38 @@ let ownPosOverride = null; // LatLng. Set if own position override is set or loa
 // its functions in our own (in utility-funcs.js) to avoid having to interact with the module's exports
 // directly from other places.
 let osGridLibrary;
-import("https://cdn.jsdelivr.net/npm/geodesy@2/osgridref.js")
+import("./modules/osgridref.js")
     .then(module => {
         osGridLibrary = module;
-        regenerateWABGridLayer();
+        if (ieGridLibrary && utmLibrary) {
+            regenerateWABGridLayer();
+        }
     })
-    .catch(error => console.log("Error loading OS Grid Ref library, WAB squares will not be available."));
+    .catch(error => {
+        console.log("Error loading OS Grid Ref library, GB WAB squares may not be available.");
+        console.log(error);
+    });
+let ieGridLibrary;
+import("./modules/iegridref.js")
+    .then(module => {
+        ieGridLibrary = module;
+        if (osGridLibrary && utmLibrary) {
+            regenerateWABGridLayer();
+        }
+    })
+    .catch(error => {
+        console.log("Error loading IE Grid Ref library, NI WAB squares may not be available.");
+        console.log(error);
+    });
+let utmLibrary;
+import("./modules/utm_ci.js")
+    .then(module => {
+        utmLibrary = module;
+        if (osGridLibrary && ieGridLibrary) {
+            regenerateWABGridLayer();
+        }
+    })
+    .catch(error => {
+        console.log("Error loading UTM library, Channel Islands WAB squares may not be available.");
+        console.log(error);
+    });

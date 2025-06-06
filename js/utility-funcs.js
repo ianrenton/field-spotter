@@ -477,17 +477,49 @@ function enableWABGrid(show) {
 
 // Regenerates the WAB grid layer based on the current zoom level, if it is showing.
 function regenerateWABGridLayer() {
-    if (showWABGrid && osGridLibrary) {
+    if (showWABGrid && osGridLibrary && ieGridLibrary) {
         wabGrid.clearLayers();
         WAB_SQUARES_LARGE_GB.forEach(squareRef => {
-            const swCorner = osGridRefToLatLon(squareRef + " 00000 00000");
-            const nwCorner = osGridRefToLatLon(squareRef + " 99999 00000");
-            const neCorner = osGridRefToLatLon(squareRef + " 99999 99999");
-            const seCorner = osGridRefToLatLon(squareRef + " 00000 99999");
+            const swCorner = osgbGridRefToLatLon(squareRef + " 00000 00000");
+            const nwCorner = osgbGridRefToLatLon(squareRef + " 99999 00000");
+            const neCorner = osgbGridRefToLatLon(squareRef + " 99999 99999");
+            const seCorner = osgbGridRefToLatLon(squareRef + " 00000 99999");
             let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
             wabGrid.addLayer(square);
 
-            let centre = osGridRefToLatLon(squareRef + " 50000 50000");
+            let centre = osgbGridRefToLatLon(squareRef + " 50000 50000");
+            let label = new L.marker(centre, {
+                icon: new L.DivIcon({
+                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
+                })
+            });
+            wabGrid.addLayer(label);
+        });
+        WAB_SQUARES_LARGE_NI.forEach(squareRef => {
+            const swCorner = osieGridRefToLatLon(squareRef + " 00000 00000");
+            const nwCorner = osieGridRefToLatLon(squareRef + " 99999 00000");
+            const neCorner = osieGridRefToLatLon(squareRef + " 99999 99999");
+            const seCorner = osieGridRefToLatLon(squareRef + " 00000 99999");
+            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+            wabGrid.addLayer(square);
+
+            let centre = osieGridRefToLatLon(squareRef + " 50000 50000");
+            let label = new L.marker(centre, {
+                icon: new L.DivIcon({
+                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
+                })
+            });
+            wabGrid.addLayer(label);
+        });
+        WAB_SQUARES_LARGE_CI.forEach(squareRef => {
+            const swCorner = ciGridRefToLatLon(squareRef + " 00000 00000");
+            const nwCorner = ciGridRefToLatLon(squareRef + " 99999 00000");
+            const neCorner = ciGridRefToLatLon(squareRef + " 99999 99999");
+            const seCorner = ciGridRefToLatLon(squareRef + " 00000 99999");
+            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+            wabGrid.addLayer(square);
+
+            let centre = ciGridRefToLatLon(squareRef + " 50000 50000");
             let label = new L.marker(centre, {
                 icon: new L.DivIcon({
                     html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
@@ -500,12 +532,11 @@ function regenerateWABGridLayer() {
         // @todo track zoom level changes (store as 0, 1, 2) and only regen if needed. If we are in high zoom, any
         // map move or zoom needs to regen. If in 0 or 1, just check on zoom events if we have passed a threshold
         // and need to regen
-        // @todo northern ireland grid
     }
 }
 
-// OS grid reference to lat/lon
-function osGridRefToLatLon(grid) {
+// OSGB grid reference to lat/lon
+function osgbGridRefToLatLon(grid) {
     if (osGridLibrary) {
         return osGridLibrary.default.parse(grid).toLatLon();
     } else {
@@ -513,10 +544,48 @@ function osGridRefToLatLon(grid) {
     }
 }
 
-// Lat/lon to OS grid reference
-function latLonToOSGridRef(lat, lon) {
+// Lat/lon to OSGB grid reference
+function latLonToOSGBGridRef(lat, lon) {
     if (osGridLibrary) {
         return new osGridLibrary.LatLon(lat, lon).toOsGrid();
+    } else {
+        return null;
+    }
+}
+
+// OSIE grid reference to lat/lon
+function osieGridRefToLatLon(grid) {
+    if (ieGridLibrary) {
+        return ieGridLibrary.default.parse(grid).toLatLon();
+    } else {
+        return null;
+    }
+}
+
+// Lat/lon to OSIE grid reference
+function latLonToOSIEGridRef(lat, lon) {
+    if (ieGridLibrary) {
+        return new ieGridLibrary.LatLon(lat, lon).toOsGrid();
+    } else {
+        return null;
+    }
+}
+
+// CI grid reference to lat/lon
+function ciGridRefToLatLon(grid) {
+    if (utmLibrary) {
+        return utmLibrary.default.parseChannelIslandGrid(grid).toLatLon();
+    } else {
+        return null;
+    }
+}
+
+// Lat/lon to CI grid reference
+function latLonToCIGridRef(lat, lon) {
+    if (utmLibrary) {
+        let utm = new utmLibrary.LatLon_Utm(lat, lon).toUtm();
+        // todo
+        return null;
     } else {
         return null;
     }
