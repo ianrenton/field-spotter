@@ -534,6 +534,38 @@ function addWABGraphicsForSquare(squareRef, gridSystem, detailLevel) {
         // so we only want to generate graphics if they would actually end up on screen.
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 10; j++) {
+
+                // Bail out if we have a grid reference that doesn't apply. This is where GB grid overlaps with NI etc.
+                // are deconflicted.
+                if (squareRef === "WA" && j > 1) {
+                    continue;
+                }
+                if (squareRef === "TR" && i > 4 && j < 5) {
+                    continue;
+                }
+                if (squareRef === "SM" && i < 4) {
+                    continue;
+                }
+                if (squareRef === "TV" && i === 9 && j === 0) {
+                    continue;
+                }
+                if (squareRef === "NW" && i < 9) {
+                    continue;
+                }
+                if (squareRef === "NR" && i < 5 && j < 3) {
+                    continue;
+                }
+                if (squareRef === "C" && j > 6) {
+                    continue;
+                }
+                if (squareRef === "D" && (i > 5 || j > 5 || (i > 2 &&  j > 3))) {
+                    continue;
+                }
+                if (squareRef === "J" && i > 6) {
+                    continue;
+                }
+
+                // If we get this far, now calculate the coordinates of the box.
                 const swCorner = gridRefToLatLon(squareRef + " " + i + "0000 " + j + "0000", gridSystem);
                 const nwCorner = gridRefToLatLon(squareRef + " " + i + "9999 " + j + "0000", gridSystem);
                 const neCorner = gridRefToLatLon(squareRef + " " + i + "9999 " + j + "9999", gridSystem);
