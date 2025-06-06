@@ -61,6 +61,7 @@ let lastSeenSOTAAPIEpoch = "";
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
 let alreadyMovedMap = false;
+let wabLayerLastDetailLevel = -1; // track changes in detail level required based on map zoom
 const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 

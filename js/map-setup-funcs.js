@@ -65,6 +65,7 @@ function setUpMap() {
     });
     map.on('zoomend', function () {
         mapProjChanged();
+        regenerateWABGridLayer();
     });
 }
 

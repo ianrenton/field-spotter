@@ -475,63 +475,75 @@ function enableWABGrid(show) {
     }
 }
 
+// Add WAB graphics to the layer for the given square, using the given grid system ("GB", "IE" or "CI") and the required
+// level of detail.
+function addWABGraphicsForSquare(squareRef, gridSystem, detailLevel) {
+    let swCorner, nwCorner, neCorner, seCorner, centre;
+    if (gridSystem === "GB") {
+        // Britain
+        swCorner = osgbGridRefToLatLon(squareRef + " 00000 00000");
+        nwCorner = osgbGridRefToLatLon(squareRef + " 99999 00000");
+        neCorner = osgbGridRefToLatLon(squareRef + " 99999 99999");
+        seCorner = osgbGridRefToLatLon(squareRef + " 00000 99999");
+        centre = osgbGridRefToLatLon(squareRef + " 50000 50000");
+    } else if (gridSystem === "IE") {
+        // Ireland
+        swCorner = osieGridRefToLatLon(squareRef + " 00000 00000");
+        nwCorner = osieGridRefToLatLon(squareRef + " 99999 00000");
+        neCorner = osieGridRefToLatLon(squareRef + " 99999 99999");
+        seCorner = osieGridRefToLatLon(squareRef + " 00000 99999");
+        centre = osieGridRefToLatLon(squareRef + " 50000 50000");
+    } else {
+        // Channel islands
+        swCorner = ciGridRefToLatLon(squareRef + " 00000 00000");
+        nwCorner = ciGridRefToLatLon(squareRef + " 99999 00000");
+        neCorner = ciGridRefToLatLon(squareRef + " 99999 99999");
+        seCorner = ciGridRefToLatLon(squareRef + " 00000 99999");
+        centre = ciGridRefToLatLon(squareRef + " 50000 50000");
+    }
+
+    // Draw large squares at detail level 0 or 1
+    if (detailLevel === 0 || detailLevel === 1) {
+        let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+        wabGrid.addLayer(square);
+    }
+
+    // Draw large square labels at detail level 1
+    if (detailLevel === 1) {
+        let label = new L.marker(centre, {
+            icon: new L.DivIcon({
+                html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
+            })
+        });
+        wabGrid.addLayer(label);
+    }
+}
+
 // Regenerates the WAB grid layer based on the current zoom level, if it is showing.
 function regenerateWABGridLayer() {
     if (showWABGrid && osGridLibrary && ieGridLibrary) {
-        wabGrid.clearLayers();
-        WAB_SQUARES_LARGE_GB.forEach(squareRef => {
-            const swCorner = osgbGridRefToLatLon(squareRef + " 00000 00000");
-            const nwCorner = osgbGridRefToLatLon(squareRef + " 99999 00000");
-            const neCorner = osgbGridRefToLatLon(squareRef + " 99999 99999");
-            const seCorner = osgbGridRefToLatLon(squareRef + " 00000 99999");
-            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
-            wabGrid.addLayer(square);
+        // Determine detail level based on current map zoom.
+        const detailLevel = (map.getZoom() > 4) ? 1 : 0;
 
-            let centre = osgbGridRefToLatLon(squareRef + " 50000 50000");
-            let label = new L.marker(centre, {
-                icon: new L.DivIcon({
-                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
-                })
-            });
-            wabGrid.addLayer(label);
-        });
-        WAB_SQUARES_LARGE_NI.forEach(squareRef => {
-            const swCorner = osieGridRefToLatLon(squareRef + " 00000 00000");
-            const nwCorner = osieGridRefToLatLon(squareRef + " 99999 00000");
-            const neCorner = osieGridRefToLatLon(squareRef + " 99999 99999");
-            const seCorner = osieGridRefToLatLon(squareRef + " 00000 99999");
-            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
-            wabGrid.addLayer(square);
+        // Check if we need to regenerate the layer
+        if (detailLevel !== wabLayerLastDetailLevel) {
+            wabLayerLastDetailLevel = detailLevel;
 
-            let centre = osieGridRefToLatLon(squareRef + " 50000 50000");
-            let label = new L.marker(centre, {
-                icon: new L.DivIcon({
-                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
-                })
-            });
-            wabGrid.addLayer(label);
-        });
-        WAB_SQUARES_LARGE_CI.forEach(squareRef => {
-            const swCorner = ciGridRefToLatLon(squareRef + " 00000 00000");
-            const nwCorner = ciGridRefToLatLon(squareRef + " 99999 00000");
-            const neCorner = ciGridRefToLatLon(squareRef + " 99999 99999");
-            const seCorner = ciGridRefToLatLon(squareRef + " 00000 99999");
-            let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
-            wabGrid.addLayer(square);
+            // Need to regenerate, so clear existing content
+            wabGrid.clearLayers();
 
-            let centre = ciGridRefToLatLon(squareRef + " 50000 50000");
-            let label = new L.marker(centre, {
-                icon: new L.DivIcon({
-                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
-                })
+            // Generate new content for the three grid systems.
+            WAB_SQUARES_LARGE_GB.forEach(squareRef => {
+                addWABGraphicsForSquare(squareRef, "GB", detailLevel);
             });
-            wabGrid.addLayer(label);
-        });
-        // @todo zoom dependent boxes. Med zoom = this, low zoom = large box saying "Zoom in for WAB", high zoom =
-        // get screen corners, extend a bit, generate small WAB squares for only area on screen
-        // @todo track zoom level changes (store as 0, 1, 2) and only regen if needed. If we are in high zoom, any
-        // map move or zoom needs to regen. If in 0 or 1, just check on zoom events if we have passed a threshold
-        // and need to regen
+            WAB_SQUARES_LARGE_NI.forEach(squareRef => {
+                addWABGraphicsForSquare(squareRef, "IE", detailLevel);
+            });
+            WAB_SQUARES_LARGE_CI.forEach(squareRef => {
+                addWABGraphicsForSquare(squareRef, "CI", detailLevel);
+            });
+        }
+        // @todo high zoom = get screen corners, extend a bit, generate small WAB squares for only area on screen
     }
 }
 
