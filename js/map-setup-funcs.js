@@ -65,16 +65,17 @@ function setUpMap() {
     });
     map.on('zoomend', function () {
         mapProjChanged();
-        regenerateWABGridLayer();
     });
 }
 
 // Callback on map projection (pan/zoom) change. Used to update the list of
-// spots needing to be drawn on the band popout, if it is visible
+// spots needing to be drawn on the band popout, and redraw the WAB later,
+// if either is visible
 function mapProjChanged() {
     if ($("#bandsPanel").is(":visible")) {
         recalculateBandsPanelContent();
     }
+    regenerateWABGridLayer();
     // Record that the projection changed. If this happens before initial "zoom to my location",
     // we ignore that to avoid moving the user's view.
     alreadyMovedMap = true;

@@ -475,58 +475,16 @@ function enableWABGrid(show) {
     }
 }
 
-// Add WAB graphics to the layer for the given square, using the given grid system ("GB", "IE" or "CI") and the required
-// level of detail.
-function addWABGraphicsForSquare(squareRef, gridSystem, detailLevel) {
-    let swCorner, nwCorner, neCorner, seCorner, centre;
-    if (gridSystem === "GB") {
-        // Britain
-        swCorner = osgbGridRefToLatLon(squareRef + " 00000 00000");
-        nwCorner = osgbGridRefToLatLon(squareRef + " 99999 00000");
-        neCorner = osgbGridRefToLatLon(squareRef + " 99999 99999");
-        seCorner = osgbGridRefToLatLon(squareRef + " 00000 99999");
-        centre = osgbGridRefToLatLon(squareRef + " 50000 50000");
-    } else if (gridSystem === "IE") {
-        // Ireland
-        swCorner = osieGridRefToLatLon(squareRef + " 00000 00000");
-        nwCorner = osieGridRefToLatLon(squareRef + " 99999 00000");
-        neCorner = osieGridRefToLatLon(squareRef + " 99999 99999");
-        seCorner = osieGridRefToLatLon(squareRef + " 00000 99999");
-        centre = osieGridRefToLatLon(squareRef + " 50000 50000");
-    } else {
-        // Channel islands
-        swCorner = ciGridRefToLatLon(squareRef + " 00000 00000");
-        nwCorner = ciGridRefToLatLon(squareRef + " 99999 00000");
-        neCorner = ciGridRefToLatLon(squareRef + " 99999 99999");
-        seCorner = ciGridRefToLatLon(squareRef + " 00000 99999");
-        centre = ciGridRefToLatLon(squareRef + " 50000 50000");
-    }
-
-    // Draw large squares at detail level 0 or 1
-    if (detailLevel === 0 || detailLevel === 1) {
-        let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
-        wabGrid.addLayer(square);
-    }
-
-    // Draw large square labels at detail level 1
-    if (detailLevel === 1) {
-        let label = new L.marker(centre, {
-            icon: new L.DivIcon({
-                html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
-            })
-        });
-        wabGrid.addLayer(label);
-    }
-}
-
 // Regenerates the WAB grid layer based on the current zoom level, if it is showing.
 function regenerateWABGridLayer() {
-    if (showWABGrid && osGridLibrary && ieGridLibrary) {
+    if (showWABGrid && osGridLibrary && ieGridLibrary && utmLibrary) {
         // Determine detail level based on current map zoom.
-        const detailLevel = (map.getZoom() > 4) ? 1 : 0;
+        const detailLevel = (map.getZoom() > 4) ? (map.getZoom() > 8) ? 2 : 1 : 0;
 
-        // Check if we need to regenerate the layer
-        if (detailLevel !== wabLayerLastDetailLevel) {
+        // Check if we need to regenerate the layer. This is whenever we are changing detail level, or every time if
+        // detail level = 2, because we redraw only the subset of grid squares that are on screen to save processing
+        // time, but the tradeoff is we must regenerate them on every move/zoom event.
+        if (detailLevel !== wabLayerLastDetailLevel || detailLevel === 2) {
             wabLayerLastDetailLevel = detailLevel;
 
             // Need to regenerate, so clear existing content
@@ -543,7 +501,73 @@ function regenerateWABGridLayer() {
                 addWABGraphicsForSquare(squareRef, "CI", detailLevel);
             });
         }
-        // @todo high zoom = get screen corners, extend a bit, generate small WAB squares for only area on screen
+    }
+}
+
+// Add WAB graphics to the layer for the given square, using the given grid system ("GB", "IE" or "CI") and the required
+// level of detail.
+function addWABGraphicsForSquare(squareRef, gridSystem, detailLevel) {
+    if (detailLevel === 0 || detailLevel === 1) {
+        // If detail level is 0 or 1, we want a single large square.
+        const swCorner = gridRefToLatLon(squareRef + " 00000 00000", gridSystem);
+        const nwCorner = gridRefToLatLon(squareRef + " 99999 00000", gridSystem);
+        const neCorner = gridRefToLatLon(squareRef + " 99999 99999", gridSystem);
+        const seCorner = gridRefToLatLon(squareRef + " 00000 99999", gridSystem);
+        const centre = gridRefToLatLon(squareRef + " 50000 50000", gridSystem);
+
+        let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+        wabGrid.addLayer(square);
+
+        // Additionally if detail level is 1, we want to label it.
+        if (detailLevel === 1) {
+            let label = new L.marker(centre, {
+                icon: new L.DivIcon({
+                    html: "<div class='wabSquareLabel'>" + squareRef + "</div>",
+                })
+            });
+            wabGrid.addLayer(label);
+        }
+
+    } else if (detailLevel === 2) {
+        // If detail level is 2, we want to generate all the inner squares (with labels)
+        // instead of just one square. But, doing this for every square will cause CPU issues,
+        // so we only want to generate graphics if they would actually end up on screen.
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 10; j++) {
+                const swCorner = gridRefToLatLon(squareRef + " " + i + "0000 " + j + "0000", gridSystem);
+                const nwCorner = gridRefToLatLon(squareRef + " " + i + "9999 " + j + "0000", gridSystem);
+                const neCorner = gridRefToLatLon(squareRef + " " + i + "9999 " + j + "9999", gridSystem);
+                const seCorner = gridRefToLatLon(squareRef + " " + i + "0000 " + j + "9999", gridSystem);
+                const centre = gridRefToLatLon(squareRef + " " + i + "5000 " + j + "5000", gridSystem);
+
+                // Find out if this box is going to be on our screen. If not, don't draw anything.
+                if (map.getBounds().contains(swCorner) || map.getBounds().contains(nwCorner)
+                || map.getBounds().contains(neCorner) || map.getBounds().contains(seCorner)) {
+                    let square = L.polygon([swCorner, nwCorner, neCorner, seCorner], {color: 'grey'});
+                    wabGrid.addLayer(square);
+
+                    let label = new L.marker(centre, {
+                        icon: new L.DivIcon({
+                            html: "<div class='wabSquareLabelLong'>" + squareRef + i + j + "</div>",
+                        })
+                    });
+                    wabGrid.addLayer(label);
+                }
+            }
+        }
+    }
+}
+
+// Convert the given grid reference to lat/lon, using the given grid system ("GB", "IE" or "CI")
+function gridRefToLatLon(grid, gridSystem) {
+    if (gridSystem === "GB") {
+        return osgbGridRefToLatLon(grid);
+    } else if (gridSystem === "IE") {
+        return osieGridRefToLatLon(grid);
+    } else if (gridSystem === "CI") {
+        return ciGridRefToLatLon(grid);
+    } else {
+        return null;
     }
 }
 

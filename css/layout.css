@@ -169,6 +169,12 @@ input.respotCommentBox {
 .wabSquareLabel {
     position: relative;
     top: -50%;
-    left: -25%;
+    left: -50%;
+    text-align: center;
+}
+.wabSquareLabelLong {
+    position: relative;
+    top: -50%;
+    left: -100%;
     text-align: center;
 }
