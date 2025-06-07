@@ -41,17 +41,18 @@ function setUpMap() {
 
     // Add Maidenhead grid (toggleable)
     maidenheadGrid = L.maidenhead({
-        color : 'rgba(0, 0, 0, 0.4)'
+        color : 'rgba(200, 140, 140, 1.0)'
     });
     if (showMaidenheadGrid) {
         maidenheadGrid.addTo(map);
     }
 
     // Add WAB square layer (toggleable)
-    wabGrid = new L.LayerGroup();
+    wabGrid = L.workedAllBritain({
+        color : 'rgba(140, 140, 200, 1.0)'
+    });
     if (showWABGrid) {
         wabGrid.addTo(map);
-        regenerateWABGridLayer();
     }
 
     // Display a default view. Soon a geolocation request will happen, which will display the own
@@ -69,13 +70,11 @@ function setUpMap() {
 }
 
 // Callback on map projection (pan/zoom) change. Used to update the list of
-// spots needing to be drawn on the band popout, and redraw the WAB later,
-// if either is visible
+// spots needing to be drawn on the band popout.
 function mapProjChanged() {
     if ($("#bandsPanel").is(":visible")) {
         recalculateBandsPanelContent();
     }
-    regenerateWABGridLayer();
     // Record that the projection changed. If this happens before initial "zoom to my location",
     // we ignore that to avoid moving the user's view.
     alreadyMovedMap = true;

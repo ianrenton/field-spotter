@@ -166,15 +166,6 @@ input.respotCommentBox {
 }
 
 /* Leaflet features */
-.wabSquareLabel {
-    position: relative;
-    top: -50%;
-    left: -50%;
-    text-align: center;
-}
-.wabSquareLabelLong {
-    position: relative;
-    top: -50%;
-    left: -100%;
-    text-align: center;
+.wabSquareLabel, .wabSquareLabelLong {
+    font-size: 80%;
 }

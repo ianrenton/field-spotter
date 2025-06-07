@@ -10,8 +10,6 @@ Read more about the project at [https://ianrenton.com/projects/field-spotter](ht
 
 ### Third Party Libraries
 
-The project contains self-hosted modified copies of classes from Chris Veness' [Geodesy library](https://github.com/chrisveness/geodesy/): `/js/modules/osgridref.js`, `/js/modules/iegridref.js` and `/js/modules/utm_ci.js`. These have been modified allow the "OV" square for OSGB, to support the Irish grid system, and add parsing of Channel Islands grid references, for use with the Worked All Britain squares layer. This is subject to the MIT licence.
-
 The project contains a self-hosted copy of Font Awesome's free library, in the `/fa/` directory. This is subject to Font Awesome's licence and is not covered by the overall licence declared in the `LICENSE` file. This approach was taken in preference to using their hosted kits due to the popularity of this project exceeding the page view limit for their free hosted offering.
 
 Other third party libraries, such as Leaflet and jQuery, plus many plugins for them, are included from a CDN in the head of `index.html`.

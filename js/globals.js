@@ -34,9 +34,6 @@ const BANDS = [
     {name: "70cm", startFreq: 420.0, stopFreq: 450.0, color: "#999900", contrastColor: "white"},
     {name: "23cm", startFreq: 1240.0, stopFreq: 1325.0, color: "#5AB8C7", contrastColor: "black"},
     {name: "13cm", startFreq: 2300.0, stopFreq: 2450.0, color: "#FF7F50", contrastColor: "black"}];
-const WAB_SQUARES_LARGE_GB = ["HP", "HT", "HU", "HW", "HX", "HY", "HZ", "NA", "NB", "NC", "ND", "NF", "NG", "NH", "NJ", "NK", "NL", "NM", "NN", "NO", "NR", "NS", "NT", "NU", "NW", "NX", "NY", "NZ", "OV", "SC", "SD", "SE", "SH", "SJ", "SK", "SM", "SN", "SO", "SP", "SR", "SS", "ST", "SU", "SV", "SW", "SX", "SY", "SZ", "TA", "TF", "TG", "TL", "TM", "TR", "TQ", "TV"];
-const WAB_SQUARES_LARGE_NI = ["C", "D", "G", "H", "J"];
-const WAB_SQUARES_LARGE_CI = ["WA", "WV"];
 
 
 /////////////////////////////
@@ -61,7 +58,6 @@ let lastSeenSOTAAPIEpoch = "";
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
 let alreadyMovedMap = false;
-let wabLayerLastDetailLevel = -1; // track changes in detail level required based on map zoom
 const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 
@@ -96,50 +92,3 @@ let webSDRKiwiMode = false;
 let respottingEnabled = false;
 let myCallsign = ""; // For spotting
 let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.
-
-
-/////////////////////////////
-//     OS GRID LIBRARY     //
-/////////////////////////////
-
-// There is an open source library for transforming between WGS84 and Ordnance Survey grid references,
-// but it is only available as a module, so we need some workarounds to load it in our non-modular code.
-// It's loaded dynamically so we need to handle when it finishes loading asynchronously. We also wrap
-// its functions in our own (in utility-funcs.js) to avoid having to interact with the module's exports
-// directly from other places.
-let osGridLibrary;
-import("./modules/osgridref.js")
-    .then(module => {
-        osGridLibrary = module;
-        if (ieGridLibrary && utmLibrary) {
-            regenerateWABGridLayer();
-        }
-    })
-    .catch(error => {
-        console.log("Error loading OS Grid Ref library, GB WAB squares may not be available.");
-        console.log(error);
-    });
-let ieGridLibrary;
-import("./modules/iegridref.js")
-    .then(module => {
-        ieGridLibrary = module;
-        if (osGridLibrary && utmLibrary) {
-            regenerateWABGridLayer();
-        }
-    })
-    .catch(error => {
-        console.log("Error loading IE Grid Ref library, NI WAB squares may not be available.");
-        console.log(error);
-    });
-let utmLibrary;
-import("./modules/utm_ci.js")
-    .then(module => {
-        utmLibrary = module;
-        if (osGridLibrary && ieGridLibrary) {
-            regenerateWABGridLayer();
-        }
-    })
-    .catch(error => {
-        console.log("Error loading UTM library, Channel Islands WAB squares may not be available.");
-        console.log(error);
-    });

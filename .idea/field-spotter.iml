@@ -26,5 +26,6 @@
     <orderEntry type="library" name="proj4js" level="application" />
     <orderEntry type="library" name="@joergdietrich/leaflet.terminator" level="application" />
     <orderEntry type="library" name="overlapping-marker-spiderfier-leaflet" level="application" />
+    <orderEntry type="library" name="L.WorkedAllBritain" level="application" />
   </component>
 </module>
