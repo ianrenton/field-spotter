@@ -428,7 +428,7 @@ function setDarkMode(newDarkMode) {
     }
     if (showWABGrid) {
         map.removeLayer(wabGrid);
-        enableWABGrid(showWABGrid);
+        wabGrid.addTo(map);
         backgroundTileLayer.bringToBack();
     }
 
