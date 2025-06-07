@@ -384,6 +384,16 @@ $("#showMaidenheadGrid").change(function () {
     enableMaidenheadGrid($(this).is(':checked'));
 });
 
+// Show CQ zone overlay
+$("#showCQZones").change(function () {
+    enableCQZones($(this).is(':checked'));
+});
+
+// Show ITU zone overlay
+$("#showITUZones").change(function () {
+    enableITUZones($(this).is(':checked'));
+});
+
 // Show WAB grid overlay
 $("#showWABGrid").change(function () {
     enableWABGrid($(this).is(':checked'));

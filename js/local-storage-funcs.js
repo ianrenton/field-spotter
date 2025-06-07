@@ -117,6 +117,16 @@ function loadLocalStorage() {
     $("#showMaidenheadGrid").prop('checked', showMaidenheadGrid);
     enableMaidenheadGrid(showMaidenheadGrid);
 
+    // CQ zone overlay
+    showCQZones = localStorageGetOrDefault('showCQZones', showCQZones);
+    $("#showCQZones").prop('checked', showCQZones);
+    enableCQZones(showCQZones);
+
+    // ITU zone overlay
+    showITUZones = localStorageGetOrDefault('showITUZones', showITUZones);
+    $("#showITUZones").prop('checked', showITUZones);
+    enableITUZones(showITUZones);
+
     // WAB grid overlay
     showWABGrid = localStorageGetOrDefault('showWABGrid', showWABGrid);
     $("#showWABGrid").prop('checked', showWABGrid);

@@ -401,15 +401,29 @@ function setDarkMode(newDarkMode) {
     $("#map").css('background-color', darkMode ? "black" : "white");
 
     if (newDarkMode) {
-        maidenheadGrid.options.color = 'rgba(120, 60, 60, 1.0)';
-        wabGrid.options.color = 'rgba(60, 60, 120, 1.0)';
+        maidenheadGrid.options.color = MAIDENHEAD_GRID_COLOR_DARK;
+        cqZones.options.color = CQ_ZONES_COLOR_DARK;
+        ituZones.options.color = ITU_ZONES_COLOR_DARK;
+        wabGrid.options.color = WAB_GRID_COLOR_DARK;
     } else {
-        maidenheadGrid.options.color = 'rgba(200, 140, 140, 1.0)';
-        wabGrid.options.color = 'rgba(140, 140, 200, 1.0)';
+        maidenheadGrid.options.color = MAIDENHEAD_GRID_COLOR_LIGHT;
+        cqZones.options.color = CQ_ZONES_COLOR_LIGHT;
+        ituZones.options.color = ITU_ZONES_COLOR_LIGHT;
+        wabGrid.options.color = WAB_GRID_COLOR_LIGHT;
     }
     if (showMaidenheadGrid) {
         map.removeLayer(maidenheadGrid);
         maidenheadGrid.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+    if (showCQZones) {
+        map.removeLayer(cqZones);
+        cqZones.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+    if (showITUZones) {
+        map.removeLayer(ituZones);
+        ituZones.addTo(map);
         backgroundTileLayer.bringToBack();
     }
     if (showWABGrid) {
@@ -457,6 +471,36 @@ function enableMaidenheadGrid(show) {
             backgroundTileLayer.bringToBack();
         } else {
             map.removeLayer(maidenheadGrid);
+        }
+    }
+}
+
+// Shows/hides the CQ zone overlay
+function enableCQZones(show) {
+    showCQZones = show;
+    localStorage.setItem('showCQZones', show);
+
+    if (cqZones) {
+        if (show) {
+            cqZones.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(cqZones);
+        }
+    }
+}
+
+// Shows/hides the ITU zone overlay
+function enableITUZones(show) {
+    showITUZones = show;
+    localStorage.setItem('showITUZones', show);
+
+    if (ituZones) {
+        if (show) {
+            ituZones.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(ituZones);
         }
     }
 }

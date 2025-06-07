@@ -41,15 +41,31 @@ function setUpMap() {
 
     // Add Maidenhead grid (toggleable)
     maidenheadGrid = L.maidenhead({
-        color : 'rgba(200, 140, 140, 1.0)'
+        color : MAIDENHEAD_GRID_COLOR_LIGHT
     });
     if (showMaidenheadGrid) {
         maidenheadGrid.addTo(map);
     }
 
+    // Add CQ zone layer (toggleable)
+    cqZones = L.cqzones({
+        color : CQ_ZONES_COLOR_LIGHT
+    });
+    if (showCQZones) {
+        cqZones.addTo(map);
+    }
+
+    // Add ITU zone layer (toggleable)
+    ituZones = L.ituzones({
+        color : ITU_ZONES_COLOR_LIGHT
+    });
+    if (showITUZones) {
+        ituZones.addTo(map);
+    }
+
     // Add WAB square layer (toggleable)
     wabGrid = L.workedAllBritain({
-        color : 'rgba(140, 140, 200, 1.0)'
+        color : WAB_GRID_COLOR_LIGHT
     });
     if (showWABGrid) {
         wabGrid.addTo(map);

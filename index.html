@@ -46,7 +46,11 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
     <script src="https://cdn.jsdelivr.net/npm/@joergdietrich/leaflet.terminator@1.1.0/L.Terminator.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.15.0/proj4.js"></script>
+    <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/text-image/dist/text-image.js"></script>
     <script src="https://ha8tks.github.io/Leaflet.Maidenhead/src/L.Maidenhead.js"></script>
+    <script src="https://ha8tks.github.io/Leaflet.ITUzones/src/L.ITUzones.js"></script>
+    <script src="https://ha8tks.github.io/Leaflet.CQzones/src/L.CQzones.js"></script>
     <script src="https://ianrenton.github.io/Leaflet.WorkedAllBritain/L.WorkedAllBritain.js"></script>
 
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
@@ -217,6 +221,14 @@
                         <input type="checkbox" id="showMaidenheadGrid" name="showMaidenheadGrid" checked="checked">&nbsp;Show Maidenhead grid</label></td>
                 </tr>
                 <tr>
+                    <td><label for="showCQZones" class="configLabel">
+                        <input type="checkbox" id="showCQZones" name="showCQZones" checked="checked">&nbsp;Show CQ zones</label></td>
+                </tr>
+                <tr>
+                    <td><label for="showITUZones" class="configLabel">
+                        <input type="checkbox" id="showITUZones" name="showITUZones" checked="checked">&nbsp;Show ITU zones</label></td>
+                </tr>
+                <tr>
                     <td><label for="showWABGrid" class="configLabel">
                         <input type="checkbox" id="showWABGrid" name="showWABGrid" checked="checked">&nbsp;Show WAB grid</label></td>
                 </tr>
@@ -246,9 +258,9 @@
                 <tr>
                     <td><span id="ownPosOverrideConfig">
                         <label id="ownPosOverrideLatLabel" for="ownPosOverrideLat" class="configLabel" style="margin-left: 1.7em; margin-right: 0.5em;">Lat:&nbsp;
-                            <input type="text" id="ownPosOverrideLat" class="textBox" name="ownPosOverrideLat" placeholder="50.123" style="width: 6em;"></label>
+                            <input type="text" id="ownPosOverrideLat" class="textBox" name="ownPosOverrideLat" placeholder="50.123" style="width: 5em;"></label>
                         <label id="ownPosOverrideLonLabel" for="ownPosOverrideLon" class="configLabel" style="margin-left: 0; margin-right: 0.5em;">Lon:&nbsp;
-                            <input type="text" id="ownPosOverrideLon" class="textBox" name="ownPosOverrideLon" placeholder="-1.456" style="width: 6em;"></label>
+                            <input type="text" id="ownPosOverrideLon" class="textBox" name="ownPosOverrideLon" placeholder="-1.456" style="width: 5em;"></label>
                         <button id="ownPosOverrideSetButton" class="configButton">Set</button></span></td>
                 </tr>
             </table>

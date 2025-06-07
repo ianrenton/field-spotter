@@ -17,6 +17,14 @@ const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q="
 const BASEMAP_LIGHT = "CartoDB.Voyager";
 const BASEMAP_DARK = "CartoDB.DarkMatter";
 const BASEMAP_OPACITY = 1.0;
+const MAIDENHEAD_GRID_COLOR_LIGHT = 'rgba(200, 140, 140, 1.0)';
+const CQ_ZONES_COLOR_LIGHT = 'rgba(140, 200, 140, 1.0)';
+const ITU_ZONES_COLOR_LIGHT = 'rgba(200, 200, 140, 1.0)';
+const WAB_GRID_COLOR_LIGHT = 'rgba(140, 140, 200, 1.0)';
+const MAIDENHEAD_GRID_COLOR_DARK = 'rgba(120, 60, 60, 1.0)';
+const CQ_ZONES_COLOR_DARK = 'rgba(60, 120, 60, 1.0)';
+const ITU_ZONES_COLOR_DARK = 'rgba(120, 120, 60, 1.0)';
+const WAB_GRID_COLOR_DARK = 'rgba(60, 60, 120, 1.0)';
 const BANDS = [
     {name: "160m", startFreq: 1.8, stopFreq: 2.0, color: "#7cfc00", contrastColor: "black"},
     {name: "80m", startFreq: 3.5, stopFreq: 4.0, color: "#e550e5", contrastColor: "black"},
@@ -54,6 +62,8 @@ let globalPopup;
 let terminator;
 let maidenheadGrid;
 let wabGrid;
+let cqZones;
+let ituZones;
 let lastSeenSOTAAPIEpoch = "";
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
@@ -80,6 +90,8 @@ let passiveDisplay = false;
 let enableAnimation = true;
 let showTerminator = true;
 let showMaidenheadGrid = false;
+let showCQZones = false;
+let showITUZones = false;
 let showWABGrid = false;
 let linkToCallsignLookupServiceEnabled = true;
 let linkToProgramRefEnabled = true;
