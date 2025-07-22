@@ -6,8 +6,8 @@
 // not endlessly use more memory if the software is left running.
 function cleanDataStore() {
     // Clear existing POTA spots from the internal list
-    Object.keys(spots).forEach(function (uid) {
-        if (moment().diff(spots[uid].time, 'hours') > 1) {
+    spots.forEach(function (spot, uid) {
+        if (moment().diff(spot.time, 'minutes') > 60) {
             spots.delete(uid);
         }
     });
