@@ -65,6 +65,7 @@ let wabGrid;
 let cqZones;
 let ituZones;
 let lastSeenSOTAAPIEpoch = "";
+let eventSourceWWBOTAAPI = null;
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
 let alreadyMovedMap = false;

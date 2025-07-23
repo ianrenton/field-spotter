@@ -137,26 +137,38 @@ function fetchGMAData() {
 
 // Fetch WWBOTA data, updating the internal data model and the map on success
 function fetchWWBOTAData() {
-    if (programs.includes("Bunkers")) {
+    if (programs.includes("Bunkers") && (!eventSourceWWBOTAAPI || eventSourceWWBOTAAPI.readyState === EventSource.CLOSED)) {
         $("span#wwbotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
-        $.ajax({
-            url: WWBOTA_SPOTS_URL,
-            dataType: 'json',
-            timeout: 10000,
-            success: async function (result) {
-                handleWWBOTAData(result);
-                cleanDataStore();
-                removeDuplicates();
-                markPreQSYSpots();
-                updateMapObjects();
-                $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
-            },
-            error: function () {
-                $("span#wwbotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
-            }
-        });
-    } else {
+        eventSourceWWBOTAAPI = new EventSource(WWBOTA_SPOTS_URL);
+
+        eventSourceWWBOTAAPI.onopen = () => {
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+        }
+
+        // Debounce to stop multiple calls on initial load
+        // due to multiple on message events.
+        const cleanDataAndUpdateMap = debounce(() => {
+            cleanDataStore();
+            removeDuplicates();
+            markPreQSYSpots();
+            updateMapObjects();
+        }, 100);
+        eventSourceWWBOTAAPI.onmessage = (event) => {
+            const result = JSON.parse(event.data)
+            handleWWBOTAData(result);
+            cleanDataAndUpdateMap();
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+        }
+
+        eventSourceWWBOTAAPI.onerror = () => {
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+            // Wait for usual fetchData loop to reconnect if readyState is CLOSED
+        }
+    } else if (!programs.includes("Bunkers")) {
         $("span#wwbotaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+        if (eventSourceWWBOTAAPI && eventSourceWWBOTAAPI.readyState !== EventSource.CLOSED) {
+            eventSourceWWBOTAAPI.close();
+        }
     }
 }
 
@@ -369,42 +381,39 @@ function updateGMASpot(uid, cacheKey, apiResponse) {
 }
 
 // Interpret WWBOTA data and update the internal data model
-function handleWWBOTAData(result) {
-    // Add the retrieved spots to the list
-    let spotUpdate = objectToMap(result);
-    spotUpdate.forEach(spot => {
-        // WWBOTA API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
-        const uid = "WWBOTA-" + hashCode(spot);
-        const newSpot = {
-            uid: uid,
-            activator: spot.call,
-            mode: normaliseMode(spot.mode, spot.comment),
-            freq: spot.freq,
-            band: freqToBand(spot.freq),
-            time: moment.utc(spot.time),
-            comment: filterComment(spot.comment),
+function handleWWBOTAData(spot) {
+    // Add the received spot to the list
+    // WWBOTA API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
+    const uid = "WWBOTA-" + hashCode(spot);
+    const newSpot = {
+        uid: uid,
+        activator: spot.call,
+        mode: normaliseMode(spot.mode, spot.comment),
+        freq: spot.freq,
+        band: freqToBand(spot.freq),
+        time: moment.utc(spot.time),
+        comment: filterComment(spot.comment),
 
-            // WWBOTA spots can contain multiple references for bunkers being activated simultaneously.
-            // Field Spotter doesn't really have a way of handling this and in any case the markers would be on top
-            // of each other at Field Spotter's zoom level, so just take the first one as the reference. The comment
-            // field will probably contain the other references anyway, as it does for POTA etc.
-            lat: spot.references[0].lat,
-            lon: spot.references[0].long,
-            ref: spot.references[0].reference,
-            refName: spot.references[0].name,
+        // WWBOTA spots can contain multiple references for bunkers being activated simultaneously.
+        // Field Spotter doesn't really have a way of handling this and in any case the markers would be on top
+        // of each other at Field Spotter's zoom level, so just take the first one as the reference. The comment
+        // field will probably contain the other references anyway, as it does for POTA etc.
+        lat: spot.references[0].lat,
+        lon: spot.references[0].long,
+        ref: spot.references[0].reference,
+        refName: spot.references[0].name,
 
-            // Check for QRT. The API gives us this in the "type" field.
-            qrt: spot.type === "QRT",
-            // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
-            preqsy: false,
-            program: "Bunkers"
-        };
+        // Check for QRT. The API gives us this in the "type" field.
+        qrt: spot.type === "QRT",
+        // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+        preqsy: false,
+        program: "Bunkers"
+    };
 
-        // Add to the spots list, but reject it if the spot type is "Test".
-        if (spot.type !== "Test") {
-            spots.set(uid, newSpot);
-        }
-    });
+    // Add to the spots list, but reject it if the spot type is "Test".
+    if (spot.type !== "Test") {
+        spots.set(uid, newSpot);
+    }
 }
 
 // Post a re-spot to the POTA API
