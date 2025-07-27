@@ -164,3 +164,8 @@ input.respotCommentBox {
 .respotButton {
     margin-top: 0.1em;
 }
+
+/* Leaflet features */
+.wabSquareLabel, .wabSquareLabelLong {
+    font-size: 80%;
+}

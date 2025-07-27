@@ -16,7 +16,7 @@ function updateMapObjects() {
         // Filter for the time threshold, programs, bands and modes we are interested in.
         // Also filter out spots where comments include "QRT" (shut down), and those before
         // "QSY" (frequency change) if requested.
-        if (ageAllowedByFilters(s.time) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
+        if (ageAllowedByFilters(s.time, s.program) && programAllowedByFilters(s.program) && modeAllowedByFilters(s.mode) && bandAllowedByFilters(s.band)
             && qrtStatusAllowedByFilters(s.qrt) && preQSYStatusAllowedByFilters(s.preqsy, s.time)) {
 
             if (markers.has(s.uid) && pos != null) {
@@ -32,9 +32,13 @@ function updateMapObjects() {
                     m.bindTooltip(getPassiveDisplayTooltipText(s), {permanent: true, direction: 'top', offset: L.point(0, -40)});
                 }
 
-                // Set opacity with age
+                // Set opacity with age. Exempt Bunkers from this as respotting is not the norm, they should say live
+                // until explicitly set QRT by the operator so should not fade out.
                 let age = moment().diff(s.time, 'minutes');
-                let opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+                let opacity = 1.0;
+                if (s.program !== "Bunkers") {
+                    opacity = ((maxSpotAgeMin - age) / maxSpotAgeMin / 2.0) + 0.5;
+                }
                 m.setOpacity(opacity);
 
             } else if (pos != null) {
@@ -154,11 +158,12 @@ function recalculateBandsPanelContent() {
                     } else if (preQSYStatusShouldShowGrey(s.preqsy)) {
                         spotDivClass = "bandColSpotOld";
                     }
-                    html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'>" + s.activator + "<br/>" + (s.freq).toFixed(3);
+
+                    html += "<div class='bandColSpot " + spotDivClass + "' onClick='handleBandPanelSpotClick(\"" + s.uid + "\")'><span class='bandColSpot'>" + s.activator + "<br/><span class='bandColSpotFreq'>" + getFormattedFrequency(s.freq) + "</span>";
                     if (s.mode != null && s.mode.length > 0 && s.mode !== "Unknown") {
-                        html += " " + s.mode;
+                        html += "<span class='bandColSpotMode'>" + s.mode + "</span>";
                     }
-                    html += "</div>";
+                    html += "</span></div>";
                 });
                 html += "</li></span>";
 
@@ -217,23 +222,24 @@ function getTooltipText(s) {
     ttt += "<br/>";
 
     // Park/summit
-    if (linkToProgramRefEnabled) {
-        ttt += "<a href='" + getURLforReference(s.program, s.ref) + "' target='_blank'>";
+    let referenceURL = getURLforReference(s.program, s.ref);
+    if (linkToProgramRefEnabled && referenceURL != null) {
+        ttt += "<a href='" + referenceURL + "' target='_blank'>";
     }
     ttt += "<span style='display:inline-block; white-space: nowrap;'>";
     ttt += "<i class='fa-solid " + getIconName(s.program) + " markerPopupIcon'></i>&nbsp;";
     ttt += "<span class='popupRefName'>" + s.ref + " " + s.refName + "</span></span>";
-    if (linkToProgramRefEnabled) {
+    if (linkToProgramRefEnabled && referenceURL != null) {
         ttt += "</a>";
     }
     ttt += "<br/>";
 
     // Frequency & band
-    const urlForFreq = getURLForFrequency(s.freq);
+    const urlForFreq = getURLForFrequency(s.freq, s.mode);
     if (urlForFreq != null) {
         ttt += "<a href='" + urlForFreq + "' target='_blank'>";
     }
-    ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + s.freq.toFixed(3) + " MHz";
+    ttt += "<i class='fa-solid fa-walkie-talkie markerPopupIcon'></i>&nbsp;" + getFormattedFrequency(s.freq) + " MHz";
     if (urlForFreq != null) {
         ttt += "</a>";
     }
@@ -259,6 +265,8 @@ function getTooltipText(s) {
         let distance = L.GeometryUtil.length([myPos, spotLatLng]) / 1000.0;
         ttt += "<i class='fa-solid fa-ruler markerPopupIcon'></i>&nbsp;" + distance.toFixed(0) + "km &nbsp;&nbsp; <i class='fa-solid fa-compass markerPopupIcon'></i>&nbsp;" + bearing.toFixed(0) + "°<br/>";
     }
+    // var osRef = proj4(PROJ_WGS84, PROJ_OSGB,[s["lon"], s["lat"]]);
+    // ttt += "<br/>" + osRef;
 
     // Time
     ttt += "<i class='fa-solid fa-clock markerPopupIcon'></i>&nbsp;" + s.time.format("HH:mm UTC") + " (" + s.time.fromNow() + ")";
@@ -274,6 +282,17 @@ function getTooltipText(s) {
     }
 
     return ttt;
+}
+
+// Returns an HTML-formatted version of the frequency.
+function getFormattedFrequency(freqMHz) {
+    let mhzkhz = freqMHz.toFixed(4).slice(0, -1);
+    let hundredHz = freqMHz.toFixed(4).slice(-1);
+    if (hundredHz === "0") {
+        return mhzkhz;
+    } else {
+        return mhzkhz + "<span class='hundredhz'>" + hundredHz + "</span>";
+    }
 }
 
 // Tooltip text for the "passive mode" permanent tooltips

@@ -145,6 +145,11 @@ div.bandColSpot {
     padding: 3px;
 }
 
+span.bandColSpot {
+    vertical-align: bottom;
+    display: inline !important;
+}
+
 /*noinspection CssUnusedSymbol*/
 div.bandColSpotCurrent {
     background: var(--band-col-spot);
@@ -158,6 +163,36 @@ div.bandColSpotOld {
 /*noinspection CssUnusedSymbol*/
 div.bandColSpotSelected {
     background: var(--band-col-spot-selected);
+}
+
+/* Don't wrap frequencies */
+span.bandColSpotFreq {
+    white-space: nowrap;
+    display: inline !important;
+}
+
+/* Smaller text for the fourth decimal place of MHz that appears with frequencies if it's non-zero */
+span.hundredhz {
+    font-size: 0.8em;
+    line-height: 0.8em;
+}
+
+span.bandColSpotMode {
+    padding-left: 0.5em;
+    font-size: 0.8em;
+    line-height: 0.4em;
+}
+
+.leaflet-div-icon {
+    background-color: transparent;
+    border: none;
+}
+.gridSquareLabel {
+    position: relative;
+    top: -50%;
+    left: -100%;
+    text-align: center;
+    color: #888888;
 }
 
 /* Text/link styles */

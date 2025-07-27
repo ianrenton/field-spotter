@@ -9,6 +9,7 @@ function fetchData() {
     fetchSOTAData();
     fetchWWFFData();
     fetchGMAData();
+    fetchWWBOTAData();
     fetchPNPData();
     lastUpdateTime = moment();
 }
@@ -135,6 +136,43 @@ function fetchGMAData() {
     }
 }
 
+// Fetch WWBOTA data, updating the internal data model and the map on success
+function fetchWWBOTAData() {
+    if (programs.includes("Bunkers") && (!eventSourceWWBOTAAPI || eventSourceWWBOTAAPI.readyState === EventSource.CLOSED)) {
+        $("span#wwbotaApiStatus").html("<i class='fa-solid fa-hourglass-half'></i> Checking...");
+        eventSourceWWBOTAAPI = new EventSource(WWBOTA_SPOTS_URL);
+
+        eventSourceWWBOTAAPI.onopen = () => {
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+        }
+
+        // Debounce to stop multiple calls on initial load
+        // due to multiple on message events.
+        const cleanDataAndUpdateMap = debounce(() => {
+            cleanDataStore();
+            removeDuplicates();
+            markPreQSYSpots();
+            updateMapObjects();
+        }, 100);
+        eventSourceWWBOTAAPI.onmessage = (event) => {
+            const result = JSON.parse(event.data)
+            handleWWBOTAData(result);
+            cleanDataAndUpdateMap();
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-check'></i> OK");
+        }
+
+        eventSourceWWBOTAAPI.onerror = () => {
+            $("span#wwbotaApiStatus").html("<i class='fa-solid fa-triangle-exclamation'></i> Error!");
+            // Wait for usual fetchData loop to reconnect if readyState is CLOSED
+        }
+    } else if (!programs.includes("Bunkers")) {
+        $("span#wwbotaApiStatus").html("<i class='fa-solid fa-eye-slash'></i> Disabled");
+        if (eventSourceWWBOTAAPI && eventSourceWWBOTAAPI.readyState !== EventSource.CLOSED) {
+            eventSourceWWBOTAAPI.close();
+        }
+    }
+}
+
 // Fetch Parks n Peaks data, updating the internal data model and the map on success
 function fetchPNPData() {
     if (programs.includes("POTA") || programs.includes("SOTA") || programs.includes("WWFF")) {
@@ -165,7 +203,7 @@ function fetchPNPData() {
 // interval is configurable, so this gets called rapidly but doesn't often
 // do anything.
 function checkForUpdate() {
-    $("span#lastUpdateTime").text(lastUpdateTime.format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
+    $("span#lastUpdateTime").text(lastUpdateTime.utc().format("HH:mm UTC") + " (" + lastUpdateTime.fromNow() + ")");
     if (moment().diff(lastUpdateTime, 'minutes') >= updateIntervalMin) {
         fetchData();
     }
@@ -277,24 +315,23 @@ function updateSOTASpot(uid, cacheKey, apiResponse) {
 function handleWWFFData(result) {
     // Add the retrieved spots to the list
     let spotUpdate = objectToMap(result);
-    spotUpdate.get("RCD").forEach(spot => {
-        // WWFF API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
-        const uid = "WWFF-" + hashCode(spot);
+    spotUpdate.forEach(spot => {
+        const uid = "WWFF-" + spot.id;
         const newSpot = {
             uid: uid,
-            lat: parseFloat(spot.LAT),
-            lon: parseFloat(spot.LON),
-            ref: spot.REF,
-            refName: spot.NAME,
-            activator: spot.ACTIVATOR.toUpperCase(),
-            mode: normaliseMode(spot.MODE, spot.TEXT),
-            freq: parseFloat(spot.QRG) / 1000.0,
-            band: freqToBand(parseFloat(spot.QRG) / 1000.0),
-            time: moment.utc(spot.DATE + spot.TIME, "YYYYMMDDhhmm"),
-            comment: filterComment(spot.TEXT),
+            lat: spot.latitude,
+            lon: spot.longitude,
+            ref: spot.reference,
+            refName: spot.reference_name,
+            activator: spot.activator.toUpperCase(),
+            mode: normaliseMode(spot.mode, spot.remarks),
+            freq: spot.frequency_khz / 1000.0,
+            band: freqToBand(spot.frequency_khz / 1000.0),
+            time: moment.unix(spot.spot_time).utc(),
+            comment: filterComment(spot.remarks),
             // Check for QRT. The API does not give us this, so the best we can do is monitor spot comments for the
             // string "QRT", which is how operators typically report it.
-            qrt: (spot.TEXT != null) ? spot.TEXT.toUpperCase().includes("QRT") : false,
+            qrt: (spot.remarks != null) ? spot.remarks.toUpperCase().includes("QRT") : false,
             // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
             preqsy: false,
             program: "WWFF"
@@ -360,19 +397,49 @@ function updateGMASpot(uid, cacheKey, apiResponse) {
     // Spot might not be present in our list because it was a removed duplicate, so
     // need to check for that.
     if (updateSpot != null) {
-        // Apply an ugly hack here to delete any spots from the general GMA API that turn out to be WWFF,
-        // because we already get these from a different API.
-        if (refData.get("reftype") !== "WWFF") {
-            updateSpot.program = gmaRefTypeToProgram(refData.get("reftype"));
-            updateSpot.lat = parseFloat(refData.get("latitude"));
-            updateSpot.lon = parseFloat(refData.get("longitude"));
-            spots.set(uid, updateSpot);
-        } else {
-            spots.delete(uid);
-        }
+        updateSpot.program = gmaRefTypeToProgram(refData.get("reftype"));
+        updateSpot.lat = parseFloat(refData.get("latitude"));
+        updateSpot.lon = parseFloat(refData.get("longitude"));
+        spots.set(uid, updateSpot);
         updateMapObjects();
     }
     localStorage.setItem(cacheKey, JSON.stringify(apiResponse));
+}
+
+// Interpret WWBOTA data and update the internal data model
+function handleWWBOTAData(spot) {
+    // Add the received spot to the list
+    // WWBOTA API doesn't provide a unique spot ID, so use a hash function to create one from the source data.
+    const uid = "WWBOTA-" + hashCode(spot);
+    const newSpot = {
+        uid: uid,
+        activator: spot.call,
+        mode: normaliseMode(spot.mode, spot.comment),
+        freq: spot.freq,
+        band: freqToBand(spot.freq),
+        time: moment.utc(spot.time),
+        comment: filterComment(spot.comment),
+
+        // WWBOTA spots can contain multiple references for bunkers being activated simultaneously.
+        // Field Spotter doesn't really have a way of handling this and in any case the markers would be on top
+        // of each other at Field Spotter's zoom level, so just take the first one as the reference. The comment
+        // field will probably contain the other references anyway, as it does for POTA etc.
+        lat: spot.references[0].lat,
+        lon: spot.references[0].long,
+        ref: spot.references[0].reference,
+        refName: spot.references[0].name,
+
+        // Check for QRT. The API gives us this in the "type" field.
+        qrt: spot.type === "QRT",
+        // Set "pre QSY" status to false for now, we will work this out once the list of spots is fully populated.
+        preqsy: false,
+        program: "Bunkers"
+    };
+
+    // Add to the spots list, but reject it if the spot type is "Test".
+    if (spot.type !== "Test") {
+        spots.set(uid, newSpot);
+    }
 }
 
 // Interpret PNP data and update the internal data model

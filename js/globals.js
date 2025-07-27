@@ -4,19 +4,28 @@
 // noinspection HttpUrlsUsage
 
 const POTA_SPOTS_URL = "https://api.pota.app/spot/activator";
-const POTA_POST_SPOT_URL = "https://api.pota.app/spot"
+const POTA_POST_SPOT_URL = "https://api.pota.app/spot";
 const SOTA_SPOTS_URL = "https://api-db2.sota.org.uk/api/spots/60/all/all";
 const SOTA_SUMMIT_URL_ROOT = "https://api-db2.sota.org.uk/api/summits/";
-const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch"
-const WWFF_SPOTS_URL = "https://www.cqgma.org/api/spots/wwff/";
-const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/"
-const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?"
-const PARKSNPEAKS_SPOTS_URL = "https://www.parksnpeaks.org/api/ALL"
+const SOTA_EPOCH_URL = "https://api-db2.sota.org.uk/api/spots/epoch";
+const WWFF_SPOTS_URL = "https://spots.wwff.co/static/spots.json";
+const GMA_SPOTS_URL = "https://www.cqgma.org/api/spots/25/";
+const GMA_REF_INFO_URL_ROOT = "https://www.cqgma.org/api/ref/?";
+const WWBOTA_SPOTS_URL = "https://api.wwbota.org/spots/?age=2";
+const PARKSNPEAKS_SPOTS_URL = "https://api.cors.lol/?url=www.parksnpeaks.org/api/ALL"
 const IP_LOOKUP_URL = "https://api.ipify.org/?format=json";
 const GEOLOCATION_API_URL = "https://api.hackertarget.com/geoip/?output=json&q=";
 const BASEMAP_LIGHT = "CartoDB.Voyager";
 const BASEMAP_DARK = "CartoDB.DarkMatter";
 const BASEMAP_OPACITY = 1.0;
+const MAIDENHEAD_GRID_COLOR_LIGHT = 'rgba(200, 140, 140, 1.0)';
+const CQ_ZONES_COLOR_LIGHT = 'rgba(140, 200, 140, 1.0)';
+const ITU_ZONES_COLOR_LIGHT = 'rgba(200, 200, 140, 1.0)';
+const WAB_GRID_COLOR_LIGHT = 'rgba(140, 140, 200, 1.0)';
+const MAIDENHEAD_GRID_COLOR_DARK = 'rgba(120, 60, 60, 1.0)';
+const CQ_ZONES_COLOR_DARK = 'rgba(60, 120, 60, 1.0)';
+const ITU_ZONES_COLOR_DARK = 'rgba(120, 120, 60, 1.0)';
+const WAB_GRID_COLOR_DARK = 'rgba(60, 60, 120, 1.0)';
 const BANDS = [
     {name: "160m", startFreq: 1.8, stopFreq: 2.0, color: "#7cfc00", contrastColor: "black"},
     {name: "80m", startFreq: 3.5, stopFreq: 4.0, color: "#e550e5", contrastColor: "black"},
@@ -52,7 +61,12 @@ let ownPosMarker;
 let oms;
 let globalPopup;
 let terminator;
+let maidenheadGrid;
+let wabGrid;
+let cqZones;
+let ituZones;
 let lastSeenSOTAAPIEpoch = "";
+let eventSourceWWBOTAAPI = null;
 let currentPopupSpotUID = null;
 let currentLineToSpot = null;
 let alreadyMovedMap = false;
@@ -65,7 +79,7 @@ const onMobile = window.matchMedia('screen and (max-width: 800px)').matches;
 
 // These are all parameters that can be changed by the user by clicking buttons on the GUI,
 // and are persisted in local storage.
-let programs = ["POTA", "SOTA", "WWFF", "GMA", "IOTA", "Castles", "Lighthouses", "Mills"];
+let programs = ["POTA", "SOTA", "WWFF", "GMA", "Bunkers", "IOTA", "Castles", "Lighthouses", "Mills"];
 let modes = ["Phone", "CW", "Digi"];
 let bands = ["160m", "80m", "60m", "40m", "30m", "20m", "17m", "15m", "12m", "10m", "6m", "4m", "2m", "70cm", "23cm", "13cm"];
 let updateIntervalMin = 5;
@@ -76,11 +90,19 @@ let qsyOldSpotBehaviour = "show"; // Allowed values: "show", "grey", "10mingrace
 let darkMode = false;
 let passiveDisplay = false;
 let enableAnimation = true;
+let showTerminator = true;
+let showMaidenheadGrid = false;
+let showCQZones = false;
+let showITUZones = false;
+let showWABGrid = false;
 let linkToCallsignLookupServiceEnabled = true;
 let linkToProgramRefEnabled = true;
+let sotaLinksTo = "Sotlas" // Allowed values: "Sotlas", "Sotadata". Only honoured if linkToProgramRefEnabled = true.
 let callsignLookupService = "QRZ"; // Allowed values: "QRZ", "HamQTH". Only honoured if linkToCallsignLookupServiceEnabled = true.
 let linkToWebSDREnabled = false;
 let linkToWebSDRURL = "http://websdr.ewi.utwente.nl:8901/";
+let webSDRRequiresCWOffset = false;
+let webSDRKiwiMode = false;
 let respottingEnabled = false;
 let myCallsign = ""; // For spotting
 let ownPosOverride = null; // LatLng. Set if own position override is set or loaded from localstorage. If null, myPos will be set from browser geolocation or GeoIP lookup.

@@ -30,12 +30,46 @@ function setUpMap() {
         openSpiderfierPopup(marker);
     });
 
-    // Add terminator/greyline
+    // Add terminator/greyline (toggleable)
     terminator = L.terminator({
         interactive: false
     });
     terminator.setStyle({fillColor: '#00000050'});
-    terminator.addTo(map);
+    if (showTerminator) {
+        terminator.addTo(map);
+    }
+
+    // Add Maidenhead grid (toggleable)
+    maidenheadGrid = L.maidenhead({
+        color : MAIDENHEAD_GRID_COLOR_LIGHT
+    });
+    if (showMaidenheadGrid) {
+        maidenheadGrid.addTo(map);
+    }
+
+    // Add CQ zone layer (toggleable)
+    cqZones = L.cqzones({
+        color : CQ_ZONES_COLOR_LIGHT
+    });
+    if (showCQZones) {
+        cqZones.addTo(map);
+    }
+
+    // Add ITU zone layer (toggleable)
+    ituZones = L.ituzones({
+        color : ITU_ZONES_COLOR_LIGHT
+    });
+    if (showITUZones) {
+        ituZones.addTo(map);
+    }
+
+    // Add WAB square layer (toggleable)
+    wabGrid = L.workedAllBritain({
+        color : WAB_GRID_COLOR_LIGHT
+    });
+    if (showWABGrid) {
+        wabGrid.addTo(map);
+    }
 
     // Display a default view. Soon a geolocation request will happen, which will display the own
     // position marker and move the view to it, but this is a default for now or in case geolocation
@@ -52,7 +86,7 @@ function setUpMap() {
 }
 
 // Callback on map projection (pan/zoom) change. Used to update the list of
-// spots needing to be drawn on the band popout, if it is visible
+// spots needing to be drawn on the band popout.
 function mapProjChanged() {
     if ($("#bandsPanel").is(":visible")) {
         recalculateBandsPanelContent();

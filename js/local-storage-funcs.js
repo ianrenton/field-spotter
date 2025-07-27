@@ -28,6 +28,12 @@ function loadLocalStorage() {
     $("#showPOTA").prop('checked', programs.includes("POTA"));
     $("#showSOTA").prop('checked', programs.includes("SOTA"));
     $("#showWWFF").prop('checked', programs.includes("WWFF"));
+    $("#showGMA").prop('checked', programs.includes("GMA"));
+    $("#showBunkers").prop('checked', programs.includes("Bunkers"));
+    $("#showIOTA").prop('checked', programs.includes("IOTA"));
+    $("#showCastles").prop('checked', programs.includes("Castles"));
+    $("#showLighthouses").prop('checked', programs.includes("Lighthouses"));
+    $("#showMills").prop('checked', programs.includes("Mills"));
 
     // Modes
     modes = localStorageGetOrDefault('modes', modes);
@@ -68,11 +74,14 @@ function loadLocalStorage() {
     // Link to program page
     linkToProgramRefEnabled = localStorageGetOrDefault('linkToProgramRefEnabled', linkToProgramRefEnabled);
     $("#linkToProgramRefEnabled").prop('checked', linkToProgramRefEnabled);
+    $("#sotaLinksToRow").css("display", linkToProgramRefEnabled ? "inline-block" : "none");
+    sotaLinksTo = localStorageGetOrDefault('sotaLinksTo', sotaLinksTo);
+    $("#sotaLinksTo").val(sotaLinksTo);
 
     // Link to callsign lookup service
     linkToCallsignLookupServiceEnabled = localStorageGetOrDefault('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
     $("#linkToCallsignLookupServiceEnabled").prop('checked', linkToCallsignLookupServiceEnabled);
-    $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
+    $("#callsignLookupServiceRow").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
     callsignLookupService = localStorageGetOrDefault('callsignLookupService', callsignLookupService);
     $("#callsignLookupService").val(callsignLookupService);
 
@@ -80,8 +89,14 @@ function loadLocalStorage() {
     linkToWebSDREnabled = localStorageGetOrDefault('linkToWebSDREnabled', linkToWebSDREnabled);
     $("#linkToWebSDREnabled").prop('checked', linkToWebSDREnabled);
     $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRRequiresCWOffsetLabel").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRKiwiModeLabel").css("display", linkToWebSDREnabled ? "block" : "none");
     linkToWebSDRURL = localStorageGetOrDefault('linkToWebSDRURL', linkToWebSDRURL);
     $("#linkToWebSDRURL").val(linkToWebSDRURL);
+    webSDRRequiresCWOffset = localStorageGetOrDefault('webSDRRequiresCWOffset', webSDRRequiresCWOffset);
+    $("#webSDRRequiresCWOffset").prop('checked', webSDRRequiresCWOffset);
+    webSDRKiwiMode = localStorageGetOrDefault('webSDRKiwiMode', webSDRKiwiMode);
+    $("#webSDRKiwiMode").prop('checked', webSDRKiwiMode);
 
     // Re-spotting
     respottingEnabled = localStorageGetOrDefault('respottingEnabled', respottingEnabled);
@@ -91,6 +106,31 @@ function loadLocalStorage() {
     // My callsign (for re-spotting)
     myCallsign = localStorageGetOrDefault('myCallsign', myCallsign);
     $("#myCallsign").val(myCallsign);
+
+    // Terminator overlay
+    showTerminator = localStorageGetOrDefault('showTerminator', showTerminator);
+    $("#showTerminator").prop('checked', showTerminator);
+    enableTerminator(showTerminator);
+
+    // Maidenhead grid overlay
+    showMaidenheadGrid = localStorageGetOrDefault('showMaidenheadGrid', showMaidenheadGrid);
+    $("#showMaidenheadGrid").prop('checked', showMaidenheadGrid);
+    enableMaidenheadGrid(showMaidenheadGrid);
+
+    // CQ zone overlay
+    showCQZones = localStorageGetOrDefault('showCQZones', showCQZones);
+    $("#showCQZones").prop('checked', showCQZones);
+    enableCQZones(showCQZones);
+
+    // ITU zone overlay
+    showITUZones = localStorageGetOrDefault('showITUZones', showITUZones);
+    $("#showITUZones").prop('checked', showITUZones);
+    enableITUZones(showITUZones);
+
+    // WAB grid overlay
+    showWABGrid = localStorageGetOrDefault('showWABGrid', showWABGrid);
+    $("#showWABGrid").prop('checked', showWABGrid);
+    enableWABGrid(showWABGrid);
 
     // Dark mode
     darkMode = localStorageGetOrDefault('darkMode', darkMode);

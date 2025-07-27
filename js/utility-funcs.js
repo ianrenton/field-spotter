@@ -6,8 +6,8 @@
 // not endlessly use more memory if the software is left running.
 function cleanDataStore() {
     // Clear existing POTA spots from the internal list
-    Object.keys(spots).forEach(function (uid) {
-        if (moment().diff(spots[uid].time, 'hours') > 1) {
+    spots.forEach(function (spot, uid) {
+        if (moment().diff(spot.time, 'minutes') > 60) {
             spots.delete(uid);
         }
     });
@@ -178,6 +178,8 @@ function getIconName(program) {
         return "fa-seedling";
     } else if (program === "GMA") {
         return "fa-person-hiking";
+    } else if (program === "Bunkers") {
+        return "fa-radiation";
     } else if (program === "IOTA") {
         return "fa-umbrella-beach";
     } else if (program === "Castles") {
@@ -197,7 +199,7 @@ function normaliseMode(m, comment) {
     if (!m || m.length === 0) {
         let mode = "Unknown";
         ["CW", "PHONE", "SSB", "USB", "LSB", "FM", "DV", "DIGI", "DATA", "FT8", "FT4", "RTTY", "SSTV", "JS8"].forEach(function (test) {
-            if (comment.toUpperCase().includes(test)) {
+            if (comment && comment.toUpperCase().includes(test)) {
                 mode = test;
             }
         });
@@ -244,9 +246,21 @@ function getURLforReference(program, reference) {
     if (program === "POTA") {
         return "https://pota.app/#/park/" + reference;
     } else if (program === "SOTA") {
-        return "https://www.sotadata.org.uk/en/summit/" + reference;
+        if (sotaLinksTo === "Sotadata") {
+            return "https://www.sotadata.org.uk/en/summit/" + reference;
+        } else if (sotaLinksTo === "Sotlas") {
+            return "https://sotl.as/summits/" + reference;
+        } else {
+            return null;
+        }
     } else if (program === "WWFF") {
         return "https://wwff.co/directory/?showRef=" + reference;
+    } else if (program === "Bunkers") {
+        if (reference.substring(0,3) === "B/G") {
+            return "https://bunkerwiki.org/?s=" + reference;
+        } else {
+            return null;
+        }
     } else if (program === "GMA" || program === "IOTA" || program === "Castles" || program === "Lighthouses" || program === "Mills") {
         return "https://www.cqgma.org/zinfo.php?ref=" + reference;
     } else {
@@ -254,15 +268,39 @@ function getURLforReference(program, reference) {
     }
 }
 
-// Take a frequency, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
+// Take frequency and mode, and produce a WebSDR URL to listen in. Returns null if linkToWebSDREnabled is false.
 // Freq in MHz.
-function getURLForFrequency(freq) {
+function getURLForFrequency(freq, mode) {
     if (linkToWebSDREnabled) {
         let url = linkToWebSDRURL;
         if (url.slice(-1) === "/") {
             url = url.slice(0, -1);
         }
-        url += "/?tune=" + (freq * 1000).toFixed(0);
+
+        // If the WebSDR requires a tuning offset so that the CW signal ends up in the passband, adjust the tuning accordingly. This
+        // only applies to some SDRs (see #45) so it can be toggled by the user.
+        let freqparam = (freq * 1000).toFixed(2);
+        if (mode === "CW" && webSDRRequiresCWOffset) {
+            freqparam = ((freq * 1000)-0.75).toFixed(2);
+        }
+
+        // Usually a mode from a spot is just "SSB" if SSB is in use, rather than LSB or USB. When giving the mode to
+        // a WebSDR we need to specify USB or LSB.
+        let modeparam = mode;
+        if (mode === "SSB") {
+            if (freq > 10) {
+                modeparam = "USB";
+            } else {
+                modeparam = "LSB";
+            }
+        }
+
+        // KiwiSDR and WebSDR require different URL params
+        if (webSDRKiwiMode) {
+            url += "/?f=" + freqparam + modeparam.toLowerCase();
+        } else {
+            url += "/?tune=" + freqparam + modeparam.toUpperCase();
+        }
         return url;
     } else {
         return null;
@@ -287,9 +325,17 @@ function bandAllowedByFilters(band) {
 }
 
 // Is the spot's age allowed through the filter?
-function ageAllowedByFilters(spotTime) {
+// Note we have special handling for Bunkers. In BOTA programmes re-spotting doesn't typically happen,
+// instead the activator sets their own spot to Live for the duration of their activation, then to
+// QRT when done. So BOTA spots are allowed to live longer than the cut-off for other programmes,
+// up to a fixed age of 12 hours to cut off anyone who forgot to mark their spot as QRT.
+function ageAllowedByFilters(spotTime, program) {
     const age = moment().diff(spotTime, 'minutes');
-    return age < maxSpotAgeMin;
+    if (program !== "Bunkers") {
+        return age < maxSpotAgeMin;
+    } else {
+        return age < 720;
+    }
 }
 
 // Is the spot's QRT (shut down) status allowed through the filter?
@@ -304,8 +350,8 @@ function qrtStatusAllowedByFilters(qrt) {
 // to give such spots a 10-minute grace period, the spot time is factored in and true is returned if the
 // age of the spot is <10 minutes.
 function preQSYStatusAllowedByFilters(preqsy, spotTime) {
-    return !preqsy || showPreQSY || qsyOldSpotBehaviour === "grey"
-        || (qsyOldSpotBehaviour === "10mingrace" && moment().diff(spotTime, 'minutes') < 10);
+    return !preqsy || (showPreQSY && (qsyOldSpotBehaviour === "show" || qsyOldSpotBehaviour === "grey"
+        || (qsyOldSpotBehaviour === "10mingrace" && moment().diff(spotTime, 'minutes') < 10)));
 }
 
 // Should the spot's pre-QSY (older than latest known frequency/mode change) status result in the spot being
@@ -331,8 +377,11 @@ function getSpotUIDsInView() {
 function hashCode(spot) {
     const s = JSON.stringify(spot);
     let h = 0;
-    for (let i = 0, h = 0; i < s.length; i++)
-        h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+    for (let i = 0; i < s.length; i++) {
+        chr = s.charCodeAt(i);
+        h = ((h << 5) - h) + chr;
+        h |= 0; // Convert to 32bit integer
+    }
     return h;
 }
 
@@ -351,6 +400,38 @@ function setDarkMode(newDarkMode) {
 
     $("#map").css('background-color', darkMode ? "black" : "white");
 
+    if (newDarkMode) {
+        maidenheadGrid.options.color = MAIDENHEAD_GRID_COLOR_DARK;
+        cqZones.options.color = CQ_ZONES_COLOR_DARK;
+        ituZones.options.color = ITU_ZONES_COLOR_DARK;
+        wabGrid.options.color = WAB_GRID_COLOR_DARK;
+    } else {
+        maidenheadGrid.options.color = MAIDENHEAD_GRID_COLOR_LIGHT;
+        cqZones.options.color = CQ_ZONES_COLOR_LIGHT;
+        ituZones.options.color = ITU_ZONES_COLOR_LIGHT;
+        wabGrid.options.color = WAB_GRID_COLOR_LIGHT;
+    }
+    if (showMaidenheadGrid) {
+        map.removeLayer(maidenheadGrid);
+        maidenheadGrid.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+    if (showCQZones) {
+        map.removeLayer(cqZones);
+        cqZones.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+    if (showITUZones) {
+        map.removeLayer(ituZones);
+        ituZones.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+    if (showWABGrid) {
+        map.removeLayer(wabGrid);
+        wabGrid.addTo(map);
+        backgroundTileLayer.bringToBack();
+    }
+
     if (backgroundTileLayer != null) {
         map.removeLayer(backgroundTileLayer);
     }
@@ -362,4 +443,90 @@ function setDarkMode(newDarkMode) {
     backgroundTileLayer.bringToBack();
 
     localStorage.setItem('darkMode', darkMode);
+}
+
+// Shows/hides the terminator overlay
+function enableTerminator(show) {
+    showTerminator = show;
+    localStorage.setItem('showTerminator', show);
+
+    if (terminator) {
+        if (show) {
+            terminator.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(terminator);
+        }
+    }
+}
+
+// Shows/hides the Maidenhead grid overlay
+function enableMaidenheadGrid(show) {
+    showMaidenheadGrid = show;
+    localStorage.setItem('showMaidenheadGrid', show);
+
+    if (maidenheadGrid) {
+        if (show) {
+            maidenheadGrid.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(maidenheadGrid);
+        }
+    }
+}
+
+// Shows/hides the CQ zone overlay
+function enableCQZones(show) {
+    showCQZones = show;
+    localStorage.setItem('showCQZones', show);
+
+    if (cqZones) {
+        if (show) {
+            cqZones.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(cqZones);
+        }
+    }
+}
+
+// Shows/hides the ITU zone overlay
+function enableITUZones(show) {
+    showITUZones = show;
+    localStorage.setItem('showITUZones', show);
+
+    if (ituZones) {
+        if (show) {
+            ituZones.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(ituZones);
+        }
+    }
+}
+
+// Shows/hides the WAB grid overlay
+function enableWABGrid(show) {
+    showWABGrid = show;
+    localStorage.setItem('showWABGrid', show);
+
+    if (wabGrid) {
+        if (show) {
+            wabGrid.addTo(map);
+            backgroundTileLayer.bringToBack();
+        } else {
+            map.removeLayer(wabGrid);
+        }
+    }
+}
+
+// Debounce calls to function
+function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
 }

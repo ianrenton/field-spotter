@@ -158,6 +158,24 @@ $("#showSOTA").change(function () {
 $("#showWWFF").change(function () {
     setProgramEnable("WWFF", $(this).is(':checked'));
 });
+$("#showGMA").change(function () {
+    setProgramEnable("GMA", $(this).is(':checked'));
+});
+$("#showBunkers").change(function () {
+    setProgramEnable("Bunkers", $(this).is(':checked'));
+});
+$("#showIOTA").change(function () {
+    setProgramEnable("IOTA", $(this).is(':checked'));
+});
+$("#showCastles").change(function () {
+    setProgramEnable("Castles", $(this).is(':checked'));
+});
+$("#showLighthouses").change(function () {
+    setProgramEnable("Lighthouses", $(this).is(':checked'));
+});
+$("#showMills").change(function () {
+    setProgramEnable("Mills", $(this).is(':checked'));
+});
 
 // Modes
 function setModeEnable(type, enable) {
@@ -272,6 +290,12 @@ $("#qsyOldSpotBehaviour").change(function () {
 $("#linkToProgramRefEnabled").change(function () {
     linkToProgramRefEnabled = $(this).is(':checked');
     localStorage.setItem('linkToProgramRefEnabled', linkToProgramRefEnabled);
+    $("#sotaLinksToRow").css("display", linkToProgramRefEnabled ? "inline-block" : "none");
+    updateMapObjects();
+});
+$("#sotaLinksTo").change(function () {
+    sotaLinksTo = $(this).val();
+    localStorage.setItem('sotaLinksTo', JSON.stringify(sotaLinksTo));
     updateMapObjects();
 });
 
@@ -279,7 +303,7 @@ $("#linkToProgramRefEnabled").change(function () {
 $("#linkToCallsignLookupServiceEnabled").change(function () {
     linkToCallsignLookupServiceEnabled = $(this).is(':checked');
     localStorage.setItem('linkToCallsignLookupServiceEnabled', linkToCallsignLookupServiceEnabled);
-    $("#callsignLookupService").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
+    $("#callsignLookupServiceRow").css("display", linkToCallsignLookupServiceEnabled ? "inline-block" : "none");
     updateMapObjects();
 });
 $("#callsignLookupService").change(function () {
@@ -294,10 +318,22 @@ $("#linkToWebSDREnabled").change(function () {
     localStorage.setItem('linkToWebSDREnabled', linkToWebSDREnabled);
     updateMapObjects();
     $("#linkToWebSDRURL").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRRequiresCWOffsetLabel").css("display", linkToWebSDREnabled ? "block" : "none");
+    $("#webSDRKiwiModeLabel").css("display", linkToWebSDREnabled ? "block" : "none");
 });
 $("#linkToWebSDRURL").change(function () {
     linkToWebSDRURL = $(this).val();
     localStorage.setItem('linkToWebSDRURL', JSON.stringify(linkToWebSDRURL));
+    updateMapObjects();
+});
+$("#webSDRRequiresCWOffset").change(function () {
+    webSDRRequiresCWOffset = $(this).is(':checked');
+    localStorage.setItem('webSDRRequiresCWOffset', webSDRRequiresCWOffset);
+    updateMapObjects();
+});
+$("#webSDRKiwiMode").change(function () {
+    webSDRKiwiMode = $(this).is(':checked');
+    localStorage.setItem('webSDRKiwiMode', webSDRKiwiMode);
     updateMapObjects();
 });
 
@@ -336,6 +372,31 @@ $("#myCallsign").change(function () {
     myCallsign = $(this).val();
     localStorage.setItem('myCallsign', JSON.stringify(myCallsign));
     updateMapObjects();
+});
+
+// Show Terminator overlay
+$("#showTerminator").change(function () {
+    enableTerminator($(this).is(':checked'));
+});
+
+// Show Maidenhead grid overlay
+$("#showMaidenheadGrid").change(function () {
+    enableMaidenheadGrid($(this).is(':checked'));
+});
+
+// Show CQ zone overlay
+$("#showCQZones").change(function () {
+    enableCQZones($(this).is(':checked'));
+});
+
+// Show ITU zone overlay
+$("#showITUZones").change(function () {
+    enableITUZones($(this).is(':checked'));
+});
+
+// Show WAB grid overlay
+$("#showWABGrid").change(function () {
+    enableWABGrid($(this).is(':checked'));
 });
 
 // Dark mode
